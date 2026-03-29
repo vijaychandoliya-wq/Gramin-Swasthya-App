@@ -1,0 +1,350 @@
+--------- beginning of system
+03-19 13:21:43.460   740  1259 V WindowManager: DesktopModeLaunchParamsModifier: phase= 0 task=null activity=null display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 task null, skipping
+03-19 13:21:43.469   740  1259 V WindowManager: TaskLaunchParamsModifier:phase=0 task=null activity=null display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916
+--------- beginning of main
+03-19 13:21:43.470   740  1259 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@b95075cc does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+03-19 13:21:43.510   740   886 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 15
+03-19 13:21:43.527   740  1259 V WindowManager: DesktopModeLaunchParamsModifier: phase= 0 task=null activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 task null, skipping
+03-19 13:21:43.528   740  1259 V WindowManager: TaskLaunchParamsModifier:phase=0 task=null activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1} display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916
+03-19 13:21:43.528   740  1259 V WindowManager: DesktopModeLaunchParamsModifier: phase= 3 task=null activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1} display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 task null, skipping
+03-19 13:21:43.528   740  1259 V WindowManager: TaskLaunchParamsModifier:phase=3 task=null activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1} display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 inherit-from-source=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@122424916 skip-bounds-fullscreen
+03-19 13:21:43.561   740  1259 V WindowManager: DesktopModeLaunchParamsModifier: phase= 3 task=Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity} activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1} display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 not entering desktop mode, skipping
+03-19 13:21:43.562   740  1259 V WindowManager: TaskLaunchParamsModifier:phase=3 task=Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity} activity=ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1} display-from-option=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@122424916 inherit-from-source=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@122424916 skip-bounds-fullscreen
+03-19 13:21:43.586  1069  1197 V WindowManagerShell: Transition requested (#29): android.os.BinderProxy@686be53 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6928010 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@c8e8390} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{6241489 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@694ac8e] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@db4ecaf, appThread = android.app.IApplicationThread$Stub$Proxy@48048bc, debugName = QuickstepLaunch }, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 0, debugId = 29 }
+03-19 13:21:43.588  1069  1197 D ShellSplitScreen: logExit: no-op, mLoggerSessionId is null
+03-19 13:21:43.593   740  1259 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 xflg=0x4 cmp=com.gramin_swasthya/.MainActivity bnds=[285,921][540,1212]} with LAUNCH_SINGLE_TOP from uid 10191 (com.google.android.apps.nexuslauncher) (sr=146388100) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+03-19 13:21:43.604  1069  1197 V ShellDesktopMode: DesktopTasksController: handleRequest request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6928010 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@c8e8390} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{6241489 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@694ac8e] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@db4ecaf, appThread = android.app.IApplicationThread$Stub$Proxy@48048bc, debugName = QuickstepLaunch }, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 0, debugId = 29 }
+03-19 13:21:43.614  1069  1197 V ShellDesktopMode: DesktopTasksController: skipping handleRequest reason=triggerTask's display doesn't support desktop mode
+03-19 13:21:43.614  1069  1197 V WindowManagerShell: RemoteTransition directly requested for (#29) android.os.BinderProxy@686be53: RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@db4ecaf, appThread = android.app.IApplicationThread$Stub$Proxy@48048bc, debugName = QuickstepLaunch }
+03-19 13:21:43.614  1069  1197 V WindowManagerShell: Transition (#29): request handled by DefaultMixedHandler
+03-19 13:21:43.625  1200  1200 D StatsLog: LAUNCHER_APP_LAUNCH_TAP
+03-19 13:21:43.663  1200  1200 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused] -[state_user_active]
+03-19 13:21:43.665  1200  1200 D BaseActivity: Launcher flags updated: [state_started|state_window_focused] -[state_resumed|state_deferred_resumed]
+03-19 13:21:43.688   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.690   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.716   537   640 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for descriptor: '(not cached)'
+03-19 13:21:43.719   740   785 V GrammaticalInflectionUtils: AttributionSource: android.content.AttributionSource@b95075cc does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+03-19 13:21:43.722  1200  1200 W SplitSelectStateCtor: Missing session instanceIds
+03-19 13:21:43.723  1200  1200 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+03-19 13:21:43.729   740  1015 V WindowManager: Defer transition id=29 for TaskFragmentTransaction=android.os.Binder@5286585
+03-19 13:21:43.729   740  1015 V WindowManager: deferTransitionReady deferReadyDepth=1 stack=com.android.server.wm.TransitionController.deferTransitionReady:1061 com.android.server.wm.TaskFragmentOrganizerController$TaskFragmentOrganizerState.dispatchTransaction:517 com.android.server.wm.TaskFragmentOrganizerController.dispatchPendingEvents:1259 com.android.server.wm.TaskFragmentOrganizerController.dispatchPendingEvents:1228 com.android.server.wm.RootWindowContainer.performSurfacePlacement:777 
+03-19 13:21:43.743  1069  1197 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=495
+03-19 13:21:43.747  1200  1200 D RecentsView: onTaskDisplayChanged: 18, new displayId = 0
+03-19 13:21:43.752   589   701 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+03-19 13:21:43.794   470   470 D Zygote  : Forked child process 8654
+03-19 13:21:43.795   740   798 W ActivityManager: Slow operation: 76ms so far, now at startProcess: returned from zygote!
+03-19 13:21:43.800   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.823   740   798 W ActivityManager: Slow operation: 104ms so far, now at startProcess: done updating battery stats
+03-19 13:21:43.823   740   798 W ActivityManager: Slow operation: 104ms so far, now at startProcess: building log message
+03-19 13:21:43.825   740   798 I ActivityManager: Start proc 8654:com.gramin_swasthya/u0a224 for next-top-activity {com.gramin_swasthya/com.gramin_swasthya.MainActivity}
+03-19 13:21:43.825   740   798 W ActivityManager: Slow operation: 106ms so far, now at startProcess: starting to update pids map
+03-19 13:21:43.827   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.845  8654  8654 I Zygote  : Process 8654 created for com.gramin_swasthya
+03-19 13:21:43.850  8654  8654 I gramin_swasthya: Late-enabling -Xcheck:jni
+03-19 13:21:43.868   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:43.868   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:43.868   740   770 V WindowManager: Continue transition id=29 for TaskFragmentTransaction=android.os.Binder@5286585
+03-19 13:21:43.868   740   770 V WindowManager: continueTransitionReady deferReadyDepth=0 stack=com.android.server.wm.TransitionController.continueTransitionReady:1071 com.android.server.wm.TaskFragmentOrganizerController$TaskFragmentOrganizerState.onTransactionFinished:546 com.android.server.wm.TaskFragmentOrganizerController.onTransactionHandled:740 android.window.ITaskFragmentOrganizerController$Stub.onTransact:225 android.os.Binder.execTransactInternal:1473 
+03-19 13:21:43.869   740   798 W ActivityManager: Slow operation: 149ms so far, now at startProcess: done updating pids map
+03-19 13:21:43.896  1069  1197 D ShellDesktopMode: DesktopRepository: Removes freeform task: taskId=17
+03-19 13:21:43.896  1069  1197 W ShellDesktopMode: DesktopRepository: No display id found for task: taskId=17
+03-19 13:21:43.902  8654  8654 I gramin_swasthya: Using CollectorTypeCMC GC.
+03-19 13:21:43.908  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:43.909  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:43.921  1200  1200 D BaseActivity: Launcher flags updated: [state_started] -[state_window_focused]
+03-19 13:21:43.926  8654  8654 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+03-19 13:21:43.928   542   562 I adbd    : jdwp connection from 8654
+03-19 13:21:43.963   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.976   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:43.976   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:43.978   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.984   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:43.993  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:44.012  1069  1081 V WindowManagerShell: onTransitionReady(transaction=3178275801172)
+03-19 13:21:44.038   740   782 V WindowManager: Sent Transition (#29) createdAt=03-19 13:21:43.478 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6928010 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{f8ed501 Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{47d2fa6 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@e360de7] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@cea7d94, appThread = android.app.IApplicationThread$Stub$Proxy@692c03d, debugName = QuickstepLaunch }, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 0, debugId = 29 }
+03-19 13:21:44.038   740   782 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] errorCallbackToken=null taskFragmentOrganizer=null }
+03-19 13:21:44.038   740   782 V WindowManager:     info={id=29 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+03-19 13:21:44.038   740   782 V WindowManager:         {WCT{RemoteToken{f8ed501 Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity}}} m=OPEN f=NONE leash=Surface(name=Task=18#344)/@0x6a9bc0b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.038   740   782 V WindowManager:         {WCT{RemoteToken{650ad5d Task{584fbe0 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1#44)/@0xc764ea5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.038   740   782 V WindowManager:         {m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{aeedab3}#60)/@0xc93249c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0}
+03-19 13:21:44.038   740   782 V WindowManager:     ]}
+03-19 13:21:44.056  1069  1197 V ShellTaskOrganizer: Task appeared taskId=18 listener=FullscreenTaskListener
+03-19 13:21:44.056  1069  1197 V ShellTaskOrganizer: Fullscreen Task Appeared: #18
+03-19 13:21:44.059  1069  1197 V WindowManagerShell: onTransitionReady (#29) android.os.BinderProxy@686be53: {id=29 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+03-19 13:21:44.059  1069  1197 V WindowManagerShell:         {m=OPEN f=NONE leash=Surface(name=Task=18#344)/@0xe1589ee sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.059  1069  1197 V WindowManagerShell:         {m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1#44)/@0xb466e8f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.059  1069  1197 V WindowManagerShell:         {m=TO_BACK f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{aeedab3}#60)/@0x446d51c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0}
+03-19 13:21:44.059  1069  1197 V WindowManagerShell:     ]}
+03-19 13:21:44.061  1069  1197 V WindowManagerShell: Playing animation for (#29) android.os.BinderProxy@686be53@0
+03-19 13:21:44.062  1069  1197 V WindowManagerShell:  try firstHandler com.android.wm.shell.transition.DefaultMixedHandler@b273c04
+03-19 13:21:44.062  1069  1197 V WindowManagerShell: Mixed transition for opening an intent with a remote transition and PIP or Desktop #29
+03-19 13:21:44.062  1069  1197 V WindowManagerShell: tryAnimateOpenIntentWithRemoteAndPipOrDesktop
+03-19 13:21:44.063  1069  1197 V WindowManagerShell:  Delegate animation for (#29) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@db4ecaf, appThread = android.app.IApplicationThread$Stub$Proxy@48048bc, debugName = QuickstepLaunch }
+03-19 13:21:44.063  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:44.065  1200  1200 D LauncherStateManager: StateManager.cancelAnimation: animation ongoing: false, partial trace:
+03-19 13:21:44.065  1200  1200 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:18)
+03-19 13:21:44.065  1200  1200 D LauncherStateManager: 	at com.android.launcher3.QuickstepTransitionManager$AppLaunchAnimationRunner.onAnimationStart(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:430)
+03-19 13:21:44.065  1200  1200 D LauncherStateManager: 	at com.android.launcher3.LauncherAnimationRunner$$ExternalSyntheticLambda2.run(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:72)
+03-19 13:21:44.073  1069  1197 V WindowManagerShell:  animated by firstHandler
+03-19 13:21:44.080   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.080   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.095  1200  1267 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=all-apps
+03-19 13:21:44.111   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.162  8654  8654 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+03-19 13:21:44.164  8654  8654 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+03-19 13:21:44.183   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.183   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.288   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.289   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.391   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.391   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.495   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.495   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.550  8654  8654 D nativeloader: Configuring clns-9 for other apk /data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/lib/arm64:/data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.gramin_swasthya
+03-19 13:21:44.562  8654  8654 V GraphicsEnvironment: Currently set values for:
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment: com.gramin_swasthya is not listed in per-application setting
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment: ANGLE allowlist from config: com.dreamgames.royalmatch com.dts.freefiremax com.dxx.firenow com.gramgames.mergedragons com.ludo.king com.mojang.minecraftpe com.my.defense com.nintendo.zaka com.os.airforce com.playrix.fishdomdd.gplay io.teslatech.callbreak jp.konami.prospia net.peakgames.toonblast
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment: No special selections for ANGLE, returning default driver choice
+03-19 13:21:44.563  8654  8654 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+03-19 13:21:44.591  8654  8654 I FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+03-19 13:21:44.594  8654  8654 I FirebaseInitProvider: FirebaseApp initialization successful
+03-19 13:21:44.599   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.599   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.605  1069  1081 V WindowManagerShell: Received remote transition finished callback for (#29)
+03-19 13:21:44.606  1069  1197 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#29) android.os.BinderProxy@686be53@0
+03-19 13:21:44.609   740   782 V WindowManager: Finish Transition (#29): created at 03-19 13:21:43.478 collect-started=48.803ms request-sent=103.333ms started=179.489ms ready=528.089ms sent=531.178ms commit=61.577ms finished=1129.864ms
+03-19 13:21:44.610  1200  1200 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=true newVisibility=false
+03-19 13:21:44.612  1069  1484 D WallpaperService: onVisibilityChanged(false): com.android.systemui.wallpapers.ImageWallpaper$CanvasEngine@c548bb1
+03-19 13:21:44.613   740   770 I AppsFilter: interaction: PackageSetting{ec2fcf5 com.gramin_swasthya/10224} -> PackageSetting{3fbad8 com.google.android.apps.nexuslauncher/10191} BLOCKED
+03-19 13:21:44.615  1069  1197 V WindowManagerShell: Track 0 became idle
+03-19 13:21:44.615  1069  1197 V WindowManagerShell: All active transition animations finished
+03-19 13:21:44.621  1200  1200 D NexusLauncherModelDelegate: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=7}
+03-19 13:21:44.623   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.631   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.639  8654  8672 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+03-19 13:21:44.645  1069  1197 D Bubbles : onLocusVisibilityChanged=Overview|DISABLED visible=false taskId=1
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: Failed to execute the transaction: tId:1054937203 ClientTransaction{
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203   transactionItems=[
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203     LaunchActivityItem{activityToken=android.os.BinderProxy@ee42af8,intent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 xflg=0x4 cmp=com.gramin_swasthya/.MainActivity bnds=[285,921][540,1212] },ident=26309476,info=ActivityInfo{dc72fc2 com.gramin_swasthya.MainActivity},curConfig={1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h914dp 420dpi nrml long compactNeeded port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2400) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.43 fontWeightAdjustment=0},overrideConfig={1.0 310mcc260mnc [en_US] ldltr sw411dp w411dp h914dp 420dpi nrml long compactNeeded port finger qwerty/v/v dpad/v winConfig={ mBounds=Rect(0, 0 - 1080, 2400) mAppBounds=Rect(0, 0 - 1080, 2400) mMaxBounds=Rect(0, 0 - 1080, 2400) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0} s.2 fontWeightAdjustment=0},deviceId=0,referrer=null,procState=2,state=null,persistentState=null,pendingResults=null,pendingNewIntents=null,sceneTransitionInfo=null,profilerInfo=null,assistToken=android.os.BinderProxy@8fca937,shareableActivityToken=android.os.BinderProxy@6acfea4,activityWindowInfo=ActivityWindowInfo{isEmbedded=false, taskBounds=Rect(0, 0 - 1080, 2400), taskFragmentBounds=Rect(0, 0 - 1080, 2400)},displayId=0}
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203     ResumeActivityItem{mActivityToken=android.os.BinderProxy@ee42af8,procState=-1,isForward=true,shouldSendCompatFakeFocus=false}
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203     Target activity: Not found for token: android.os.BinderProxy@ee42af8
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203   ]
+03-19 13:21:44.660  8654  8654 E TransactionExecutor: tId:1054937203 }
+03-19 13:21:44.662  8654  8654 D AndroidRuntime: Shutting down VM
+--------- beginning of crash
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: FATAL EXCEPTION: main
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: Process: com.gramin_swasthya, PID: 8654
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: java.lang.RuntimeException: Unable to instantiate activity ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity}
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4403)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4699)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:224)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2961)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:132)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.os.Looper.dispatchMessage(Looper.java:333)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:263)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:367)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9287)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:566)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:929)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "com.gramin_swasthya.MainActivity" on path: DexPathList[[zip file "/data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/base.apk"],nativeLibraryDirectories=[/data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/lib/arm64, /data/app/~~wDVRS7_eiApUTAHQ7MKrIA==/com.gramin_swasthya-NszJKeyu4fh2DCSPpxU3AQ==/base.apk!/lib/arm64-v8a, /system/lib64, /system_ext/lib64]]
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:642)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:578)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateActivity(AppComponentFactory.java:97)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at androidx.core.app.CoreComponentFactory.instantiateActivity(CoreComponentFactory.java:44)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.Instrumentation.newActivity(Instrumentation.java:1458)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4392)
+03-19 13:21:44.664  8654  8654 E AndroidRuntime: 	... 14 more
+03-19 13:21:44.674   740  1259 W ActivityTaskManager:   Force finishing activity com.gramin_swasthya/.MainActivity
+03-19 13:21:44.674   740  1259 W TransitionChain: Combining AR.finish-force-crash into #30(CLOSE|R|0x10) from finishTopCrash
+03-19 13:21:44.677   740  8674 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+03-19 13:21:44.681   537   640 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for descriptor: '(not cached)'
+03-19 13:21:44.682  1069  1197 V WindowManagerShell: Transition requested (#30): android.os.BinderProxy@df3a087 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6929042 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@c8e8390} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{b0eabb4 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@694ac8e] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = null, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 16, debugId = 30 }
+03-19 13:21:44.683  1069  1197 V ShellDesktopMode: DesktopTasksController: handleRequest request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6929042 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@c8e8390} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{b0eabb4 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@694ac8e] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = null, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 16, debugId = 30 }
+03-19 13:21:44.684  1069  1197 V ShellDesktopMode: DesktopTasksController: skipping handleRequest reason=triggerTask's display doesn't support desktop mode
+03-19 13:21:44.688  1200  1200 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=false newVisibility=true
+03-19 13:21:44.690   740  1259 V WindowManager: Defer transition id=30 for TaskFragmentTransaction=android.os.Binder@17979e2
+03-19 13:21:44.690   740  1259 V WindowManager: deferTransitionReady deferReadyDepth=1 stack=com.android.server.wm.TransitionController.deferTransitionReady:1061 com.android.server.wm.TaskFragmentOrganizerController$TaskFragmentOrganizerState.dispatchTransaction:517 com.android.server.wm.TaskFragmentOrganizerController.dispatchPendingEvents:1259 com.android.server.wm.TaskFragmentOrganizerController.dispatchPendingEvents:1228 com.android.server.wm.RootWindowContainer.performSurfacePlacement:777 
+03-19 13:21:44.695  8654  8654 I Process : Sending signal. PID: 8654 SIG: 9
+03-19 13:21:44.703   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.703   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.708  1200  1200 D NexusLauncherModelDelegate: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=6}
+03-19 13:21:44.726  1069  1484 D WallpaperService: onVisibilityChanged(true): com.android.systemui.wallpapers.ImageWallpaper$CanvasEngine@c548bb1
+03-19 13:21:44.735   542   542 I adbd    : Remote process closed the socket (on MSG_PEEK)
+03-19 13:21:44.736   470   470 I Zygote  : Process 8654 exited due to signal 9 (Killed)
+03-19 13:21:44.737   740  1143 I ActivityManager: Process com.gramin_swasthya (pid 8654) has died: fg  TOP 
+03-19 13:21:44.740   740  1143 W TransitionChain: Combining appDied into #30(CLOSE|R|0x10) from finishTopCrash
+03-19 13:21:44.744   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.745   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.745   740  1010 D BackgroundInstallControlService: Package event received: 0
+03-19 13:21:44.756   740   799 I libprocessgroup: Removed cgroup /sys/fs/cgroup/apps/uid_10224/pid_8654
+03-19 13:21:44.761  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:44.761  1200  1200 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_user_active] +[state_resumed|state_user_active]
+03-19 13:21:44.762  1069  1197 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=495
+03-19 13:21:44.763   740  1121 V WindowManager: Continue transition id=30 for TaskFragmentTransaction=android.os.Binder@17979e2
+03-19 13:21:44.764   740  1121 V WindowManager: continueTransitionReady deferReadyDepth=0 stack=com.android.server.wm.TransitionController.continueTransitionReady:1071 com.android.server.wm.TaskFragmentOrganizerController$TaskFragmentOrganizerState.onTransactionFinished:546 com.android.server.wm.TaskFragmentOrganizerController.onTransactionHandled:740 android.window.ITaskFragmentOrganizerController$Stub.onTransact:225 android.os.Binder.execTransactInternal:1473 
+03-19 13:21:44.764  1200  1200 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active] +[state_deferred_resumed]
+03-19 13:21:44.765  1200  1200 D StatsLog: LAUNCHER_ONRESUME
+03-19 13:21:44.769  1200  1291 E FrameEvents: addRelease: Did not find frame.
+03-19 13:21:44.773  1200  1267 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=
+03-19 13:21:44.776  1630  1847 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+03-19 13:21:44.776  1630  1847 I AiAiEcho: EchoTargets: 
+03-19 13:21:44.776  1630  1847 I AiAiEcho: Filtered by AiAi flag check: 
+03-19 13:21:44.776  1630  1847 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+03-19 13:21:44.776  1630  1847 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+03-19 13:21:44.778  1069  6476 V WindowManagerShell: onTransitionReady(transaction=3178275801220)
+03-19 13:21:44.778  1630  1847 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+03-19 13:21:44.779  1069  1197 V WindowManagerShell: onTransitionReady (#30) android.os.BinderProxy@df3a087: {id=30 t=CLOSE f=0x10 trk=0 r=[0@Point(0, 0)] c=[
+03-19 13:21:44.779  1069  1197 V WindowManagerShell:         {m=TO_FRONT f=SHOW_WALLPAPER|MOVE_TO_TOP leash=Surface(name=Task=1#44)/@0xec823dd sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.779  1069  1197 V WindowManagerShell:         {m=CLOSE f=NONE leash=Surface(name=Task=18#344)/@0x12cb52 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.779  1069  1197 V WindowManagerShell:         {m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{aeedab3}#60)/@0x55fbe23 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0}
+03-19 13:21:44.779  1069  1197 V WindowManagerShell:     ]}
+03-19 13:21:44.783  1069  1197 V WindowManagerShell: Playing animation for (#30) android.os.BinderProxy@df3a087@0
+03-19 13:21:44.783  1069  1197 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+03-19 13:21:44.783  1069  1197 V ShellDesktopMode: DesktopMixedTransitionHandler: No pending desktop transition
+03-19 13:21:44.783  1069  1197 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=30 t=CLOSE f=0x10 trk=0 r=[0@Point(0, 0)] c=[{m=TO_FRONT f=SHOW_WALLPAPER|MOVE_TO_TOP leash=Surface(name=Task=1#44)/@0xec823dd sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},{m=CLOSE f=NONE leash=Surface(name=Task=18#344)/@0x12cb52 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},{m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{aeedab3}#60)/@0x55fbe23 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0}]}
+03-19 13:21:44.783  1069  1197 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=undefined independent=true modes=[CLOSE,TO_BACK] flags=IN_TASK_WITH_EMBEDDED_ACTIVITY mustBeTask=false order=ANY topActivity=null launchCookie=null taskFragmentToken=android.os.BinderProxy@f375808 windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@5931ba1, appThread = android.app.IApplicationThread$Stub$Proxy@19401c6, debugName = overlayBackTransition }}
+03-19 13:21:44.783  1069  1197 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@9b34587, appThread = android.app.IApplicationThread$Stub$Proxy@dedecb4, debugName = LauncherToDream }}
+03-19 13:21:44.783  1069  1197 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{NOT atype=undefined independent=true modes=[] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null customAnim=true windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@3a4d0dd, appThread = android.app.IApplicationThread$Stub$Proxy@cbe7452, debugName = QuickstepLaunchHome }}
+03-19 13:21:44.783  1069  1197 D RemoteTransitionHandler: Found filterPair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity} launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null windowingMode=undefined isCrossDisplayMove=false},{NOT atype=undefined independent=true modes=[] flags=NONE mustBeTask=true order=ANY topActivity=null launchCookie=null customAnim=true windowingMode=undefined isCrossDisplayMove=false}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@3a4d0dd, appThread = android.app.IApplicationThread$Stub$Proxy@cbe7452, debugName = QuickstepLaunchHome }}
+03-19 13:21:44.783  1069  1197 V WindowManagerShell:  Delegate animation for (#30) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@3a4d0dd, appThread = android.app.IApplicationThread$Stub$Proxy@cbe7452, debugName = QuickstepLaunchHome }
+03-19 13:21:44.785  1200  1200 D SsBaseTemplateCard: Passed-in item info is null
+03-19 13:21:44.786  1200  1200 D SsBaseTemplateCard: Passed-in item info is null
+03-19 13:21:44.786  1200  1200 D SsBaseTemplateCard: Passed-in item info is null
+03-19 13:21:44.786  1200  1200 D SsBaseTemplateCard: Passed-in item info is null
+03-19 13:21:44.786  1200  1200 I SsBaseTemplateCard: Secondary card pane is null
+03-19 13:21:44.788   740   782 V WindowManager: Sent Transition (#30) createdAt=03-19 13:21:44.674 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=18 effectiveUid=10224 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.gramin_swasthya/.MainActivity } baseActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} topActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} origActivity=null realActivity=ComponentInfo{com.gramin_swasthya/com.gramin_swasthya.MainActivity} numActivities=1 lastActiveTime=6929042 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{f8ed501 Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{47d2fa6 com.gramin_swasthya.MainActivity} launchCookies=[android.os.BinderProxy@e360de7] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatMode=undefinedundefined} topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransition = null, displayChange = null, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 16, debugId = 30 }
+03-19 13:21:44.788   740   782 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] errorCallbackToken=null taskFragmentOrganizer=null }
+03-19 13:21:44.789   740   782 V WindowManager:     info={id=30 t=CLOSE f=0x10 trk=0 r=[0@Point(0, 0)] c=[
+03-19 13:21:44.789   740   782 V WindowManager:         {WCT{RemoteToken{650ad5d Task{584fbe0 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER|MOVE_TO_TOP leash=Surface(name=Task=1#44)/@0xc764ea5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.789   740   782 V WindowManager:         {WCT{RemoteToken{f8ed501 Task{f6ec9cd #18 type=standard I=com.gramin_swasthya/.MainActivity}}} m=CLOSE f=NONE leash=Surface(name=Task=18#344)/@0x6a9bc0b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 winMode=1 userId=0},
+03-19 13:21:44.789   740   782 V WindowManager:         {m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{aeedab3}#60)/@0xc93249c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0}
+03-19 13:21:44.789   740   782 V WindowManager:     ]}
+03-19 13:21:44.795  1200  1200 D LauncherStateManager: StateManager.cancelAnimation: animation ongoing: false, partial trace:
+03-19 13:21:44.795  1200  1200 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.setCurrentAnimation(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:18)
+03-19 13:21:44.795  1200  1200 D LauncherStateManager: 	at com.android.launcher3.QuickstepTransitionManager.createWallpaperOpenAnimations(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:646)
+03-19 13:21:44.795  1200  1200 D LauncherStateManager: 	at com.android.launcher3.QuickstepTransitionManager$WallpaperOpenLauncherAnimationRunner.onAnimationStart(go/retraceme f3a19d912c87c27267cfbc05ba0bc7b202ab72a6648bd76225f5f7e128d94583:96)
+03-19 13:21:44.797  1200  1200 D b/311077782: LauncherAnimationRunner.setAnimation
+03-19 13:21:44.799  1069  1197 V WindowManagerShell:  animated by com.android.wm.shell.transition.RemoteTransitionHandler@c08ab13
+03-19 13:21:44.801   489   504 I RanchuHwc: logCompositionFallbackIfChanged: layer 52 CompositionType fallback from 2 to 1
+03-19 13:21:44.807   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.807   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.807  1200  1200 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused|state_user_active] +[state_window_focused]
+03-19 13:21:44.810  1069  1197 D Bubbles : onLocusVisibilityChanged=Overview|DISABLED visible=true taskId=1
+03-19 13:21:44.811   740   920 I ImeTracker: com.google.android.apps.nexuslauncher:2e686520: onRequestHide at ORIGIN_SERVER reason HIDE_SAME_WINDOW_FOCUSED_WITHOUT_EDITOR fromUser false
+03-19 13:21:44.811  1200  1200 D InsetsController: hide(ime())
+03-19 13:21:44.811  1200  1200 I ImeTracker: com.google.android.apps.nexuslauncher:2e686520: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+03-19 13:21:44.828   589  5701 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+03-19 13:21:44.832  1501  1501 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2057 
+03-19 13:21:44.845  1501  1501 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
+03-19 13:21:44.848  1501  1501 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1318 onStartInput(EditorInfo{EditorInfo{packageName=com.google.android.apps.nexuslauncher, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+03-19 13:21:44.861  1501  1501 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+03-19 13:21:44.872   740  1259 W PackageConfigPersister: App-specific configuration not found for packageName: com.google.android.apps.nexuslauncher and userId: 0
+03-19 13:21:44.911   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:44.911   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:44.916  8677  8677 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+03-19 13:21:44.961  1200  1227 I s.nexuslauncher: NativeAlloc concurrent mark compact GC freed 1230KB AllocSpace bytes, 6(312KB) LOS objects, 49% free, 5809KB/11MB, paused 1.236ms,4.677ms total 132.660ms
+03-19 13:21:44.963  1200  1227 W s.nexuslauncher: Reducing the number of considered missed Gc histogram windows from 216 to 100
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:44.978  1200  1229 W System  : A resource failed to call release. 
+03-19 13:21:45.000  2384  6743 I artd    : GetBestInfo: odex next to the dex file (/product/priv-app/PrebuiltGmsCore/oat/arm64/PrebuiltGmsCore.odex) is kOatUpToDate with filter 'verify' executable 'false'
+03-19 13:21:45.007  2384  6743 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+03-19 13:21:45.008  2384  6743 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+03-19 13:21:45.008  2384  6743 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+03-19 13:21:45.009  2384  6743 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.apk has no usable artifacts
+03-19 13:21:45.015   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.015   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.076  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.078  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.078  1069  1079 W System  : A resource failed to call release. 
+03-19 13:21:45.119   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.119   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.120  1069  6476 V WindowManagerShell: Received remote transition finished callback for (#30)
+03-19 13:21:45.120  1069  1197 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#30) android.os.BinderProxy@df3a087@0
+03-19 13:21:45.122   740   782 V WindowManager: Finish Transition (#30): created at 03-19 13:21:44.674 collect-started=0.023ms request-sent=0.126ms started=18.785ms ready=90.382ms sent=102.376ms commit=27.044ms finished=448.149ms
+03-19 13:21:45.125  1069  1197 V WindowManagerShell: Track 0 became idle
+03-19 13:21:45.125  1069  1197 V WindowManagerShell: All active transition animations finished
+03-19 13:21:45.127  1200  1200 D RecentsView: onTaskRemoved: 18, not handling task stack changes
+03-19 13:21:45.127  1200  1200 D RecentsView: onTaskRemoved: 18, not handling task stack changes
+03-19 13:21:45.128   740  1037 W ImageReader_JNI: Unable to acquire a buffer item, very likely client tried to acquire more than maxImages buffers
+03-19 13:21:45.143  1069  1197 V ShellTaskOrganizer: Task vanished taskId=18
+03-19 13:21:45.143  1069  1197 V ShellTaskOrganizer: Fullscreen Task Vanished: #18
+03-19 13:21:45.143  1069  1197 V ShellDesktopMode: Task Vanished: #18 closed=true
+03-19 13:21:45.144  1069  1197 D ShellDesktopMode: AppToWebRepository: Task 18 is vanishing. Removing task data from repository
+03-19 13:21:45.144  1069  1197 V AppCompat: SingleSurfaceLetterboxController: []
+03-19 13:21:45.145  1200  1200 D b/417220811: invalidateLoadedTasks - previous requestLoadId: -1
+03-19 13:21:45.145  1069  1197 V AppCompat: MultiSurfaceLetterboxController: []
+03-19 13:21:45.145  1069  1197 V AppCompat: LetterboxInputController: []
+03-19 13:21:45.145  1069  1197 V AppCompat: RoundedCornersLetterboxController: {}
+03-19 13:21:45.183   740   785 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{26309476 u0 com.gramin_swasthya/.MainActivity t-1 f}}
+03-19 13:21:45.223   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.224   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.327   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.327   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.432   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.432   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.535   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.535   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.640   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.640   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.745   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.745   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.847   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.847   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:45.951   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:45.951   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.055   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.055   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.159   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.159   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.264   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.264   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.367   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.368   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.471   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.472   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.576   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.576   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.583   473  5575 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 1640704
+03-19 13:21:46.583   473  5575 D android.hardware.audio@7.1-impl.ranchu: ~TinyalsaSink: joining consumeThread
+03-19 13:21:46.602  1196  1334 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+03-19 13:21:46.604  1196  1334 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+03-19 13:21:46.680   473  8651 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+03-19 13:21:46.681   473  8651 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+03-19 13:21:46.681   473  8651 D android.hardware.audio@7.1-impl.ranchu: consumeThread: exiting
+03-19 13:21:46.681   473  5575 D android.hardware.audio@7.1-impl.ranchu: ~TinyalsaSink: stopping PCM stream
+03-19 13:21:47.095   740  1716 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+03-19 13:21:54.935  8683  8683 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: package
+03-19 13:21:54.961  2384  6743 I artd    : GetBestInfo: odex next to the dex file (/product/priv-app/PrebuiltGmsCore/oat/arm64/PrebuiltGmsCore.odex) is kOatUpToDate with filter 'verify' executable 'false'
+03-19 13:21:54.962  2384  4750 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.apk has no usable artifacts
+03-19 13:21:54.962  2384  4261 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.apk has no usable artifacts
+03-19 13:21:54.962  2384  4750 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.apk has no usable artifacts
+03-19 13:21:54.964  2384  2385 I artd    : GetBestInfo: /data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.apk has no usable artifacts
+03-19 13:21:56.608  1196  1334 D SatelliteController: iisInCarrierRoamingNbIotNtn: satellite is disabled
+03-19 13:21:56.610  1196  1334 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0

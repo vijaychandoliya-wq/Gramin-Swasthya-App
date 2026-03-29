@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334604778119",
+    "project_id": "gramin-swasthya",
+    "storage_bucket": "gramin-swasthya.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334604778119:android:60d9b66971e42c174e1622",
+        "android_client_info": {
+          "package_name": "com.gramin_swasthya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

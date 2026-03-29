@@ -1,0 +1,14 @@
+name: gramin_swasthya_mcp
+description: Gramin Swasthya App MCP Server
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  mcp: any # Official mcp package
+  mcp_dart: any # Exploring available MCP Dart SDKs
+
+dev_dependencies:
+  lints: ^3.0.0
