@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/family_provider.dart';
+import '../../providers/language_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -74,8 +75,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _showLanguageDialog() async {
-    final prefs = await SharedPreferences.getInstance();
-    String current = prefs.getString('language') ?? 'hi';
+    final currentCode = ref.read(languageProvider).languageCode;
 
     if (!mounted) return;
     final selected = await showDialog<String>(
@@ -87,13 +87,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             RadioListTile<String>(
               value: 'hi',
-              groupValue: current,
+              groupValue: currentCode,
               title: const Text('हिंदी (Hindi)'),
               onChanged: (v) => Navigator.pop(context, v),
             ),
             RadioListTile<String>(
               value: 'en',
-              groupValue: current,
+              groupValue: currentCode,
               title: const Text('English'),
               onChanged: (v) => Navigator.pop(context, v),
             ),
@@ -109,10 +109,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (selected != null && mounted) {
-      await prefs.setString('language', selected);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('भाषा बदल दी गई / Language changed')),
-      );
+      await ref.read(languageProvider.notifier).setLanguage(selected);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('भाषा बदल दी गई / Language changed')),
+        );
+      }
     }
   }
 
@@ -146,7 +148,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final primaryMember = ref.watch(familyProvider).firstWhere((m) => m.isPrimary, orElse: () => ref.read(familyProvider).first);
+    final members = ref.watch(familyProvider);
+    final currentLangCode = ref.watch(languageProvider).languageCode;
+    final langSubtitle = currentLangCode == 'en' ? 'English' : 'हिन्दी (Hindi)';
+
+    if (members.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final primaryMember = members.firstWhere((m) => m.isPrimary, orElse: () => members.first);
 
     return Scaffold(
       appBar: AppBar(
@@ -181,15 +190,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "चंदोलिया परिवार / Chandoliya Family",
+                            primaryMember.name,
                             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            "+91 ••••• 54321", // Mock masked phone
+                            "${primaryMember.age} वर्ष · ${primaryMember.bloodGroup} · ${primaryMember.gender}",
                             style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.edit_outlined, color: colorScheme.primary),
+                      tooltip: 'प्रोफाइल संपादित करें',
+                      onPressed: () => context.push('/add-family-member', extra: primaryMember),
                     ),
                     Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
                   ],
@@ -206,7 +220,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ListTile(
                 leading: const Icon(Icons.language_outlined),
                 title: const Text("ऐप की भाषा / Language"),
-                subtitle: const Text("हिन्दी (Hindi)"),
+                subtitle: Text(langSubtitle),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showLanguageDialog(),
               ),

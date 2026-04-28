@@ -22,6 +22,7 @@ import 'screens/health/add_weight_screen.dart';
 import 'screens/sharing/share_screen.dart';
 import 'screens/sharing/qr_screen.dart';
 import 'screens/emergency/emergency_card_screen.dart';
+import 'screens/family/family_screen.dart';
 import 'screens/family/add_member_screen.dart';
 import 'providers/reports_provider.dart';
 import 'providers/medicines_provider.dart';
@@ -151,6 +152,11 @@ final GoRouter appRouter = GoRouter(
       path: '/emergency-card',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EmergencyCardScreen(),
+    ),
+    GoRoute(
+      path: '/family',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FamilyScreen(),
     ),
     GoRoute(
       path: '/add-family-member',

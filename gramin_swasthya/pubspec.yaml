@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # State & Routing
   flutter_riverpod: ^2.5.1
@@ -32,6 +34,10 @@ dependencies:
   flutter_image_compress: ^2.2.0
   cached_network_image: ^3.3.1
   gallery_saver_plus: ^3.2.9  # gallery_saver is unmaintained; using gallery_saver_plus as equivalent replacement
+
+  # PDF Generation & Printing
+  pdf: ^3.11.1
+  printing: ^5.13.1
 
   # Utility & Misc
   flutter_local_notifications: ^17.1.1
