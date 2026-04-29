@@ -3,20 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 
 import '../../providers/family_provider.dart';
 import '../../providers/health_data_provider.dart';
+import '../../utils/bp_pdf_report.dart';
 
 enum HealthType { bp, sugar, weight }
 
-class HealthScreen extends StatefulWidget {
+class HealthScreen extends ConsumerStatefulWidget {
   const HealthScreen({super.key});
 
   @override
-  State<HealthScreen> createState() => _HealthScreenState();
+  ConsumerState<HealthScreen> createState() => _HealthScreenState();
 }
 
-class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderStateMixin {
+class _HealthScreenState extends ConsumerState<HealthScreen> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -30,6 +32,41 @@ class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderSt
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _exportBpPdf() {
+    final bpAsync = ref.read(bpStreamProvider);
+    final selectedMember = ref.read(selectedFamilyMemberProvider);
+    final name = selectedMember?.name ?? 'Unknown';
+
+    bpAsync.whenData((readings) {
+      if (readings.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('कोई BP डेटा नहीं / No BP data to export')),
+        );
+        return;
+      }
+
+      final pdf = BPPdfReport.generate(
+        patientName: name,
+        readings: readings,
+        periodDays: 30,
+      );
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: Text('BP Report – $name')),
+            body: PdfPreview(
+              build: (format) => pdf.save(),
+              canChangePageFormat: false,
+              canChangeOrientation: false,
+              pdfFileName: 'BP_Report_${name.replaceAll(' ', '_')}.pdf',
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   void _onFabPressed() {
@@ -55,6 +92,15 @@ class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderSt
       appBar: AppBar(
         centerTitle: true,
         title: const Text('स्वास्थ्य डेटा / Health Data'),
+        actions: [
+          // Show PDF export only when BP tab is active
+          if (_tabController.index == 0)
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              tooltip: 'BP Report PDF',
+              onPressed: _exportBpPdf,
+            ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: colorScheme.onPrimaryContainer,

@@ -4,9 +4,9 @@ import '../db/database_helper.dart';
 import 'family_provider.dart';
 
 class MedicalReport {
-  final String id; // DB autoincrement id as string
+  final String id;
   final String memberId;
-  final String type; // Prescription, Lab, X-Ray, Other
+  final String type;
   final String doctorName;
   final DateTime date;
   final String? imagePath;
@@ -27,6 +27,7 @@ class ReportsRepo {
   final int? _memberId;
   final List<MedicalReport> _reportsDb = [];
   final _controller = StreamController<List<MedicalReport>>.broadcast();
+  final Completer<void> _loadCompleter = Completer<void>();
 
   ReportsRepo(this._memberId) {
     _loadFromDb();
@@ -34,37 +35,48 @@ class ReportsRepo {
 
   Future<void> _loadFromDb() async {
     if (_memberId == null) {
-      _emit();
+      _loadCompleter.complete();
       return;
     }
 
-    final db = await DatabaseHelper.instance.database;
-    final rows = await db.query(
-      'medical_reports',
-      where: 'member_id = ?',
-      whereArgs: [_memberId],
-      orderBy: 'report_date DESC',
-    );
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final rows = await db.query(
+        'medical_reports',
+        where: 'member_id = ?',
+        whereArgs: [_memberId],
+        orderBy: 'report_date DESC',
+      );
 
-    for (final r in rows) {
-      _reportsDb.add(MedicalReport(
-        id: (r['id'] as int).toString(),
-        memberId: _memberId.toString(),
-        type: r['type'] as String? ?? 'अन्य',
-        doctorName: r['doctor_name'] as String? ?? '',
-        date: DateTime.tryParse(r['report_date'] as String? ?? '') ?? DateTime.now(),
-        imagePath: (r['firebase_url'] as String?)?.isNotEmpty == true
-            ? r['firebase_url'] as String
-            : r['local_path'] as String?,
-        notes: r['notes'] as String?,
-      ));
+      _reportsDb.clear();
+      for (final r in rows) {
+        _reportsDb.add(MedicalReport(
+          id: (r['id'] as int).toString(),
+          memberId: _memberId.toString(),
+          type: r['type'] as String? ?? 'अन्य',
+          doctorName: r['doctor_name'] as String? ?? '',
+          date: DateTime.tryParse(r['report_date'] as String? ?? '') ??
+              DateTime.now(),
+          imagePath: (r['firebase_url'] as String?)?.isNotEmpty == true
+              ? r['firebase_url'] as String
+              : (r['local_path'] as String?)?.isNotEmpty == true
+                  ? r['local_path'] as String
+                  : null,
+          notes: r['notes'] as String?,
+        ));
+      }
+    } finally {
+      _loadCompleter.complete();
     }
-    _emit();
   }
 
   void _emit() => _controller.add(List.from(_reportsDb));
 
-  Stream<List<MedicalReport>> watchReports() => _controller.stream;
+  Stream<List<MedicalReport>> watchReports() async* {
+    await _loadCompleter.future;
+    yield List.from(_reportsDb);
+    yield* _controller.stream;
+  }
 
   Future<MedicalReport> addReport(MedicalReport report) async {
     if (_memberId == null) return report;
@@ -106,16 +118,22 @@ class ReportsRepo {
     _reportsDb.removeWhere((r) => r.id == id);
     _emit();
   }
+
+  void dispose() {
+    _controller.close();
+  }
 }
 
-// Repo depends on selected family member
-final reportsRepoProvider = Provider<ReportsRepo>((ref) {
+final reportsRepoProvider = Provider.autoDispose<ReportsRepo>((ref) {
   final selectedMember = ref.watch(selectedFamilyMemberProvider);
   final dbId = selectedMember != null ? int.tryParse(selectedMember.id) : null;
-  return ReportsRepo(dbId);
+  final repo = ReportsRepo(dbId);
+  ref.onDispose(() => repo.dispose());
+  return repo;
 });
 
-final reportsStreamProvider = StreamProvider.autoDispose<List<MedicalReport>>((ref) {
+final reportsStreamProvider =
+    StreamProvider.autoDispose<List<MedicalReport>>((ref) {
   final repo = ref.watch(reportsRepoProvider);
   return repo.watchReports();
 });
