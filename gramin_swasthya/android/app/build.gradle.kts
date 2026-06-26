@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "com.gramin_swasthya"
-        minSdk = flutter.minSdkVersion
+        minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode()
         versionName = flutter.versionName()
