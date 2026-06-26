@@ -178,6 +178,28 @@ class DatabaseHelper {
       whereArgs: ['%$query%', '%$query%', '%$query%'],
     );
   }
+
+  Future<void> eraseAllData() async {
+    final db = await database;
+    if (kIsWeb) {
+      _mockDatabase._tables.forEach((key, value) {
+        value.clear();
+      });
+      return;
+    }
+    final list = [
+      'medicine_log',
+      'medicines',
+      'medical_reports',
+      'weight_entries',
+      'sugar_readings',
+      'bp_readings',
+      'family_members',
+    ];
+    for (final table in list) {
+      await (db as Database).delete(table);
+    }
+  }
 }
 
 class MockDatabase {

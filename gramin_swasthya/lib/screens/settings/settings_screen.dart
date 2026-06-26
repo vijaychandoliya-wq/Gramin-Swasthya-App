@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/family_provider.dart';
+import '../../services/google_drive_service.dart';
+import '../../db/database_helper.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -22,6 +24,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _biometricAvailable = false;
   String _lastSynced = "आज, 10:30 AM";
 
+  bool _isGoogleLinked = false;
+  String? _googleUserEmail;
+  List<Map<String, String>> _googleBackupFolders = [];
+  bool _isLoadingBackups = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,10 +38,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    final linked = await GoogleDriveService.instance.isSignedIn();
     setState(() {
       _notifEnabled = prefs.getBool('notif_enabled') ?? true;
       _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
+      _isGoogleLinked = linked;
+      _googleUserEmail = GoogleDriveService.instance.currentUser?.email;
     });
+    if (linked) {
+      _fetchGoogleBackups();
+    }
   }
 
   Future<void> _checkBiometrics() async {
@@ -59,17 +72,192 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     setState(() => _biometricEnabled = val);
   }
 
-  Future<void> _manualSync() async {
-    // Mock sync
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('डेटा बैकअप हो रहा है... / Syncing data...')),
-    );
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      setState(() => _lastSynced = "अभी-अभी / Just now");
+  Future<void> _toggleGoogleLink() async {
+    if (_isGoogleLinked) {
+      await GoogleDriveService.instance.signOut();
+      setState(() {
+        _isGoogleLinked = false;
+        _googleUserEmail = null;
+        _googleBackupFolders = [];
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('बैकअप सफल! / Backup successful ✓')),
+        const SnackBar(content: Text('Google खाता हटाया गया / Google account unlinked')),
       );
+    } else {
+      final account = await GoogleDriveService.instance.signIn();
+      if (account != null) {
+        setState(() {
+          _isGoogleLinked = true;
+          _googleUserEmail = account.email;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
+        );
+        _fetchGoogleBackups();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('लिंक करने में विफल / Failed to link account')),
+        );
+      }
+    }
+  }
+
+  Future<void> _fetchGoogleBackups() async {
+    setState(() => _isLoadingBackups = true);
+    try {
+      final folders = await GoogleDriveService.instance.listBackupFolders();
+      setState(() {
+        _googleBackupFolders = folders;
+      });
+    } catch (e) {
+      debugPrint("Failed to fetch backups: $e");
+    } finally {
+      setState(() => _isLoadingBackups = false);
+    }
+  }
+
+  Future<void> _backupToGoogle() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('गूगल ड्राइव पर बैकअप हो रहा है... / Uploading backup to Drive...')),
+    );
+    try {
+      await GoogleDriveService.instance.backupProfiles(context);
+      _fetchGoogleBackups();
+      if (mounted) {
+        setState(() => _lastSynced = "अभी-अभी / Just now");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('बैकअप पूरा हुआ! / Backup completed ✓')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('बैकअप त्रुटि: $e / Backup failed: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showImportDialog() async {
+    if (_googleBackupFolders.isEmpty) {
+      await _fetchGoogleBackups();
+    }
+    
+    if (!mounted) return;
+    
+    if (_googleBackupFolders.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('कोई बैकअप नहीं / No Backups'),
+          content: const Text('गूगल ड्राइव पर कोई भी प्रोफाइल बैकअप नहीं मिला। / No profile backups found on Google Drive.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ठीक है / OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('प्रोफ़ाइल आयात करें / Import Profile'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: _isLoadingBackups
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _googleBackupFolders.length,
+                  itemBuilder: (context, index) {
+                    final folder = _googleBackupFolders[index];
+                    return ListTile(
+                      leading: const Icon(Icons.person),
+                      title: Text(folder['name'] ?? ''),
+                      subtitle: const Text('गूगल ड्राइव से आयात करें / Import from Drive'),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        _importFolder(folder['id']!, folder['name']!);
+                      },
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('रद्द / Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importFolder(String folderId, String profileName) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$profileName आयात किया जा रहा है... / Importing $profileName...')),
+    );
+    try {
+      await GoogleDriveService.instance.importProfile(folderId);
+      ref.invalidate(familyProvider);
+      ref.invalidate(selectedFamilyMemberProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('आयात त्रुटि: $e / Import failed: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _eraseAllData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('सभी डेटा हटाएं? / Erase All Data?'),
+        content: const Text(
+          'क्या आप वाकई सभी डेटा हटाना चाहते हैं? यह क्रिया आपके फ़ोन से सभी प्रोफ़ाइल, स्वास्थ्य रिकॉर्ड और दवाइयों की सूची को स्थायी रूप से हटा देगी।\n\nAre you sure you want to delete all data? This will permanently erase all profiles, records, and medicines from your phone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('रद्द / Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('सब कुछ हटाएं / Erase All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await DatabaseHelper.instance.eraseAllData();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      
+      // Invalidate local providers
+      ref.invalidate(familyProvider);
+      ref.invalidate(selectedFamilyMemberProvider);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('सभी डेटा मिटा दिया गया है / All data has been erased')),
+        );
+        context.go('/splash');
+      }
     }
   }
 
@@ -229,23 +417,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           _buildSection(
-            "सुरक्षा और डेटा / Security",
+            "क्लाउड बैकअप / Cloud Backup",
             [
               ListTile(
-                leading: const Icon(Icons.lock_outline),
-                title: const Text("PIN बदलें / Change PIN"),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/pin-setup'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.cloud_done_outlined),
-                title: const Text("डेटा बैकअप / Sync"),
-                subtitle: Text("पिछला बैकअप: $_lastSynced"),
-                trailing: IconButton(
-                  icon: const Icon(Icons.sync),
-                  onPressed: _manualSync,
+                leading: const Icon(Icons.cloud_outlined),
+                title: const Text("गूगल ड्राइव लिंक / Google Drive Link"),
+                subtitle: Text(_isGoogleLinked
+                    ? "संबद्ध / Linked: $_googleUserEmail"
+                    : "बैकअप के लिए साइन इन करें / Sign in to backup"),
+                trailing: Text(
+                  _isGoogleLinked ? "हटाएं / Unlink" : "लिंक करें / Link",
+                  style: TextStyle(
+                    color: _isGoogleLinked ? colorScheme.error : colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                onTap: _toggleGoogleLink,
               ),
+              if (_isGoogleLinked) ...[
+                ListTile(
+                  leading: const Icon(Icons.backup_outlined),
+                  title: const Text("गूगल ड्राइव बैकअप / Google Drive Backup"),
+                  subtitle: Text("पिछला बैकअप: $_lastSynced"),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.cloud_upload_outlined),
+                    onPressed: _backupToGoogle,
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.download_outlined),
+                  title: const Text("प्रोफ़ाइल आयात करें / Import Profile"),
+                  subtitle: const Text("गूगल ड्राइव से प्रोफ़ाइल बहाल करें"),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _showImportDialog,
+                ),
+              ],
             ],
             colorScheme,
           ),
@@ -282,13 +488,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 24),
 
           TextButton.icon(
-            onPressed: _logout,
+            onPressed: _eraseAllData,
             style: TextButton.styleFrom(
               foregroundColor: colorScheme.error,
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
-            icon: const Icon(Icons.logout),
-            label: const Text("लॉग आउट / Logout", style: TextStyle(fontWeight: FontWeight.bold)),
+            icon: const Icon(Icons.delete_forever),
+            label: const Text("सब कुछ मिटाएं / Erase All Data", style: TextStyle(fontWeight: FontWeight.bold)),
           ),
 
           const SizedBox(height: 40),

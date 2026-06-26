@@ -19,8 +19,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
     await prefs.setString('language', _selected!);
     
     if (mounted) {
-      // Proceed to the registration screen
-      context.go('/register');
+      context.go('/home');
     }
   }
 

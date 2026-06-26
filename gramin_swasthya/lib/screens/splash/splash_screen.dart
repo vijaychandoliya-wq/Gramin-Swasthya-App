@@ -34,18 +34,12 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     final prefs = await SharedPreferences.getInstance();
-    final String? authToken = prefs.getString('auth_token');
-    final bool pinSet = prefs.getBool('pin_set') ?? false;
-    final bool firstRun = prefs.getBool('first_run') ?? true;
+    final String? language = prefs.getString('language');
 
-    if (authToken != null && authToken.isNotEmpty) {
+    if (language != null && language.isNotEmpty) {
       context.go('/home');
-    } else if (pinSet) {
-      context.go('/login'); // pin-login is mapped to /login in router
-    } else if (firstRun) {
-      context.go('/onboarding');
     } else {
-      context.go('/language'); // language-select is mapped to /language in router
+      context.go('/language');
     }
   }
 

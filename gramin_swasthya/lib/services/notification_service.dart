@@ -2,10 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import '../providers/medicines_provider.dart';
+
+// Top-level entry point for background alarm callback on Android
+@pragma('vm:entry-point')
+void alarmCallback(int id) async {
+  final prefs = await SharedPreferences.getInstance();
+  final name = prefs.getString('alarm_id_to_med_name_$id') ?? "दवाई";
+  
+  final flutterTts = FlutterTts();
+  await flutterTts.setLanguage("hi-IN");
+  await flutterTts.setSpeechRate(0.85);
+  await flutterTts.setVolume(1.0);
+  
+  // Hindi TTS: "Aap ke medicine lene ka time ho gaya hai, dawai ka naam hai <name>"
+  await flutterTts.speak("आप के मेडिसिन लेने का टाइम हो गया है, दवाई का नाम है $name");
+}
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final FlutterTts _flutterTts = FlutterTts();
 
   static Future<void> init() async {
     tz.initializeTimeZones();
@@ -25,20 +44,42 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (details) {
-        // Handle notification tap
+        if (details.payload != null) {
+          playTts(details.payload!);
+        }
       },
     );
+
+    // Request permissions for Android 13+
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+  }
+
+  static Future<void> playTts(String medicineName) async {
+    await _flutterTts.setLanguage("hi-IN");
+    await _flutterTts.setSpeechRate(0.85);
+    await _flutterTts.setVolume(1.0);
+    await _flutterTts.speak("आप के मेडिसिन लेने का टाइम हो गया है, दवाई का नाम है $medicineName");
   }
 
   static Future<void> scheduleDailyReminders(Medicine med) async {
-    // 1. Cancel existing reminders for this medicine to avoid duplicates
+    // 1. Cancel existing reminders for this medicine first
     await cancelReminders(med.id);
 
     if (!med.isActive) return;
 
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> scheduledIds = [];
+
     for (var time in med.times) {
       final int id = _generateId(med.id, time);
+      scheduledIds.add(id.toString());
       
+      // Save medicine name for background alarm callback query
+      await prefs.setString('alarm_id_to_med_name_$id', med.name);
+
+      // Schedule Local Notification
       await _notificationsPlugin.zonedSchedule(
         id,
         '💊 दवाई का समय / Med Time',
@@ -51,6 +92,7 @@ class NotificationService {
             channelDescription: 'Daily reminders for your medications',
             importance: Importance.max,
             priority: Priority.high,
+            playSound: true,
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -60,18 +102,49 @@ class NotificationService {
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time, // REPEAT DAILY
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: med.name,
       );
+
+      // Schedule repeating alarm with Android Alarm Manager
+      try {
+        final scheduledTime = _nextInstanceOfTime(time);
+        await AndroidAlarmManager.periodic(
+          const Duration(days: 1),
+          id,
+          alarmCallback,
+          startAt: DateTime(
+            scheduledTime.year,
+            scheduledTime.month,
+            scheduledTime.day,
+            scheduledTime.hour,
+            scheduledTime.minute,
+          ),
+          exact: true,
+          wakeup: true,
+          rescheduleOnReboot: true,
+        );
+      } catch (e) {
+        debugPrint("AndroidAlarmManager schedule error: $e");
+      }
     }
+
+    // Save scheduled IDs in SharedPreferences to allow easy canceling later
+    await prefs.setStringList('med_notification_ids_${med.id}', scheduledIds);
   }
 
   static Future<void> cancelReminders(String medId) async {
-    // Since we don't track all sub-IDs easily, we'd ideally store them.
-    // For now, based on the hash logic, we'd need to know the times.
-    // However, we can also use a prefix/range if IDs were structured differently.
-    // Simplified for now: we'll clear all if needed or just specific ones if we have access to the med object.
-    // For this mock, let's assume we cancel all for the app or specific IDs.
-    // In a real app, you might store notification IDs in the DB.
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> idStrings = prefs.getStringList('med_notification_ids_$medId') ?? [];
+    for (final idStr in idStrings) {
+      final int id = int.parse(idStr);
+      await _notificationsPlugin.cancel(id);
+      try {
+        await AndroidAlarmManager.cancel(id);
+      } catch (_) {}
+      await prefs.remove('alarm_id_to_med_name_$id');
+    }
+    await prefs.remove('med_notification_ids_$medId');
   }
 
   static Future<void> cancelAll() async {
@@ -95,7 +168,6 @@ class NotificationService {
   }
 
   static int _generateId(String medId, TimeOfDay time) {
-    // Ensure 32-bit integer range for Android
     return (medId.hashCode + time.hour * 60 + time.minute).abs() % 2147483647;
   }
 }

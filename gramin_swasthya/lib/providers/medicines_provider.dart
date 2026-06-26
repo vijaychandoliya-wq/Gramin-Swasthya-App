@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/database_helper.dart';
 import 'family_provider.dart';
+import '../services/notification_service.dart';
 
 class Medicine {
   final String id; // DB autoincrement id as string
@@ -163,6 +164,7 @@ class MedicinesRepo {
   }
 
   Future<void> deleteMedicine(String id) async {
+    await NotificationService.cancelReminders(id);
     final db = await DatabaseHelper.instance.database;
     final dbId = int.tryParse(id);
     if (dbId != null) {
@@ -177,7 +179,8 @@ class MedicinesRepo {
     final idx = _medicinesDb.indexWhere((m) => m.id == id);
     if (idx != -1) {
       final newActive = !_medicinesDb[idx].isActive;
-      _medicinesDb[idx] = _medicinesDb[idx].copyWith(isActive: newActive);
+      final updated = _medicinesDb[idx].copyWith(isActive: newActive);
+      _medicinesDb[idx] = updated;
 
       final db = await DatabaseHelper.instance.database;
       final dbId = int.tryParse(id);
@@ -185,6 +188,13 @@ class MedicinesRepo {
         await db.update('medicines', {'is_active': newActive ? 1 : 0},
             where: 'id = ?', whereArgs: [dbId]);
       }
+
+      if (newActive) {
+        await NotificationService.scheduleDailyReminders(updated);
+      } else {
+        await NotificationService.cancelReminders(id);
+      }
+
       _emit();
     }
   }
@@ -230,6 +240,9 @@ class MedicinesRepo {
     if (idx != -1) {
       _medicinesDb[idx] = med;
     }
+
+    await NotificationService.scheduleDailyReminders(med);
+
     _emit();
   }
 }

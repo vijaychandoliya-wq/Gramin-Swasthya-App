@@ -6,12 +6,25 @@ import 'widgets/connectivity_wrapper.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Notification Service
+  await NotificationService.init();
+
+  // Initialize Android Alarm Manager
+  try {
+    await AndroidAlarmManager.initialize();
+  } catch (e) {
+    debugPrint("AndroidAlarmManager initialization skipped: $e");
+  }
+
   runApp(
     const ProviderScope(
       child: GraminSwasthyaApp(),
