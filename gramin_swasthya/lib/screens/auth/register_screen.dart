@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _loading = false;
   int _resendCountdown = 30;
   Timer? _resendTimer;
-  String? _verificationId;
 
   @override
   void dispose() {
@@ -68,7 +66,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
     setState(() {
-      _verificationId = 'temp-verification';
       _otpSent = true;
       _loading = false;
     });
@@ -88,16 +85,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _onAuthSuccess();
     } else {
       _showError('गलत OTP / Invalid OTP — use 1234');
-    }
-  }
-
-  Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
-    try {
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      _onAuthSuccess();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _loading = false);
-      _showError(e.message ?? 'Sign-in failed');
     }
   }
 

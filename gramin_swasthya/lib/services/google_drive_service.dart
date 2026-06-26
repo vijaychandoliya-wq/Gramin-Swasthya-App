@@ -65,9 +65,7 @@ class GoogleDriveService {
 
     // 1. Get root backups folder "Gramin Swasthya Backups"
     String? rootFolderId = await _findFolder(driveApi, "Gramin Swasthya Backups", "root");
-    if (rootFolderId == null) {
-      rootFolderId = await _createFolder(driveApi, "Gramin Swasthya Backups", "root");
-    }
+    rootFolderId ??= await _createFolder(driveApi, "Gramin Swasthya Backups", "root");
 
     final dbHelper = DatabaseHelper.instance;
     final db = await dbHelper.database;
@@ -83,9 +81,7 @@ class GoogleDriveService {
 
       // Create a specific folder for this member's profile
       String? memberFolderId = await _findFolder(driveApi, name, rootFolderId);
-      if (memberFolderId == null) {
-        memberFolderId = await _createFolder(driveApi, name, rootFolderId);
-      }
+      memberFolderId ??= await _createFolder(driveApi, name, rootFolderId);
 
       // Fetch related data
       final bpReadings = kIsWeb

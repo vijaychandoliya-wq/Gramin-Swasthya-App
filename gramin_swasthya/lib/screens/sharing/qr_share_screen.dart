@@ -49,7 +49,14 @@ class QrShareScreen extends StatelessWidget {
                     data: mockShareUrl,
                     version: QrVersions.auto,
                     size: 250.0,
-                    foregroundColor: Colors.black,
+                    eyeStyle: const QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: Colors.black,
+                    ),
+                    dataModuleStyle: const QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),

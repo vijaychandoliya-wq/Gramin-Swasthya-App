@@ -315,7 +315,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (saved == true) {
       ref.invalidate(healthSummaryProvider);
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('रिकॉर्ड सफलतापूर्वक जोड़ा गया / Record Added')),
         );

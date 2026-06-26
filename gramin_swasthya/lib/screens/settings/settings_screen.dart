@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -75,6 +74,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _toggleGoogleLink() async {
     if (_isGoogleLinked) {
       await GoogleDriveService.instance.signOut();
+      if (!mounted) return;
       setState(() {
         _isGoogleLinked = false;
         _googleUserEmail = null;
@@ -85,6 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     } else {
       final account = await GoogleDriveService.instance.signIn();
+      if (!mounted) return;
       if (account != null) {
         setState(() {
           _isGoogleLinked = true;
@@ -298,35 +299,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (selected != null && mounted) {
       await prefs.setString('language', selected);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('भाषा बदल दी गई / Language changed')),
       );
-    }
-  }
-
-  Future<void> _logout() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('लॉग आउट करें? / Logout?'),
-        content: const Text('क्या आप वाकई लॉग आउट करना चाहते हैं? आपका डेटा सुरक्षित रहेगा।'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('रद्द')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('लॉग आउट'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await FirebaseAuth.instance.signOut();
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('auth_token');
-      await prefs.setBool('is_logged_in', false);
-      if (mounted) context.go('/splash');
     }
   }
 

@@ -121,9 +121,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   selected: isSelected,
                   label: Text(member.name.split(' ').first),
                   onSelected: (val) {
-                    if (val)
+                    if (val) {
                       ref.read(selectedFamilyMemberProvider.notifier).state =
                           member;
+                    }
                   },
                 ),
               );
@@ -143,9 +144,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   selected: isSelected,
                   label: Text(type),
                   onSelected: (val) {
-                    if (val)
+                    if (val) {
                       ref.read(activeReportTypeFilterProvider.notifier).state =
                           type;
+                    }
                   },
                 ),
               );

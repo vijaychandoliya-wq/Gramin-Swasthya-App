@@ -430,8 +430,11 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
             // Delete from repo
             if (widget.type == HealthType.bp) {
               repo.deleteBp(item.id);
-            } else if (widget.type == HealthType.sugar) repo.deleteSugar(item.id);
-            else if (widget.type == HealthType.weight) repo.deleteWeight(item.id);
+            } else if (widget.type == HealthType.sugar) {
+              repo.deleteSugar(item.id);
+            } else if (widget.type == HealthType.weight) {
+              repo.deleteWeight(item.id);
+            }
 
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
@@ -443,8 +446,11 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                     // Restore item
                     if (widget.type == HealthType.bp) {
                       repo.addBp(item);
-                    } else if (widget.type == HealthType.sugar) repo.addSugar(item);
-                    else if (widget.type == HealthType.weight) repo.addWeight(item);
+                    } else if (widget.type == HealthType.sugar) {
+                      repo.addSugar(item);
+                    } else if (widget.type == HealthType.weight) {
+                      repo.addWeight(item);
+                    }
                   },
                 ),
               ),
