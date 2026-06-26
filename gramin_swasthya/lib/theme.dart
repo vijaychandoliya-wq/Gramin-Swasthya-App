@@ -32,7 +32,7 @@ class GraminSwasthyaTheme {
       ),
 
       // M3 Cards: filled tonal style, 0 elevation with outline
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -137,7 +137,7 @@ class GraminSwasthyaTheme {
       ),
 
       // M3 Dialog
-      dialogTheme: DialogThemeData(
+      dialogTheme: DialogTheme(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         elevation: 6,
       ),

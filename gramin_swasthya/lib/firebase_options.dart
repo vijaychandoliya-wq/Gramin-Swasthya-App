@@ -17,24 +17,15 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -52,11 +43,38 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA',
+    appId: '1:334604778119:web:60d9b66971e42c174e1622',
+    messagingSenderId: '334604778119',
+    projectId: 'gramin-swasthya',
+    authDomain: 'gramin-swasthya.firebaseapp.com',
+    storageBucket: 'gramin-swasthya.firebasestorage.app',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA',
     appId: '1:334604778119:android:60d9b66971e42c174e1622',
     messagingSenderId: '334604778119',
     projectId: 'gramin-swasthya',
     storageBucket: 'gramin-swasthya.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA',
+    appId: '1:334604778119:ios:60d9b66971e42c174e1622',
+    messagingSenderId: '334604778119',
+    projectId: 'gramin-swasthya',
+    storageBucket: 'gramin-swasthya.firebasestorage.app',
+    iosBundleId: 'com.gramin-swasthya',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA',
+    appId: '1:334604778119:ios:60d9b66971e42c174e1622',
+    messagingSenderId: '334604778119',
+    projectId: 'gramin-swasthya',
+    storageBucket: 'gramin-swasthya.firebasestorage.app',
+    iosBundleId: 'com.gramin-swasthya',
   );
 }

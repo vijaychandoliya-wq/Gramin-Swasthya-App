@@ -336,7 +336,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                   Switch(
                     value: med.isActive,
                     onChanged: (_) => ref.read(medicinesRepoProvider).toggleActive(med.id),
-                    activeThumbColor: colorScheme.primary,
+                    activeColor: colorScheme.primary,
                   ),
                   IconButton(
                     onPressed: med.isActive ? () => ref.read(medicinesRepoProvider).markAsTaken(med.id) : null,

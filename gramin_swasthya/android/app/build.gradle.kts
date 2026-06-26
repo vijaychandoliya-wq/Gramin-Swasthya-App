@@ -25,8 +25,8 @@ android {
         applicationId = "com.gramin_swasthya"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = flutter.versionCode()
+        versionName = flutter.versionName()
         multiDexEnabled = true
     }
 

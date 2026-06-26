@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DatabaseHelper {
   static const _databaseName = "GraminSwasthya.db";
@@ -8,9 +9,13 @@ class DatabaseHelper {
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
-  static Database? _database;
+  static dynamic _database;
+  static final MockDatabase _mockDatabase = MockDatabase();
 
-  Future<Database> get database async {
+  Future<dynamic> get database async {
+    if (kIsWeb) {
+      return _mockDatabase;
+    }
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
@@ -128,7 +133,14 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> searchMembers(String query) async {
     final db = await database;
-    return await db.query(
+    if (kIsWeb) {
+      return await db.query(
+        'family_members',
+        where: 'name LIKE ?',
+        whereArgs: ['%$query%'],
+      );
+    }
+    return await (db as Database).query(
       'family_members',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
@@ -137,7 +149,14 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> searchMedicines(String query) async {
     final db = await database;
-    return await db.query(
+    if (kIsWeb) {
+      return await db.query(
+        'medicines',
+        where: 'name LIKE ?',
+        whereArgs: ['%$query%'],
+      );
+    }
+    return await (db as Database).query(
       'medicines',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
@@ -146,10 +165,122 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> searchReports(String query) async {
     final db = await database;
-    return await db.query(
+    if (kIsWeb) {
+      return await db.query(
+        'medical_reports',
+        where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
+        whereArgs: ['%$query%', '%$query%', '%$query%'],
+      );
+    }
+    return await (db as Database).query(
       'medical_reports',
       where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
       whereArgs: ['%$query%', '%$query%', '%$query%'],
     );
+  }
+}
+
+class MockDatabase {
+  // In-memory mock tables
+  final Map<String, List<Map<String, dynamic>>> _tables = {
+    'family_members': [],
+    'bp_readings': [],
+    'sugar_readings': [],
+    'weight_entries': [],
+    'medical_reports': [],
+    'medicines': [],
+    'medicine_log': [],
+  };
+
+  int _nextId = 1;
+
+  Future<int> insert(String table, Map<String, dynamic> values) async {
+    final Map<String, dynamic> row = Map<String, dynamic>.from(values);
+    row['id'] = _nextId++;
+    _tables[table] ??= [];
+    _tables[table]!.add(row);
+    return row['id'];
+  }
+
+  Future<List<Map<String, dynamic>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    final list = _tables[table] ?? [];
+    var result = list;
+    if (where != null && whereArgs != null) {
+      if (where.contains('synced = 0')) {
+        result = result.where((r) => r['synced'] == 0).toList();
+      } else if (where.contains('id = ?')) {
+        final idVal = whereArgs[0];
+        result = result.where((r) => r['id'].toString() == idVal.toString()).toList();
+      } else if (where.contains('name LIKE ?')) {
+        final String match = (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
+        result = result.where((r) {
+          final String name = (r['name'] as String? ?? '').toLowerCase();
+          return name.contains(match);
+        }).toList();
+      } else if (where.contains('doctor_name LIKE ?')) {
+        final String match = (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
+        result = result.where((r) {
+          final String doc = (r['doctor_name'] as String? ?? '').toLowerCase();
+          final String notes = (r['notes'] as String? ?? '').toLowerCase();
+          final String type = (r['type'] as String? ?? '').toLowerCase();
+          return doc.contains(match) || notes.contains(match) || type.contains(match);
+        }).toList();
+      }
+    }
+    return result;
+  }
+
+  Future<int> update(
+    String table,
+    Map<String, dynamic> values, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
+    final list = _tables[table] ?? [];
+    int count = 0;
+    if (where != null && where.contains('id = ?') && whereArgs != null) {
+      final idVal = whereArgs[0];
+      for (var row in list) {
+        if (row['id'].toString() == idVal.toString()) {
+          values.forEach((k, v) {
+            row[k] = v;
+          });
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  Future<int> delete(
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
+    final list = _tables[table] ?? [];
+    int count = 0;
+    if (where != null && where.contains('id = ?') && whereArgs != null) {
+      final idVal = whereArgs[0];
+      final before = list.length;
+      list.removeWhere((r) => r['id'].toString() == idVal.toString());
+      count = before - list.length;
+    } else if (where != null && where.contains('medicine_id = ?') && whereArgs != null) {
+      final idVal = whereArgs[0];
+      final before = list.length;
+      list.removeWhere((r) => r['medicine_id'].toString() == idVal.toString());
+      count = before - list.length;
+    }
+    return count;
   }
 }
