@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
@@ -115,16 +116,90 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _fetchGoogleBackups() async {
+    if (!mounted) return;
     setState(() => _isLoadingBackups = true);
     try {
       final folders = await GoogleDriveService.instance.listBackupFolders();
+      if (!mounted) return;
       setState(() {
         _googleBackupFolders = folders;
       });
     } catch (e) {
       debugPrint("Failed to fetch backups: $e");
     } finally {
-      setState(() => _isLoadingBackups = false);
+      if (mounted) setState(() => _isLoadingBackups = false);
+    }
+  }
+
+  /// Restores ALL profiles + their data from Google Drive into local SQLite.
+  /// Per the chosen behavior this only runs when the phone has no profiles yet
+  /// (so it's safe right after a reinstall and never creates duplicates).
+  Future<void> _loadAllFromGoogle() async {
+    // Make sure we're signed in first (a fresh install won't be linked yet).
+    if (!_isGoogleLinked) {
+      try {
+        final account = await GoogleDriveService.instance.signIn();
+        if (!mounted) return;
+        if (account == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('लिंक रद्द किया गया / Linking cancelled')),
+          );
+          return;
+        }
+        setState(() {
+          _isGoogleLinked = true;
+          _googleUserEmail = account.email;
+        });
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('लिंक करने में विफल / Failed to link: $e')),
+        );
+        return;
+      }
+    }
+
+    // Only restore into an empty phone, to avoid duplicating existing data.
+    if (ref.read(familyProvider).isNotEmpty) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('डेटा पहले से मौजूद है / Data already present'),
+          content: const Text(
+              'आपके फ़ोन में पहले से प्रोफ़ाइल मौजूद हैं, इसलिए डुप्लिकेट से बचने के लिए लोड नहीं किया गया। एक विशिष्ट प्रोफ़ाइल लाने के लिए "प्रोफ़ाइल आयात करें" का उपयोग करें।\n\nThis phone already has profiles, so a full restore was skipped to avoid duplicates. Use "Import Profile" to fetch a specific one.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ठीक है / OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('गूगल ड्राइव से डेटा लोड हो रहा है... / Loading data from Drive...')),
+    );
+    try {
+      final count = await GoogleDriveService.instance.importAllProfiles();
+      ref.invalidate(familyProvider);
+      ref.invalidate(selectedFamilyMemberProvider);
+      if (!mounted) return;
+      if (count > 0) {
+        showSuccessSnackBar(context, '$count प्रोफ़ाइल लोड हुईं / profiles restored');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('कोई बैकअप नहीं मिला / No backup found on Drive')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('लोड करने में विफल / Restore failed: $e')),
+      );
     }
   }
 
@@ -137,9 +212,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _fetchGoogleBackups();
       if (mounted) {
         setState(() => _lastSynced = "अभी-अभी / Just now");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('बैकअप पूरा हुआ! / Backup completed ✓')),
-        );
+        showSuccessSnackBar(context, 'बैकअप पूरा हुआ! / Backup completed');
       }
     } catch (e) {
       if (mounted) {
@@ -218,9 +291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(familyProvider);
       ref.invalidate(selectedFamilyMemberProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
-        );
+        showSuccessSnackBar(context, '$profileName सफलतापूर्वक आयात किया गया! / Imported successfully');
       }
     } catch (e) {
       if (mounted) {
@@ -444,6 +515,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 onTap: _toggleGoogleLink,
+              ),
+              ListTile(
+                leading: const Icon(Icons.cloud_sync_outlined),
+                title: const Text("गूगल ड्राइव से डेटा लोड करें / Load data from Google Drive"),
+                subtitle: const Text("नए फ़ोन/इंस्टॉल पर सारा पुराना डेटा बहाल करें"),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _loadAllFromGoogle,
               ),
               if (_isGoogleLinked) ...[
                 ListTile(

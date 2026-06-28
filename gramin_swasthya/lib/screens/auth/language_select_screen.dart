@@ -59,7 +59,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               _buildLanguageCard(
                 context: context,
                 value: 'hi',
-                emoji: '🇮🇳',
+                icon: Icons.language,
                 title: 'हिंदी',
                 subtitle: 'Hindi',
               ),
@@ -70,7 +70,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               _buildLanguageCard(
                 context: context,
                 value: 'en',
-                emoji: '🇬🇧',
+                icon: Icons.translate,
                 title: 'English',
                 subtitle: 'अंग्रेज़ी',
               ),
@@ -95,7 +95,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
   Widget _buildLanguageCard({
     required BuildContext context,
     required String value,
-    required String emoji,
+    required IconData icon,
     required String title,
     required String subtitle,
   }) {
@@ -123,10 +123,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: ListTile(
-            leading: Text(
-              emoji,
-              style: const TextStyle(fontSize: 24),
-            ),
+            leading: Icon(icon, size: 28),
             title: Text(
               title,
               style: theme.textTheme.titleMedium?.copyWith(

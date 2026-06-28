@@ -37,14 +37,14 @@ class ReportViewerScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(success == true
-                  ? 'गैलरी में सहेजा गया ✓'
+                  ? 'गैलरी में सहेजा गया'
                   : 'सहेजने में विफल')),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -76,7 +76,7 @@ class ReportViewerScreen extends ConsumerWidget {
       ref.read(reportsRepoProvider).deleteReport(report.id);
       context.pop(); // Close viewer
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('रिपोर्ट हटा दी गई ✓ / Report Deleted')),
+        const SnackBar(content: Text('रिपोर्ट हटा दी गई / Report Deleted')),
       );
     }
   }

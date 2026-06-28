@@ -183,6 +183,26 @@ class GoogleDriveService {
     return folders;
   }
 
+  /// Restores every backed-up profile (and its health/medicine/report data)
+  /// from Google Drive into the local SQLite database. Returns the number of
+  /// profiles successfully imported. Used by the "Load data from Google Drive"
+  /// restore so the user gets all their data back after a reinstall.
+  Future<int> importAllProfiles() async {
+    final folders = await listBackupFolders();
+    int imported = 0;
+    for (final folder in folders) {
+      final id = folder['id'];
+      if (id == null) continue;
+      try {
+        await importProfile(id);
+        imported++;
+      } catch (e) {
+        debugPrint("Failed to import profile '${folder['name']}': $e");
+      }
+    }
+    return imported;
+  }
+
   Future<void> importProfile(String folderId) async {
     GoogleSignInAccount? account = _googleSignIn.currentUser;
     account ??= await _googleSignIn.signInSilently();

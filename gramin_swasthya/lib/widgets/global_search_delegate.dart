@@ -81,7 +81,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
         final List<Widget> suggestionWidgets = [];
 
         if (members.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("👤 सदस्य / Members", colorScheme));
+          suggestionWidgets.add(_buildSectionHeader(Icons.person, "सदस्य / Members", colorScheme));
           suggestionWidgets.addAll(members.map((m) => ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person, size: 20)),
             title: Text(m['name']),
@@ -95,7 +95,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
         }
 
         if (medicines.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("💊 दवाइयाँ / Medicines", colorScheme));
+          suggestionWidgets.add(_buildSectionHeader(Icons.medication, "दवाइयाँ / Medicines", colorScheme));
           suggestionWidgets.addAll(medicines.map((m) => ListTile(
             leading: const CircleAvatar(child: Icon(Icons.medication, size: 20)),
             title: Text(m['name']),
@@ -109,7 +109,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
         }
 
         if (reports.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("📁 रिपोर्ट / Reports", colorScheme));
+          suggestionWidgets.add(_buildSectionHeader(Icons.folder, "रिपोर्ट / Reports", colorScheme));
           suggestionWidgets.addAll(reports.map((r) => ListTile(
             leading: const CircleAvatar(child: Icon(Icons.folder, size: 20)),
             title: Text(r['type'] ?? 'Report'),
@@ -147,9 +147,9 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
   List<Widget> _buildRecentSearches(BuildContext context) {
     if (_recentSearches.isEmpty) {
       return [
-        const Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Center(child: Text("खोजना शुरू करें...", style: TextStyle(color: Colors.grey))),
+        Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Center(child: Text("खोजना शुरू करें...", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
         )
       ];
     }
@@ -157,10 +157,10 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
     return [
       Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text("हालिया खोजें / Recent Searches", style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.grey)),
+        child: Text("हालिया खोजें / Recent Searches", style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ),
       ..._recentSearches.map((term) => ListTile(
-        leading: const Icon(Icons.history, size: 20, color: Colors.grey),
+        leading: Icon(Icons.history, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
         title: Text(term),
         trailing: IconButton(
           icon: const Icon(Icons.close, size: 16),
@@ -171,12 +171,18 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
     ];
   }
 
-  Widget _buildSectionHeader(String title, ColorScheme colorScheme) {
+  Widget _buildSectionHeader(IconData icon, String title, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary, letterSpacing: 1.1),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary, letterSpacing: 1.1),
+          ),
+        ],
       ),
     );
   }

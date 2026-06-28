@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -83,9 +84,7 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
     await repo.addSugar(record);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('शुगर सहेजी गई ✓ / Sugar Saved')),
-    );
+    showSuccessSnackBar(context, 'शुगर सहेजी गई / Sugar Saved');
 
     context.pop();
   }

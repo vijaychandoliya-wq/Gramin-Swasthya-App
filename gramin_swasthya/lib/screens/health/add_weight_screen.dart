@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -75,9 +76,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     await repo.addWeight(record);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('वजन सहेजा गया ✓ / Weight Saved')),
-    );
+    showSuccessSnackBar(context, 'वजन सहेजा गया / Weight Saved');
 
     context.pop();
   }

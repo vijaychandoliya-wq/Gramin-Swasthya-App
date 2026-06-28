@@ -108,15 +108,15 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
           medicinesAsync.when(
             data: (medicines) {
               if (medicines.isEmpty) {
-                return const SliverFillRemaining(
+                return SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.medication_outlined, size: 64, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text('कोई दवाई नहीं / No Medicines'),
+                        Icon(Icons.medication_outlined, size: 64, color: colorScheme.onSurfaceVariant),
+                        const SizedBox(height: 16),
+                        const Text('कोई दवाई नहीं / No Medicines'),
                       ],
                     ),
                   ),
@@ -197,7 +197,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                   const SizedBox(height: 4),
                   Text(
                     allTaken 
-                      ? 'शाबाश! सभी ली गईं ✓ / Well done!' 
+                      ? 'शाबाश! सभी ली गईं / Well done!'
                       : '${adherence.total - adherence.taken} बाकी हैं / remaining',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: allTaken ? Colors.green : colorScheme.onSurfaceVariant,

@@ -104,7 +104,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
         (familyMembers.isNotEmpty ? familyMembers.first : null);
     final activeType = ref.watch(activeReportTypeFilterProvider);
-    final reportTypes = ["सभी", "नुस्खा 💊", "Lab 🧪", "X-Ray 📷", "अन्य"];
+    final reportTypes = ["सभी", "नुस्खा", "Lab", "X-Ray", "अन्य"];
 
     return Column(
       children: [

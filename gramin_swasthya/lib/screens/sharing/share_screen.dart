@@ -58,7 +58,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -181,9 +181,9 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                   
                   final docs = snapshot.data?.docs ?? [];
                   if (docs.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text('कोई सक्रिय लिंक नहीं / No active links', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('कोई सक्रिय लिंक नहीं / No active links', textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurfaceVariant)),
                     );
                   }
 
@@ -220,7 +220,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                               ),
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: const Icon(Icons.link_off, color: Colors.grey),
+                                icon: Icon(Icons.link_off, color: colorScheme.onSurfaceVariant),
                                 onPressed: () => _revokeShare(doc.id),
                                 tooltip: 'Revoke Link',
                               ),

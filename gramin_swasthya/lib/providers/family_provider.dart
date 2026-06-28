@@ -47,7 +47,10 @@ class FamilyNotifier extends StateNotifier<List<FamilyMember>> {
     final db = await DatabaseHelper.instance.database;
     final rows = await db.query('family_members', orderBy: 'id ASC');
 
-    state = rows.map((r) => FamilyMember(
+    // DatabaseHelper.database is typed `dynamic`, so `rows` is dynamic and a
+    // bare `.map(...)` infers `List<dynamic>` — which fails to assign to the
+    // `List<FamilyMember>` state at runtime. Pin the element type explicitly.
+    state = rows.map<FamilyMember>((r) => FamilyMember(
       id: r['id'].toString(),
       name: r['name'] as String,
       relation: (r['gender'] as String?) ?? 'Family',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -83,9 +84,7 @@ class _AddBpScreenState extends ConsumerState<AddBpScreen> {
     await repo.addBp(record);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('BP सहेजा गया ✓ / BP Saved')),
-    );
+    showSuccessSnackBar(context, 'BP सहेजा गया / BP Saved');
 
     context.pop();
   }

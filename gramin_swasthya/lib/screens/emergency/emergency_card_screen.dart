@@ -52,7 +52,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(success == true
-                ? '$memberName का कार्ड गैलरी में सहेजा गया ✓'
+                ? '$memberName का कार्ड गैलरी में सहेजा गया'
                 : 'सहेजने में विफल'),
             backgroundColor: success == true ? Colors.green : Colors.red,
           ),
@@ -61,7 +61,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     }
@@ -69,7 +69,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
 
   Future<void> _shareOnWhatsApp(FamilyMember member) async {
     final text = """
-🆘 *आपातकालीन स्वास्थ्य कार्ड* 🆘
+*आपातकालीन स्वास्थ्य कार्ड*
 नाम: ${member.name}
 रक्त समूह: ${member.bloodGroup}
 बीमारियां: ${member.diseases.join(", ")}
@@ -97,7 +97,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
         backgroundColor: colorScheme.error,
         foregroundColor: colorScheme.onError,
         centerTitle: true,
-        title: const Text('🆘 आपातकालीन कार्ड'),
+        title: const Text('आपातकालीन कार्ड'),
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
@@ -147,7 +147,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
                         ),
-                        icon: const Text("💬", style: TextStyle(fontSize: 20)),
+                        icon: const Icon(Icons.share),
                         label: const Text("WhatsApp पर शेयर करें",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),

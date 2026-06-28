@@ -44,7 +44,12 @@
       "Bash(/usr/libexec/java_home)",
       "Bash(flutter config *)",
       "Bash('/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/keytool' -list -v -keystore /Users/vijaychandoliya/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)",
-      "Bash(flutter devices *)"
+      "Bash(flutter devices *)",
+      "Bash(python3 -)",
+      "Bash(pkill -f \"flutter_tools.snapshot run\")",
+      "WebSearch",
+      "Bash(pkill -f \"b98pu2x7n\")",
+      "Bash(~/Library/Android/sdk/platform-tools/adb shell *)"
     ]
   }
 }

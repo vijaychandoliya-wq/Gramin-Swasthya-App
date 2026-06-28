@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,9 +111,7 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     await NotificationService.scheduleDailyReminders(saved);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.medicine == null ? 'दवाई जोड़ दी गई ✓' : 'संपादित की गई ✓')),
-      );
+      showSuccessSnackBar(context, widget.medicine == null ? 'दवाई जोड़ दी गई' : 'संपादित की गई');
       context.pop();
     }
   }

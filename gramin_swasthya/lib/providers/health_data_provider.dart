@@ -70,7 +70,7 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _bpDb = bpRows.map((r) => BpRecord(
+    _bpDb = bpRows.map<BpRecord>((r) => BpRecord(
       id: r['id'].toString(),
       systolic: r['systolic'] as int,
       diastolic: r['diastolic'] as int,
@@ -84,7 +84,7 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _sugarDb = sugarRows.map((r) => SugarRecord(
+    _sugarDb = sugarRows.map<SugarRecord>((r) => SugarRecord(
       id: r['id'].toString(),
       glucose: (r['value'] as num).toDouble(),
       type: r['type'] as String,
@@ -98,7 +98,7 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _weightDb = weightRows.map((r) => WeightRecord(
+    _weightDb = weightRows.map<WeightRecord>((r) => WeightRecord(
       id: r['id'].toString(),
       weight: (r['weight_kg'] as num).toDouble(),
       date: DateTime.parse(r['recorded_at'] as String),

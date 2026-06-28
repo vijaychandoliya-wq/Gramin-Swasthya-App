@@ -255,9 +255,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       if (todayMedicines.isNotEmpty)
-                        TextButton(
+                        TextButton.icon(
                           onPressed: () => context.go('/medicines'),
-                          child: const Text('सभी देखें →'),
+                          label: const Text('सभी देखें'),
+                          icon: const Icon(Icons.arrow_forward, size: 18),
+                          iconAlignment: IconAlignment.end,
                         ),
                     ],
                   ),
