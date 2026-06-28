@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -28,7 +29,20 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
-    
+
+    // Set tz.local to the device timezone. Without this it defaults to UTC, so
+    // every zonedSchedule reminder would fire at the wrong wall-clock time
+    // (e.g. ~5.5h off in IST). Falls back to Asia/Kolkata if detection fails.
+    try {
+      final String localZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(localZone));
+    } catch (e) {
+      debugPrint('Local timezone detection failed, defaulting to Asia/Kolkata: $e');
+      try {
+        tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
+      } catch (_) {}
+    }
+
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -79,32 +93,47 @@ class NotificationService {
       // Save medicine name for background alarm callback query
       await prefs.setString('alarm_id_to_med_name_$id', med.name);
 
-      // Schedule Local Notification
-      await _notificationsPlugin.zonedSchedule(
-        id,
-        '💊 दवाई का समय / Med Time',
-        '${med.name} — ${med.dosage} ${med.unit} लें / Take your medicine',
-        _nextInstanceOfTime(time),
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'medication_reminders',
-            'Medication Reminders',
-            channelDescription: 'Daily reminders for your medications',
-            importance: Importance.max,
-            priority: Priority.high,
-            playSound: true,
+      // Schedule Local Notification.
+      // Exact alarms are revocable on Android 12+ and denied by default on
+      // Android 14+. Probe the capability and fall back to inexact scheduling,
+      // and wrap the call so a denied permission can't abort the save flow.
+      final androidImpl = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      bool canExact = true;
+      try {
+        canExact = (await androidImpl?.requestExactAlarmsPermission()) ?? true;
+      } catch (_) {}
+      try {
+        await _notificationsPlugin.zonedSchedule(
+          id,
+          '💊 दवाई का समय / Med Time',
+          '${med.name} — ${med.dosage} ${med.unit} लें / Take your medicine',
+          _nextInstanceOfTime(time),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'medication_reminders',
+              'Medication Reminders',
+              channelDescription: 'Daily reminders for your medications',
+              importance: Importance.max,
+              priority: Priority.high,
+              playSound: true,
+            ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
           ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: med.name,
-      );
+          androidScheduleMode: canExact
+              ? AndroidScheduleMode.exactAllowWhileIdle
+              : AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+          payload: med.name,
+        );
+      } catch (e) {
+        debugPrint("zonedSchedule error: $e");
+      }
 
       // Schedule repeating alarm with Android Alarm Manager
       try {

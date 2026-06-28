@@ -163,7 +163,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           radius: 14,
                           backgroundColor: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                           child: Text(
-                            member.name[0].toUpperCase(),
+                            member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
                             style: TextStyle(
                               color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                               fontSize: 11,

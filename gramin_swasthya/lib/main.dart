@@ -11,12 +11,24 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Guard each non-essential init independently so a failure (e.g. Firebase
+  // offline, notifications denied) degrades gracefully instead of throwing out
+  // of main() and leaving the user on a permanent white screen.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, st) {
+    debugPrint("Firebase initialization failed: $e\n$st");
+  }
 
   // Initialize Notification Service
-  await NotificationService.init();
+  try {
+    await NotificationService.init();
+  } catch (e, st) {
+    debugPrint("NotificationService initialization failed: $e\n$st");
+  }
 
   // Initialize Android Alarm Manager
   try {

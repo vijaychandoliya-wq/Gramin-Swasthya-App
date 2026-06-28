@@ -73,9 +73,9 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
 
     // Insert 
     final repo = ref.read(healthRepoProvider);
-    final record = SugarRecord( // NOTE: the provider mocked glucose as int, we'll cast
+    final record = SugarRecord(
       id: const Uuid().v4(),
-      glucose: val.toInt(),
+      glucose: val,
       type: typeStr,
       date: combinedDateTime,
     );

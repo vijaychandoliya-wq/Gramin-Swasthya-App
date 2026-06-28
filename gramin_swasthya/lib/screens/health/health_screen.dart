@@ -205,7 +205,7 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                     ? CircleAvatar(
                         backgroundColor: colorScheme.primary,
                         child: Text(
-                          member.name[0].toUpperCase(),
+                          member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
                           style: TextStyle(color: colorScheme.onPrimary, fontSize: 12),
                         ),
                       )
@@ -410,7 +410,7 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
            title = '${item.systolic} / ${item.diastolic} mmHg';
            icon = _buildIconBox(Icons.monitor_heart, Colors.redAccent);
         } else if (widget.type == HealthType.sugar) {
-           title = '${item.glucose} mg/dL (${item.type})';
+           title = '${item.glucoseDisplay} mg/dL (${item.type})';
            icon = _buildIconBox(Icons.bloodtype, Colors.blueAccent);
         } else {
            title = '${item.weight} kg';

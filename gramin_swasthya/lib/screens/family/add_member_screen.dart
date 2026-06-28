@@ -194,7 +194,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                           border: OutlineInputBorder(),
                         ),
                         validator: (v) =>
-                            (v == null || v.isEmpty) ? 'नाम आवश्यक है' : null,
+                            (v == null || v.trim().isEmpty) ? 'नाम आवश्यक है' : null,
                       ),
                       const SizedBox(height: 16),
                       Row(

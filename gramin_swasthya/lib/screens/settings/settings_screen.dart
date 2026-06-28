@@ -306,11 +306,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      final ok = await canLaunchUrl(uri) &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('लिंक नहीं खोल सका / Could not open link')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('लिंक नहीं खोल सका / Could not open link')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final primaryMember = ref.watch(familyProvider).firstWhere((m) => m.isPrimary, orElse: () => ref.read(familyProvider).first);
+    final family = ref.watch(familyProvider);
+    // Don't call .first inside orElse — it throws StateError when the family
+    // list is empty. Resolve to a nullable member and fall back gracefully.
+    final primaryMember = family.where((m) => m.isPrimary).isNotEmpty
+        ? family.firstWhere((m) => m.isPrimary)
+        : (family.isNotEmpty ? family.first : null);
 
     return Scaffold(
       appBar: AppBar(
@@ -337,7 +361,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: colorScheme.primaryContainer,
-                      child: Text(primaryMember.name[0], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                      child: Text((primaryMember == null || primaryMember.name.isEmpty) ? '?' : primaryMember.name[0], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -449,13 +473,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 leading: const Icon(Icons.policy_outlined),
                 title: const Text("गोपनीयता नीति / Privacy"),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => launchUrl(Uri.parse("https://graminsw.app/privacy")),
+                onTap: () => _openUrl("https://graminsw.app/privacy"),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
                 title: const Text("मदद / Help"),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => launchUrl(Uri.parse("https://graminsw.app/help")),
+                onTap: () => _openUrl("https://graminsw.app/help"),
               ),
             ],
             colorScheme,

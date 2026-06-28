@@ -237,10 +237,29 @@ class MockDatabase {
     int? offset,
   }) async {
     final list = _tables[table] ?? [];
-    var result = list;
+    // Copy so filtering/sorting never mutates the backing table.
+    var result = List<Map<String, dynamic>>.from(list);
     if (where != null && whereArgs != null) {
       if (where.contains('synced = 0')) {
         result = result.where((r) => r['synced'] == 0).toList();
+      } else if (where.contains('member_id = ?')) {
+        // Must be checked before the generic 'id = ?' branch (which 'member_id'
+        // also contains) so per-member reads aren't returned unfiltered.
+        final memberId = whereArgs[0];
+        result = result
+            .where((r) => r['member_id'].toString() == memberId.toString())
+            .toList();
+      } else if (where.contains('medicine_id = ?')) {
+        final medicineId = whereArgs[0];
+        result = result
+            .where((r) => r['medicine_id'].toString() == medicineId.toString())
+            .toList();
+        if (where.contains('status = ?') && whereArgs.length > 1) {
+          final status = whereArgs[1];
+          result = result
+              .where((r) => r['status'].toString() == status.toString())
+              .toList();
+        }
       } else if (where.contains('id = ?')) {
         final idVal = whereArgs[0];
         result = result.where((r) => r['id'].toString() == idVal.toString()).toList();
@@ -259,6 +278,24 @@ class MockDatabase {
           return doc.contains(match) || notes.contains(match) || type.contains(match);
         }).toList();
       }
+    }
+
+    // Honor orderBy (e.g. 'recorded_at DESC') so mock results match sqflite.
+    if (orderBy != null && orderBy.trim().isNotEmpty) {
+      final parts = orderBy.trim().split(RegExp(r'\s+'));
+      final col = parts[0];
+      final desc = parts.length > 1 && parts[1].toUpperCase() == 'DESC';
+      result.sort((a, b) {
+        final av = a[col];
+        final bv = b[col];
+        if (av == null && bv == null) return 0;
+        if (av == null) return desc ? 1 : -1;
+        if (bv == null) return desc ? -1 : 1;
+        final int cmp = (av is num && bv is num)
+            ? av.compareTo(bv)
+            : av.toString().compareTo(bv.toString());
+        return desc ? -cmp : cmp;
+      });
     }
     return result;
   }

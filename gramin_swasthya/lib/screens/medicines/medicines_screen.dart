@@ -83,7 +83,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                       avatar: CircleAvatar(
                         radius: 12,
                         backgroundColor: isSelected ? colorScheme.onPrimaryContainer : colorScheme.outline,
-                        child: Text(member.name[0], style: TextStyle(fontSize: 10, color: isSelected ? colorScheme.primaryContainer : colorScheme.surface)),
+                        child: Text(member.name.isNotEmpty ? member.name[0] : '?', style: TextStyle(fontSize: 10, color: isSelected ? colorScheme.primaryContainer : colorScheme.surface)),
                       ),
                       label: Text(member.name.split(' ').first),
                       onSelected: (val) {

@@ -105,7 +105,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       if (compressedFile == null) throw Exception("Compression failed");
 
       // 2. Determine path/sync status
-      setState(() => _uploadProgress = 0.6);
+      if (mounted) setState(() => _uploadProgress = 0.6);
       final connectivity = await Connectivity().checkConnectivity();
       bool isOnline = connectivity.contains(ConnectivityResult.mobile) || 
                       connectivity.contains(ConnectivityResult.wifi);
@@ -124,7 +124,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       }
 
       // 3. Save to Repo
-      setState(() => _uploadProgress = 0.9);
+      if (mounted) setState(() => _uploadProgress = 0.9);
       final report = MedicalReport(
         id: const Uuid().v4(),
         memberId: selectedMember?.id ?? '1',
@@ -135,8 +135,8 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       );
 
       await repo.addReport(report);
-      
-      setState(() => _uploadProgress = 1.0);
+
+      if (mounted) setState(() => _uploadProgress = 1.0);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

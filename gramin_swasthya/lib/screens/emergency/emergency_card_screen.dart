@@ -217,7 +217,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           radius: 32,
                           backgroundColor: colorScheme.primaryContainer,
                           child: Text(
-                            member.name[0],
+                            member.name.isNotEmpty ? member.name[0] : '?',
                             style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -328,8 +328,14 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           ],
                         ),
                         FloatingActionButton(
-                          onPressed: () => launchUrl(Uri.parse(
-                              "tel:${member.emergencyPhone}")), // In a real app use emergency field
+                          onPressed: () async {
+                            // Guard against PlatformException when no dialer is
+                            // available so the emergency button never crashes.
+                            try {
+                              await launchUrl(
+                                  Uri.parse("tel:${member.emergencyPhone}"));
+                            } catch (_) {}
+                          },
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                           elevation: 2,

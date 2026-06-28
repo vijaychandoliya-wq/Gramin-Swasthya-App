@@ -110,7 +110,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: colorScheme.primary,
-                    child: Text(selectedMember.name[0], style: const TextStyle(color: Colors.white)),
+                    child: Text(selectedMember.name.isNotEmpty ? selectedMember.name[0] : '?', style: const TextStyle(color: Colors.white)),
                   ),
                   title: Text(selectedMember.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('${selectedMember.relation} • Blood: ${selectedMember.bloodGroup}'),
@@ -262,7 +262,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
             const Text('सदस्य चुनें / Select Member', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ...members.map((m) => ListTile(
-              leading: CircleAvatar(child: Text(m.name[0])),
+              leading: CircleAvatar(child: Text(m.name.isNotEmpty ? m.name[0] : '?')),
               title: Text(m.name),
               onTap: () {
                 ref.read(selectedFamilyMemberProvider.notifier).state = m;
