@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/family_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../../services/google_drive_service.dart';
 import '../../db/database_helper.dart';
 
@@ -189,6 +190,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(selectedFamilyMemberProvider);
       if (!mounted) return;
       if (count > 0) {
+        ref.read(notificationsProvider.notifier).add(
+          type: AppNotificationType.restore,
+          title: 'डेटा बहाल किया गया / Data restored',
+          body: '$count प्रोफ़ाइल / profiles from Google Drive',
+        );
         showSuccessSnackBar(context, '$count प्रोफ़ाइल लोड हुईं / profiles restored');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -212,6 +218,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _fetchGoogleBackups();
       if (mounted) {
         setState(() => _lastSynced = "अभी-अभी / Just now");
+        ref.read(notificationsProvider.notifier).add(
+          type: AppNotificationType.backup,
+          title: 'बैकअप पूरा हुआ / Backup completed',
+          body: 'Google Drive',
+        );
         showSuccessSnackBar(context, 'बैकअप पूरा हुआ! / Backup completed');
       }
     } catch (e) {

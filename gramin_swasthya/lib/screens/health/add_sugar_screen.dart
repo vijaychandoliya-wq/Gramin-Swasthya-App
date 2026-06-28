@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -82,6 +83,12 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
     );
     
     await repo.addSugar(record);
+
+    ref.read(notificationsProvider.notifier).add(
+      type: AppNotificationType.sugar,
+      title: 'शुगर रिकॉर्ड किया गया / Sugar recorded',
+      body: '${val.toStringAsFixed(0)} mg/dL · $typeStr',
+    );
 
     if (!mounted) return;
     showSuccessSnackBar(context, 'शुगर सहेजी गई / Sugar Saved');

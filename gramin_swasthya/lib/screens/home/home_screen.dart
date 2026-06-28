@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/medicines_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../../widgets/quick_add_sheet.dart';
 import '../../widgets/global_search_delegate.dart';
 
@@ -133,13 +134,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             centerTitle: false,
             actions: [
               const GlobalSearchAnchor(),
-              IconButton(
-                icon: Badge(
-                  label: Text(todayMedicines.where((m) => !m.isTaken).length.toString()),
-                  isLabelVisible: todayMedicines.any((m) => !m.isTaken),
-                  child: const Icon(Icons.notifications_outlined),
-                ),
-                onPressed: () {},
+              Consumer(
+                builder: (context, ref, _) {
+                  final unread = ref.watch(unreadNotificationCountProvider);
+                  return IconButton(
+                    tooltip: 'सूचनाएँ / Notifications',
+                    icon: Badge(
+                      label: Text(unread.toString()),
+                      isLabelVisible: unread > 0,
+                      child: const Icon(Icons.notifications_outlined),
+                    ),
+                    onPressed: () => context.push('/notifications'),
+                  );
+                },
               ),
               const SizedBox(width: 8),
             ],

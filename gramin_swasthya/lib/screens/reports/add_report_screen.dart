@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../utils/snackbar_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -131,6 +132,12 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
 
       if (mounted) setState(() => _uploadProgress = 1.0);
       
+      ref.read(notificationsProvider.notifier).add(
+        type: AppNotificationType.report,
+        title: 'रिपोर्ट जोड़ी गई / Report added',
+        body: _selectedType ?? 'Report',
+      );
+
       if (mounted) {
         showSuccessSnackBar(context, 'रिपोर्ट सहेजी गई / Report Saved');
         context.pop();

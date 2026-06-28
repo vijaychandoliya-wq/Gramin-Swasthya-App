@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -74,6 +75,12 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     );
     
     await repo.addWeight(record);
+
+    ref.read(notificationsProvider.notifier).add(
+      type: AppNotificationType.weight,
+      title: 'वजन रिकॉर्ड किया गया / Weight recorded',
+      body: '${val.toStringAsFixed(1)} kg',
+    );
 
     if (!mounted) return;
     showSuccessSnackBar(context, 'वजन सहेजा गया / Weight Saved');
