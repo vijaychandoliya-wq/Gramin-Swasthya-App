@@ -31,15 +31,24 @@ class GoogleDriveService {
   );
 
   Future<GoogleSignInAccount?> signIn() async {
-    try {
-      GoogleSignInAccount? account = _googleSignIn.currentUser;
-      account ??= await _googleSignIn.signInSilently();
-      account ??= await _googleSignIn.signIn();
-      return account;
-    } catch (e) {
-      debugPrint("Google Sign-In error: $e");
-      return null;
+    // Reuse an existing session first. signInSilently() throws when there is
+    // simply no cached account — that is expected, so swallow only that and
+    // fall through to interactive sign-in.
+    GoogleSignInAccount? account = _googleSignIn.currentUser;
+    if (account == null) {
+      try {
+        account = await _googleSignIn.signInSilently();
+      } catch (e) {
+        debugPrint("Silent Google Sign-In unavailable: $e");
+      }
     }
+    // Interactive sign-in. Let errors propagate so the caller can show the real
+    // reason (e.g. PlatformException "ApiException: 10" / DEVELOPER_ERROR, which
+    // means this build's SHA-1 fingerprint is not registered in the Firebase
+    // project — the google-services.json "oauth_client" array would be empty).
+    // Returns null only when the user cancels the account picker.
+    account ??= await _googleSignIn.signIn();
+    return account;
   }
 
   Future<void> signOut() async {

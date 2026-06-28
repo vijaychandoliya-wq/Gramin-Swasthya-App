@@ -36,7 +36,14 @@
       "Bash(gh auth *)",
       "Bash(git push *)",
       "Bash(python3 -c ' *)",
-      "Bash(keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)"
+      "Bash(keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)",
+      "Bash(echo \"=== Searching for any existing debug/keystore files ===\" && find ~ -maxdepth 3 -name \"debug.keystore\" 2>/dev/null; find /Users/vijaychandoliya/Documents/github/Gramin-Swasthya-App -name \"*.keystore\" -o -name \"*.jks\" 2>/dev/null | head; echo \"--- done ---\")",
+      "Bash(keytool -list -v -keystore /Users/vijaychandoliya/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)",
+      "Bash(keytool -list -v -keystore /Users/vijaychandoliya/.android/debug.keystore -storepass android)",
+      "Read(//Applications/Android Studio.app/Contents/jbr/Contents/Home/**)",
+      "Bash(/usr/libexec/java_home)",
+      "Bash(flutter config *)",
+      "Bash('/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/keytool' -list -v -keystore /Users/vijaychandoliya/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android)"
     ]
   }
 }

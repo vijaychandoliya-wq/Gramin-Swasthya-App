@@ -84,20 +84,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const SnackBar(content: Text('Google खाता हटाया गया / Google account unlinked')),
       );
     } else {
-      final account = await GoogleDriveService.instance.signIn();
-      if (!mounted) return;
-      if (account != null) {
-        setState(() {
-          _isGoogleLinked = true;
-          _googleUserEmail = account.email;
-        });
+      try {
+        final account = await GoogleDriveService.instance.signIn();
+        if (!mounted) return;
+        if (account != null) {
+          setState(() {
+            _isGoogleLinked = true;
+            _googleUserEmail = account.email;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
+          );
+          _fetchGoogleBackups();
+        } else {
+          // account == null means the user dismissed the picker.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('लिंक रद्द किया गया / Linking cancelled')),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        // Surface the real failure (e.g. DEVELOPER_ERROR / ApiException: 10 when
+        // the signing SHA-1 isn't registered in Firebase) instead of a generic
+        // message, so the problem is diagnosable.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
-        );
-        _fetchGoogleBackups();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('लिंक करने में विफल / Failed to link account')),
+          SnackBar(content: Text('लिंक करने में विफल / Failed to link: $e')),
         );
       }
     }
