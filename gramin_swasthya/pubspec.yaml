@@ -22,11 +22,13 @@ dependencies:
   intl: ^0.19.0
   path: ^1.9.0
 
-  # Firebase
-  firebase_core: ^2.27.0
-  firebase_auth: ^4.19.0
-  cloud_firestore: ^4.17.1
-  firebase_storage: ^11.7.0
+  # Firebase — Firestore powers doctor-sharing + sync; core is required by it.
+  # Pinned to the 3.x/5.x line so the iOS Firebase SDK (11.x) uses GoogleUtilities
+  # 8.x, matching GoogleSignIn 8. The old 2.x/4.x line pulled Firebase 10.x, which
+  # conflicted with google_sign_in on iOS (GoogleUtilities / RecaptchaInterop).
+  # firebase_auth and firebase_storage were unused and have been removed.
+  firebase_core: ^3.3.0
+  cloud_firestore: ^5.2.0
 
   # Device & Media
   local_auth: ^2.1.8
