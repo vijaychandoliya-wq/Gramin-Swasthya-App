@@ -16,11 +16,16 @@ class BpRecord {
 
 class SugarRecord {
   final String id;
-  final int glucose;
+  final double glucose; // stored in a REAL column; keep decimals intact
   final String type; // 'Fasting', 'Random', 'Post-meal'
   final DateTime date;
 
   SugarRecord({required this.id, required this.glucose, required this.type, required this.date});
+
+  /// Glucose without a trailing ".0" for whole numbers (e.g. "110", "110.5").
+  String get glucoseDisplay => glucose == glucose.truncateToDouble()
+      ? glucose.toStringAsFixed(0)
+      : glucose.toStringAsFixed(1);
 }
 
 class WeightRecord {
@@ -65,7 +70,7 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _bpDb = bpRows.map((r) => BpRecord(
+    _bpDb = bpRows.map<BpRecord>((r) => BpRecord(
       id: r['id'].toString(),
       systolic: r['systolic'] as int,
       diastolic: r['diastolic'] as int,
@@ -79,9 +84,9 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _sugarDb = sugarRows.map((r) => SugarRecord(
+    _sugarDb = sugarRows.map<SugarRecord>((r) => SugarRecord(
       id: r['id'].toString(),
-      glucose: (r['value'] as num).toInt(),
+      glucose: (r['value'] as num).toDouble(),
       type: r['type'] as String,
       date: DateTime.parse(r['recorded_at'] as String),
     )).toList();
@@ -93,7 +98,7 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _weightDb = weightRows.map((r) => WeightRecord(
+    _weightDb = weightRows.map<WeightRecord>((r) => WeightRecord(
       id: r['id'].toString(),
       weight: (r['weight_kg'] as num).toDouble(),
       date: DateTime.parse(r['recorded_at'] as String),

@@ -24,7 +24,11 @@ class DatabaseHelper {
   _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
     return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+        version: _databaseVersion,
+        // Enforce foreign keys so ON DELETE CASCADE actually fires — without
+        // this, deleting a profile would orphan its readings/medicines/reports.
+        onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
+        onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -130,54 +134,54 @@ class DatabaseHelper {
   }
 
   // --- Search Methods ---
+  // "Search anything" across every table. Text columns use LIKE (case-
+  // insensitive for ASCII); numeric columns are CAST to TEXT so values like
+  // "120" are matchable too.
 
-  Future<List<Map<String, dynamic>>> searchMembers(String query) async {
+  Future<List<Map<String, dynamic>>> _search(
+      String table, String where, List<Object?> args) async {
     final db = await database;
     if (kIsWeb) {
-      return await db.query(
+      return await db.query(table, where: where, whereArgs: args);
+    }
+    return await (db as Database).query(table, where: where, whereArgs: args);
+  }
+
+  Future<List<Map<String, dynamic>>> searchMembers(String q) => _search(
         'family_members',
-        where: 'name LIKE ?',
-        whereArgs: ['%$query%'],
+        'name LIKE ? OR blood_group LIKE ? OR diseases LIKE ? OR gender LIKE ?',
+        ['%$q%', '%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'family_members',
-      where: 'name LIKE ?',
-      whereArgs: ['%$query%'],
-    );
-  }
 
-  Future<List<Map<String, dynamic>>> searchMedicines(String query) async {
-    final db = await database;
-    if (kIsWeb) {
-      return await db.query(
+  Future<List<Map<String, dynamic>>> searchMedicines(String q) => _search(
         'medicines',
-        where: 'name LIKE ?',
-        whereArgs: ['%$query%'],
+        'name LIKE ? OR dosage LIKE ? OR unit LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'medicines',
-      where: 'name LIKE ?',
-      whereArgs: ['%$query%'],
-    );
-  }
 
-  Future<List<Map<String, dynamic>>> searchReports(String query) async {
-    final db = await database;
-    if (kIsWeb) {
-      return await db.query(
+  Future<List<Map<String, dynamic>>> searchReports(String q) => _search(
         'medical_reports',
-        where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
-        whereArgs: ['%$query%', '%$query%', '%$query%'],
+        'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'medical_reports',
-      where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
-      whereArgs: ['%$query%', '%$query%', '%$query%'],
-    );
-  }
+
+  Future<List<Map<String, dynamic>>> searchBpReadings(String q) => _search(
+        'bp_readings',
+        'notes LIKE ? OR CAST(systolic AS TEXT) LIKE ? OR CAST(diastolic AS TEXT) LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
+      );
+
+  Future<List<Map<String, dynamic>>> searchSugarReadings(String q) => _search(
+        'sugar_readings',
+        'notes LIKE ? OR type LIKE ? OR CAST(value AS TEXT) LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
+      );
+
+  Future<List<Map<String, dynamic>>> searchWeightEntries(String q) => _search(
+        'weight_entries',
+        'notes LIKE ? OR CAST(weight_kg AS TEXT) LIKE ?',
+        ['%$q%', '%$q%'],
+      );
 
   Future<void> eraseAllData() async {
     final db = await database;
@@ -237,10 +241,29 @@ class MockDatabase {
     int? offset,
   }) async {
     final list = _tables[table] ?? [];
-    var result = list;
+    // Copy so filtering/sorting never mutates the backing table.
+    var result = List<Map<String, dynamic>>.from(list);
     if (where != null && whereArgs != null) {
       if (where.contains('synced = 0')) {
         result = result.where((r) => r['synced'] == 0).toList();
+      } else if (where.contains('member_id = ?')) {
+        // Must be checked before the generic 'id = ?' branch (which 'member_id'
+        // also contains) so per-member reads aren't returned unfiltered.
+        final memberId = whereArgs[0];
+        result = result
+            .where((r) => r['member_id'].toString() == memberId.toString())
+            .toList();
+      } else if (where.contains('medicine_id = ?')) {
+        final medicineId = whereArgs[0];
+        result = result
+            .where((r) => r['medicine_id'].toString() == medicineId.toString())
+            .toList();
+        if (where.contains('status = ?') && whereArgs.length > 1) {
+          final status = whereArgs[1];
+          result = result
+              .where((r) => r['status'].toString() == status.toString())
+              .toList();
+        }
       } else if (where.contains('id = ?')) {
         final idVal = whereArgs[0];
         result = result.where((r) => r['id'].toString() == idVal.toString()).toList();
@@ -259,6 +282,24 @@ class MockDatabase {
           return doc.contains(match) || notes.contains(match) || type.contains(match);
         }).toList();
       }
+    }
+
+    // Honor orderBy (e.g. 'recorded_at DESC') so mock results match sqflite.
+    if (orderBy != null && orderBy.trim().isNotEmpty) {
+      final parts = orderBy.trim().split(RegExp(r'\s+'));
+      final col = parts[0];
+      final desc = parts.length > 1 && parts[1].toUpperCase() == 'DESC';
+      result.sort((a, b) {
+        final av = a[col];
+        final bv = b[col];
+        if (av == null && bv == null) return 0;
+        if (av == null) return desc ? 1 : -1;
+        if (bv == null) return desc ? -1 : 1;
+        final int cmp = (av is num && bv is num)
+            ? av.compareTo(bv)
+            : av.toString().compareTo(bv.toString());
+        return desc ? -cmp : cmp;
+      });
     }
     return result;
   }

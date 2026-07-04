@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -109,10 +111,16 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     // Schedule Notifications
     await NotificationService.scheduleDailyReminders(saved);
 
+    ref.read(notificationsProvider.notifier).add(
+      type: AppNotificationType.medicine,
+      title: widget.medicine == null
+          ? 'नई दवाई जोड़ी गई / Medicine added'
+          : 'दवाई अपडेट की गई / Medicine updated',
+      body: '${saved.name} · ${saved.times.length} reminder(s)/day',
+    );
+
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.medicine == null ? 'दवाई जोड़ दी गई ✓' : 'संपादित की गई ✓')),
-      );
+      showSuccessSnackBar(context, widget.medicine == null ? 'दवाई जोड़ दी गई' : 'संपादित की गई');
       context.pop();
     }
   }

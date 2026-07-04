@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -73,19 +75,23 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
 
     // Insert 
     final repo = ref.read(healthRepoProvider);
-    final record = SugarRecord( // NOTE: the provider mocked glucose as int, we'll cast
+    final record = SugarRecord(
       id: const Uuid().v4(),
-      glucose: val.toInt(),
+      glucose: val,
       type: typeStr,
       date: combinedDateTime,
     );
     
     await repo.addSugar(record);
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('शुगर सहेजी गई ✓ / Sugar Saved')),
+    ref.read(notificationsProvider.notifier).add(
+      type: AppNotificationType.sugar,
+      title: 'शुगर रिकॉर्ड किया गया / Sugar recorded',
+      body: '${val.toStringAsFixed(0)} mg/dL · $typeStr',
     );
+
+    if (!mounted) return;
+    showSuccessSnackBar(context, 'शुगर सहेजी गई / Sugar Saved');
 
     context.pop();
   }

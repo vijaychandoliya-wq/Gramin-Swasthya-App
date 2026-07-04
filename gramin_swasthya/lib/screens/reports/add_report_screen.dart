@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/notifications_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../providers/reports_provider.dart';
 import '../../providers/family_provider.dart';
@@ -28,7 +29,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
   bool _isUploading = false;
   double _uploadProgress = 0.0;
 
-  final List<String> _reportTypes = ["नुस्खा 💊", "Lab रिपोर्ट 🧪", "X-Ray 📷", "ECG 💓", "अन्य"];
+  final List<String> _reportTypes = ["नुस्खा", "Lab रिपोर्ट", "X-Ray", "ECG", "अन्य"];
 
   @override
   void dispose() {
@@ -104,27 +105,20 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       final compressedFile = await _compressImage(File(_imageFile!.path));
       if (compressedFile == null) throw Exception("Compression failed");
 
-      // 2. Determine path/sync status
-      setState(() => _uploadProgress = 0.6);
-      final connectivity = await Connectivity().checkConnectivity();
-      bool isOnline = connectivity.contains(ConnectivityResult.mobile) || 
-                      connectivity.contains(ConnectivityResult.wifi);
-
-      String finalPath;
-      if (isOnline) {
-        // Mock Firebase Upload
-        await Future.delayed(const Duration(seconds: 1)); // Simulate delay
-        finalPath = 'https://firebasestorage.com/mock/report_${const Uuid().v4()}.jpg';
-      } else {
-        // Save locally
-        final appDir = await getApplicationDocumentsDirectory();
-        final fileName = 'report_${const Uuid().v4()}.jpg';
-        final savedFile = await compressedFile.copy('${appDir.path}/$fileName');
-        finalPath = savedFile.path;
-      }
+      // 2. Persist the image to permanent local storage.
+      // There is no real cloud upload yet, so the local copy is the source of
+      // truth. Previously the "online" branch stored a fake Firebase URL and
+      // discarded the file, which made reports fail to open. The compressed
+      // file lives in the temp dir (which the OS can clear), so always copy it
+      // into the app documents directory. Drive backup uploads this local_path.
+      if (mounted) setState(() => _uploadProgress = 0.6);
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'report_${const Uuid().v4()}.jpg';
+      final savedFile = await compressedFile.copy('${appDir.path}/$fileName');
+      final finalPath = savedFile.path;
 
       // 3. Save to Repo
-      setState(() => _uploadProgress = 0.9);
+      if (mounted) setState(() => _uploadProgress = 0.9);
       final report = MedicalReport(
         id: const Uuid().v4(),
         memberId: selectedMember?.id ?? '1',
@@ -135,13 +129,17 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       );
 
       await repo.addReport(report);
+
+      if (mounted) setState(() => _uploadProgress = 1.0);
       
-      setState(() => _uploadProgress = 1.0);
-      
+      ref.read(notificationsProvider.notifier).add(
+        type: AppNotificationType.report,
+        title: 'रिपोर्ट जोड़ी गई / Report added',
+        body: _selectedType ?? 'Report',
+      );
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('रिपोर्ट सहेजी गई ✓ / Report Saved')),
-        );
+        showSuccessSnackBar(context, 'रिपोर्ट सहेजी गई / Report Saved');
         context.pop();
       }
     } catch (e) {

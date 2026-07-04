@@ -64,7 +64,14 @@ class ReportsRepo {
 
   void _emit() => _controller.add(List.from(_reportsDb));
 
-  Stream<List<MedicalReport>> watchReports() => _controller.stream;
+  Stream<List<MedicalReport>> watchReports() async* {
+    // Replay the current cache to any new/re-subscribing listener (the repo is
+    // cached but the broadcast stream's single _emit() may have already fired),
+    // then forward subsequent updates. Prevents the Reports screen hanging on a
+    // spinner after the user leaves and returns.
+    yield List.from(_reportsDb);
+    yield* _controller.stream;
+  }
 
   Future<MedicalReport> addReport(MedicalReport report) async {
     if (_memberId == null) return report;

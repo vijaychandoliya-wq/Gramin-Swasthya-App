@@ -134,7 +134,7 @@ class _QRScreenState extends State<QRScreen> {
                 children: [
                   Text("डॉक्टर को दिखाएं", style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary)),
                   const SizedBox(height: 8),
-                  const Text("यह कोड scan करने दें", style: TextStyle(color: Colors.grey)),
+                  Text("यह कोड scan करने दें", style: TextStyle(color: colorScheme.onSurfaceVariant)),
                   
                   const SizedBox(height: 32),
 
@@ -248,7 +248,7 @@ class _QRScreenState extends State<QRScreen> {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("💬", style: TextStyle(fontSize: 18)),
+                        Icon(Icons.chat_outlined),
                         SizedBox(width: 12),
                         Text("WhatsApp पर भेजें"),
                       ],

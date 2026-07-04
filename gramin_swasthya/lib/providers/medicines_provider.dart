@@ -101,9 +101,9 @@ class MedicinesRepo {
         orderBy: 'taken_at DESC',
       );
 
-      final takenHistory = logs
+      final List<DateTime> takenHistory = logs
           .where((l) => l['taken_at'] != null)
-          .map((l) => DateTime.parse(l['taken_at'] as String))
+          .map<DateTime>((l) => DateTime.parse(l['taken_at'] as String))
           .toList();
 
       _medicinesDb.add(Medicine(

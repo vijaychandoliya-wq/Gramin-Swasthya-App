@@ -58,7 +58,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -110,7 +110,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: colorScheme.primary,
-                    child: Text(selectedMember.name[0], style: const TextStyle(color: Colors.white)),
+                    child: Text(selectedMember.name.isNotEmpty ? selectedMember.name[0] : '?', style: const TextStyle(color: Colors.white)),
                   ),
                   title: Text(selectedMember.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('${selectedMember.relation} • Blood: ${selectedMember.bloodGroup}'),
@@ -181,9 +181,9 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                   
                   final docs = snapshot.data?.docs ?? [];
                   if (docs.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text('कोई सक्रिय लिंक नहीं / No active links', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('कोई सक्रिय लिंक नहीं / No active links', textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurfaceVariant)),
                     );
                   }
 
@@ -220,7 +220,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
                               ),
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: const Icon(Icons.link_off, color: Colors.grey),
+                                icon: Icon(Icons.link_off, color: colorScheme.onSurfaceVariant),
                                 onPressed: () => _revokeShare(doc.id),
                                 tooltip: 'Revoke Link',
                               ),
@@ -262,7 +262,7 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
             const Text('सदस्य चुनें / Select Member', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ...members.map((m) => ListTile(
-              leading: CircleAvatar(child: Text(m.name[0])),
+              leading: CircleAvatar(child: Text(m.name.isNotEmpty ? m.name[0] : '?')),
               title: Text(m.name),
               onTap: () {
                 ref.read(selectedFamilyMemberProvider.notifier).state = m;

@@ -194,7 +194,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                           border: OutlineInputBorder(),
                         ),
                         validator: (v) =>
-                            (v == null || v.isEmpty) ? 'नाम आवश्यक है' : null,
+                            (v == null || v.trim().isEmpty) ? 'नाम आवश्यक है' : null,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -284,7 +284,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                     children: [
                       Text("मौजूदा बीमारियाँ / Conditions",
                           style: theme.textTheme.titleSmall
-                              ?.copyWith(color: Colors.grey)),
+                              ?.copyWith(color: colorScheme.onSurfaceVariant)),
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
@@ -414,7 +414,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
               onPressed: () => Navigator.pop(context, false),
               child: const Text('रद्द')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('हटाएं'),
           ),

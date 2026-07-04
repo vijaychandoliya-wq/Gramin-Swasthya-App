@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/snackbar_helpers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
@@ -6,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/family_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../../services/google_drive_service.dart';
 import '../../db/database_helper.dart';
 
@@ -84,36 +86,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const SnackBar(content: Text('Google खाता हटाया गया / Google account unlinked')),
       );
     } else {
-      final account = await GoogleDriveService.instance.signIn();
-      if (!mounted) return;
-      if (account != null) {
-        setState(() {
-          _isGoogleLinked = true;
-          _googleUserEmail = account.email;
-        });
+      try {
+        final account = await GoogleDriveService.instance.signIn();
+        if (!mounted) return;
+        if (account != null) {
+          setState(() {
+            _isGoogleLinked = true;
+            _googleUserEmail = account.email;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
+          );
+          _fetchGoogleBackups();
+        } else {
+          // account == null means the user dismissed the picker.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('लिंक रद्द किया गया / Linking cancelled')),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        // Surface the real failure (e.g. DEVELOPER_ERROR / ApiException: 10 when
+        // the signing SHA-1 isn't registered in Firebase) instead of a generic
+        // message, so the problem is diagnosable.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
-        );
-        _fetchGoogleBackups();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('लिंक करने में विफल / Failed to link account')),
+          SnackBar(content: Text('लिंक करने में विफल / Failed to link: $e')),
         );
       }
     }
   }
 
   Future<void> _fetchGoogleBackups() async {
+    if (!mounted) return;
     setState(() => _isLoadingBackups = true);
     try {
       final folders = await GoogleDriveService.instance.listBackupFolders();
+      if (!mounted) return;
       setState(() {
         _googleBackupFolders = folders;
       });
     } catch (e) {
       debugPrint("Failed to fetch backups: $e");
     } finally {
-      setState(() => _isLoadingBackups = false);
+      if (mounted) setState(() => _isLoadingBackups = false);
+    }
+  }
+
+  /// Restores ALL profiles + their data from Google Drive into local SQLite.
+  /// Per the chosen behavior this only runs when the phone has no profiles yet
+  /// (so it's safe right after a reinstall and never creates duplicates).
+  Future<void> _loadAllFromGoogle() async {
+    // Make sure we're signed in first (a fresh install won't be linked yet).
+    if (!_isGoogleLinked) {
+      try {
+        final account = await GoogleDriveService.instance.signIn();
+        if (!mounted) return;
+        if (account == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('लिंक रद्द किया गया / Linking cancelled')),
+          );
+          return;
+        }
+        setState(() {
+          _isGoogleLinked = true;
+          _googleUserEmail = account.email;
+        });
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('लिंक करने में विफल / Failed to link: $e')),
+        );
+        return;
+      }
+    }
+
+    // Only restore into an empty phone, to avoid duplicating existing data.
+    if (ref.read(familyProvider).isNotEmpty) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('डेटा पहले से मौजूद है / Data already present'),
+          content: const Text(
+              'आपके फ़ोन में पहले से प्रोफ़ाइल मौजूद हैं, इसलिए डुप्लिकेट से बचने के लिए लोड नहीं किया गया। एक विशिष्ट प्रोफ़ाइल लाने के लिए "प्रोफ़ाइल आयात करें" का उपयोग करें।\n\nThis phone already has profiles, so a full restore was skipped to avoid duplicates. Use "Import Profile" to fetch a specific one.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ठीक है / OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('गूगल ड्राइव से डेटा लोड हो रहा है... / Loading data from Drive...')),
+    );
+    try {
+      final count = await GoogleDriveService.instance.importAllProfiles();
+      ref.invalidate(familyProvider);
+      ref.invalidate(selectedFamilyMemberProvider);
+      if (!mounted) return;
+      if (count > 0) {
+        ref.read(notificationsProvider.notifier).add(
+          type: AppNotificationType.restore,
+          title: 'डेटा बहाल किया गया / Data restored',
+          body: '$count प्रोफ़ाइल / profiles from Google Drive',
+        );
+        showSuccessSnackBar(context, '$count प्रोफ़ाइल लोड हुईं / profiles restored');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('कोई बैकअप नहीं मिला / No backup found on Drive')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('लोड करने में विफल / Restore failed: $e')),
+      );
     }
   }
 
@@ -126,9 +218,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _fetchGoogleBackups();
       if (mounted) {
         setState(() => _lastSynced = "अभी-अभी / Just now");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('बैकअप पूरा हुआ! / Backup completed ✓')),
+        ref.read(notificationsProvider.notifier).add(
+          type: AppNotificationType.backup,
+          title: 'बैकअप पूरा हुआ / Backup completed',
+          body: 'Google Drive',
         );
+        showSuccessSnackBar(context, 'बैकअप पूरा हुआ! / Backup completed');
       }
     } catch (e) {
       if (mounted) {
@@ -207,9 +302,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(familyProvider);
       ref.invalidate(selectedFamilyMemberProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
-        );
+        showSuccessSnackBar(context, '$profileName सफलतापूर्वक आयात किया गया! / Imported successfully');
       }
     } catch (e) {
       if (mounted) {
@@ -306,11 +399,60 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      final ok = await canLaunchUrl(uri) &&
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('लिंक नहीं खोल सका / Could not open link')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('लिंक नहीं खोल सका / Could not open link')),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDeleteProfile(FamilyMember member) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('प्रोफ़ाइल हटाएं? / Delete Profile?'),
+        content: Text(
+          '${member.name} और उनका सारा स्वास्थ्य डेटा, दवाइयाँ व रिपोर्ट स्थायी रूप से हट जाएंगी।\n\nThis permanently deletes ${member.name} and all their health records, medicines and reports.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('रद्द / Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('हटाएं / Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref.read(familyProvider.notifier).deleteMember(member.id);
+    ref.invalidate(selectedFamilyMemberProvider);
+    if (!mounted) return;
+    showSuccessSnackBar(context, '${member.name} हटा दिया गया / Profile deleted');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final primaryMember = ref.watch(familyProvider).firstWhere((m) => m.isPrimary, orElse: () => ref.read(familyProvider).first);
+    final family = ref.watch(familyProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -320,49 +462,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Account Card
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: colorScheme.outlineVariant),
-            ),
-            child: InkWell(
-              onTap: () => context.push('/family'),
-              borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: colorScheme.primaryContainer,
-                      child: Text(primaryMember.name[0], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "चंदोलिया परिवार / Chandoliya Family",
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "+91 ••••• 54321", // Mock masked phone
-                            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-                  ],
+          // Profiles: every family member, with edit-on-tap, per-row delete,
+          // and an add tile.
+          _buildSection(
+            "प्रोफ़ाइल / Profiles",
+            [
+              if (family.isEmpty)
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text("कोई प्रोफ़ाइल नहीं / No profiles yet"),
                 ),
+              for (final m in family)
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: colorScheme.primaryContainer,
+                    child: Text(
+                      m.name.isEmpty ? '?' : m.name[0].toUpperCase(),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary),
+                    ),
+                  ),
+                  title: Text(m.name),
+                  subtitle: Text(
+                    [m.relation, m.bloodGroup].where((e) => e.isNotEmpty).join(' • '),
+                  ),
+                  onTap: () => context.push('/add-family-member', extra: m),
+                  trailing: IconButton(
+                    tooltip: 'हटाएं / Delete',
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    onPressed: () => _confirmDeleteProfile(m),
+                  ),
+                ),
+              ListTile(
+                leading: Icon(Icons.person_add_alt_1, color: colorScheme.primary),
+                title: const Text("प्रोफ़ाइल जोड़ें / Add Profile"),
+                onTap: () => context.push('/add-family-member'),
               ),
-            ),
+            ],
+            colorScheme,
           ),
-
-          const SizedBox(height: 24),
 
           _buildSection(
             "प्राथमिकताएँ / Preferences",
@@ -410,6 +547,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 onTap: _toggleGoogleLink,
               ),
+              ListTile(
+                leading: const Icon(Icons.cloud_sync_outlined),
+                title: const Text("गूगल ड्राइव से डेटा लोड करें / Load data from Google Drive"),
+                subtitle: const Text("नए फ़ोन/इंस्टॉल पर सारा पुराना डेटा बहाल करें"),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _loadAllFromGoogle,
+              ),
               if (_isGoogleLinked) ...[
                 ListTile(
                   leading: const Icon(Icons.backup_outlined),
@@ -449,13 +593,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 leading: const Icon(Icons.policy_outlined),
                 title: const Text("गोपनीयता नीति / Privacy"),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => launchUrl(Uri.parse("https://graminsw.app/privacy")),
+                onTap: () => _openUrl("https://graminsw.app/privacy"),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
                 title: const Text("मदद / Help"),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => launchUrl(Uri.parse("https://graminsw.app/help")),
+                onTap: () => _openUrl("https://graminsw.app/help"),
               ),
             ],
             colorScheme,

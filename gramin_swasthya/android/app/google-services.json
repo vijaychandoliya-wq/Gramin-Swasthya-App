@@ -12,7 +12,20 @@
           "package_name": "com.gramin_swasthya"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "334604778119-qbmtl1a1p9ostdlirh81l83p361id2pq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gramin_swasthya",
+            "certificate_hash": "34ec1d0d1d5c7dba3c7e704ec96edbe33d051040"
+          }
+        },
+        {
+          "client_id": "334604778119-sl0l73pdd4mrdevh1o2f1dfvtbuj4tmq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCz_IXGdDoLgIdq5C6QUsBDbxyJXmYShkA"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "334604778119-sl0l73pdd4mrdevh1o2f1dfvtbuj4tmq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

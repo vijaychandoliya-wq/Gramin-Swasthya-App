@@ -154,17 +154,9 @@ class GraminSwasthyaTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       ),
 
-      // M3 Switch
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colorScheme.onPrimary;
-          return colorScheme.outline;
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colorScheme.primary;
-          return colorScheme.surfaceContainerHighest;
-        }),
-      ),
+      // Use the stock Material 3 Switch (proper track outline, thumb sizing and
+      // a checkmark thumb when selected — the previous custom theme dropped the
+      // track outline, so the "on" state didn't read as a switch).
     );
   }
 }

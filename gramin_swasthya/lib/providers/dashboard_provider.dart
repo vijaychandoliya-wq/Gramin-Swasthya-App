@@ -75,7 +75,7 @@ final healthSummaryProvider = Provider<HealthSummary>((ref) {
 
   final latestSugar = sugarAsync.whenOrNull(data: (list) {
     if (list.isEmpty) return '--';
-    return '${list.first.glucose} mg/dL';
+    return '${list.first.glucoseDisplay} mg/dL';
   }) ?? '--';
 
   final latestWeight = weightAsync.whenOrNull(data: (list) {

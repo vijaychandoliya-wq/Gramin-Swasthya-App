@@ -68,7 +68,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
         ));
       } else if (index == 1) {
         // Sugar
-        final glucose = int.tryParse(_sugarController.text);
+        final glucose = double.tryParse(_sugarController.text);
         if (glucose == null || glucose < 20 || glucose > 600) {
           _showError('कृपया सही शुगर दर्ज करें / Enter valid sugar');
           return;

@@ -23,6 +23,7 @@ import 'screens/sharing/share_screen.dart';
 import 'screens/sharing/qr_screen.dart';
 import 'screens/emergency/emergency_card_screen.dart';
 import 'screens/family/add_member_screen.dart';
+import 'screens/notifications/notifications_screen.dart';
 import 'providers/reports_provider.dart';
 import 'providers/medicines_provider.dart';
 import 'providers/family_provider.dart';
@@ -159,6 +160,11 @@ final GoRouter appRouter = GoRouter(
         final member = state.extra as FamilyMember?;
         return AddMemberScreen(member: member);
       },
+    ),
+    GoRoute(
+      path: '/notifications',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NotificationsScreen(),
     ),
   ],
 );

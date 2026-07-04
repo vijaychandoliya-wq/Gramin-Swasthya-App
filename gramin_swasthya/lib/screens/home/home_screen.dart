@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/medicines_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../../widgets/quick_add_sheet.dart';
 import '../../widgets/global_search_delegate.dart';
 
@@ -133,13 +134,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             centerTitle: false,
             actions: [
               const GlobalSearchAnchor(),
-              IconButton(
-                icon: Badge(
-                  label: Text(todayMedicines.where((m) => !m.isTaken).length.toString()),
-                  isLabelVisible: todayMedicines.any((m) => !m.isTaken),
-                  child: const Icon(Icons.notifications_outlined),
-                ),
-                onPressed: () {},
+              Consumer(
+                builder: (context, ref, _) {
+                  final unread = ref.watch(unreadNotificationCountProvider);
+                  return IconButton(
+                    tooltip: 'सूचनाएँ / Notifications',
+                    icon: Badge(
+                      label: Text(unread.toString()),
+                      isLabelVisible: unread > 0,
+                      child: const Icon(Icons.notifications_outlined),
+                    ),
+                    onPressed: () => context.push('/notifications'),
+                  );
+                },
               ),
               const SizedBox(width: 8),
             ],
@@ -163,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           radius: 14,
                           backgroundColor: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                           child: Text(
-                            member.name[0].toUpperCase(),
+                            member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
                             style: TextStyle(
                               color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                               fontSize: 11,
@@ -255,9 +262,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       if (todayMedicines.isNotEmpty)
-                        TextButton(
+                        TextButton.icon(
                           onPressed: () => context.go('/medicines'),
-                          child: const Text('सभी देखें →'),
+                          label: const Text('सभी देखें'),
+                          icon: const Icon(Icons.arrow_forward, size: 18),
+                          iconAlignment: IconAlignment.end,
                         ),
                     ],
                   ),
