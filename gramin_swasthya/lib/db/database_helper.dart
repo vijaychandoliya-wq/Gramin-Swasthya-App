@@ -24,7 +24,11 @@ class DatabaseHelper {
   _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
     return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+        version: _databaseVersion,
+        // Enforce foreign keys so ON DELETE CASCADE actually fires — without
+        // this, deleting a profile would orphan its readings/medicines/reports.
+        onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
+        onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -130,54 +134,54 @@ class DatabaseHelper {
   }
 
   // --- Search Methods ---
+  // "Search anything" across every table. Text columns use LIKE (case-
+  // insensitive for ASCII); numeric columns are CAST to TEXT so values like
+  // "120" are matchable too.
 
-  Future<List<Map<String, dynamic>>> searchMembers(String query) async {
+  Future<List<Map<String, dynamic>>> _search(
+      String table, String where, List<Object?> args) async {
     final db = await database;
     if (kIsWeb) {
-      return await db.query(
+      return await db.query(table, where: where, whereArgs: args);
+    }
+    return await (db as Database).query(table, where: where, whereArgs: args);
+  }
+
+  Future<List<Map<String, dynamic>>> searchMembers(String q) => _search(
         'family_members',
-        where: 'name LIKE ?',
-        whereArgs: ['%$query%'],
+        'name LIKE ? OR blood_group LIKE ? OR diseases LIKE ? OR gender LIKE ?',
+        ['%$q%', '%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'family_members',
-      where: 'name LIKE ?',
-      whereArgs: ['%$query%'],
-    );
-  }
 
-  Future<List<Map<String, dynamic>>> searchMedicines(String query) async {
-    final db = await database;
-    if (kIsWeb) {
-      return await db.query(
+  Future<List<Map<String, dynamic>>> searchMedicines(String q) => _search(
         'medicines',
-        where: 'name LIKE ?',
-        whereArgs: ['%$query%'],
+        'name LIKE ? OR dosage LIKE ? OR unit LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'medicines',
-      where: 'name LIKE ?',
-      whereArgs: ['%$query%'],
-    );
-  }
 
-  Future<List<Map<String, dynamic>>> searchReports(String query) async {
-    final db = await database;
-    if (kIsWeb) {
-      return await db.query(
+  Future<List<Map<String, dynamic>>> searchReports(String q) => _search(
         'medical_reports',
-        where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
-        whereArgs: ['%$query%', '%$query%', '%$query%'],
+        'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
       );
-    }
-    return await (db as Database).query(
-      'medical_reports',
-      where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
-      whereArgs: ['%$query%', '%$query%', '%$query%'],
-    );
-  }
+
+  Future<List<Map<String, dynamic>>> searchBpReadings(String q) => _search(
+        'bp_readings',
+        'notes LIKE ? OR CAST(systolic AS TEXT) LIKE ? OR CAST(diastolic AS TEXT) LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
+      );
+
+  Future<List<Map<String, dynamic>>> searchSugarReadings(String q) => _search(
+        'sugar_readings',
+        'notes LIKE ? OR type LIKE ? OR CAST(value AS TEXT) LIKE ?',
+        ['%$q%', '%$q%', '%$q%'],
+      );
+
+  Future<List<Map<String, dynamic>>> searchWeightEntries(String q) => _search(
+        'weight_entries',
+        'notes LIKE ? OR CAST(weight_kg AS TEXT) LIKE ?',
+        ['%$q%', '%$q%'],
+      );
 
   Future<void> eraseAllData() async {
     final db = await database;

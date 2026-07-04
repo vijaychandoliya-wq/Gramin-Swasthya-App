@@ -418,16 +418,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _confirmDeleteProfile(FamilyMember member) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('प्रोफ़ाइल हटाएं? / Delete Profile?'),
+        content: Text(
+          '${member.name} और उनका सारा स्वास्थ्य डेटा, दवाइयाँ व रिपोर्ट स्थायी रूप से हट जाएंगी।\n\nThis permanently deletes ${member.name} and all their health records, medicines and reports.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('रद्द / Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('हटाएं / Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref.read(familyProvider.notifier).deleteMember(member.id);
+    ref.invalidate(selectedFamilyMemberProvider);
+    if (!mounted) return;
+    showSuccessSnackBar(context, '${member.name} हटा दिया गया / Profile deleted');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final family = ref.watch(familyProvider);
-    // Don't call .first inside orElse — it throws StateError when the family
-    // list is empty. Resolve to a nullable member and fall back gracefully.
-    final primaryMember = family.where((m) => m.isPrimary).isNotEmpty
-        ? family.firstWhere((m) => m.isPrimary)
-        : (family.isNotEmpty ? family.first : null);
 
     return Scaffold(
       appBar: AppBar(
@@ -437,49 +462,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Account Card
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: colorScheme.outlineVariant),
-            ),
-            child: InkWell(
-              onTap: () => context.push('/family'),
-              borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: colorScheme.primaryContainer,
-                      child: Text((primaryMember == null || primaryMember.name.isEmpty) ? '?' : primaryMember.name[0], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "चंदोलिया परिवार / Chandoliya Family",
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "+91 ••••• 54321", // Mock masked phone
-                            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-                  ],
+          // Profiles: every family member, with edit-on-tap, per-row delete,
+          // and an add tile.
+          _buildSection(
+            "प्रोफ़ाइल / Profiles",
+            [
+              if (family.isEmpty)
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text("कोई प्रोफ़ाइल नहीं / No profiles yet"),
                 ),
+              for (final m in family)
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: colorScheme.primaryContainer,
+                    child: Text(
+                      m.name.isEmpty ? '?' : m.name[0].toUpperCase(),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary),
+                    ),
+                  ),
+                  title: Text(m.name),
+                  subtitle: Text(
+                    [m.relation, m.bloodGroup].where((e) => e.isNotEmpty).join(' • '),
+                  ),
+                  onTap: () => context.push('/add-family-member', extra: m),
+                  trailing: IconButton(
+                    tooltip: 'हटाएं / Delete',
+                    icon: Icon(Icons.delete_outline, color: colorScheme.error),
+                    onPressed: () => _confirmDeleteProfile(m),
+                  ),
+                ),
+              ListTile(
+                leading: Icon(Icons.person_add_alt_1, color: colorScheme.primary),
+                title: const Text("प्रोफ़ाइल जोड़ें / Add Profile"),
+                onTap: () => context.push('/add-family-member'),
               ),
-            ),
+            ],
+            colorScheme,
           ),
-
-          const SizedBox(height: 24),
 
           _buildSection(
             "प्राथमिकताएँ / Preferences",
