@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -62,11 +63,15 @@ class _SplashScreenState extends State<SplashScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Simulated Logo (fallback since asset might not exist yet)
-                    const Icon(
-                      Icons.medical_services,
-                      size: 120,
-                      color: Colors.white,
+                    // Actual Brand Logo
+                    SvgPicture.asset(
+                      'assets/images/logo.svg',
+                      height: 120,
+                      width: 120,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
