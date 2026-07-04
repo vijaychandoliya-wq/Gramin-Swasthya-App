@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../providers/family_provider.dart';
 import '../../services/google_drive_service.dart';
@@ -441,8 +442,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Text("v1.0.0", style: theme.textTheme.bodySmall),
                 onTap: () => showAboutDialog(
                   context: context,
-                  applicationName: "ग्रामीण स्वास्थ्य",
+                  applicationName: "   ग्रामीण स्वास्थ्य",
                   applicationVersion: "1.0.0",
+                  applicationIcon: SvgPicture.asset(
+                    'assets/images/logo.svg',
+                    height: 48,
+                    width: 48,
+                  ),
                 ),
               ),
               ListTile(
