@@ -44,10 +44,10 @@ dependencies:
   flutter_tts: ^4.0.2
   android_alarm_manager_plus: ^5.1.0
   qr_flutter: ^4.1.0
-  fl_chart: ^0.71.0
+  fl_chart: ^0.69.0
   share_plus: ^12.0.2
   url_launcher: ^6.2.5
-  smooth_page_indicator: ^2.0.1
+  smooth_page_indicator: ^1.2.0
   connectivity_plus: ^7.2.0
   animations: ^2.0.11
   uuid: ^4.4.0
@@ -58,6 +58,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -69,3 +70,19 @@ flutter:
         - asset: fonts/NotoSans-Regular.ttf
         - asset: fonts/NotoSans-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  macos:
+    generate: true
+    image_path: "assets/images/logo.png"
+  windows:
+    generate: true
+    image_path: "assets/images/logo.png"
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"

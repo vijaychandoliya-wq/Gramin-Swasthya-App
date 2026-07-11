@@ -242,6 +242,7 @@
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				E55EBD10F30CFDFECCA83C2D /* [CP] Embed Pods Frameworks */,
 				BB255AE2BD3AE72F155C8D29 /* [CP] Copy Pods Resources */,
+				CE0000000000000000000001 /* Strip extended attributes before codesign */,
 			);
 			buildRules = (
 			);
@@ -438,6 +439,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CE0000000000000000000001 /* Strip extended attributes before codesign */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip extended attributes before codesign";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Remove xattrs (e.g. com.apple.provenance, com.apple.FinderInfo) that\n# cause codesign to fail with \"resource fork, Finder information, or\n# similar detritus not allowed\".\nif [ -d \"${CODESIGNING_FOLDER_PATH}\" ]; then\n  /usr/bin/xattr -cr \"${CODESIGNING_FOLDER_PATH}\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
