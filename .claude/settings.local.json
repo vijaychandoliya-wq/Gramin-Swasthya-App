@@ -7,7 +7,25 @@
       "Bash(adb logcat:*)",
       "Bash(flutter clean:*)",
       "Bash(flutter pub:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(/usr/bin/plutil -convert xml1 -o - macos/Runner/Info.plist)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(git rm *)",
+      "Bash(echo \"removed from index, exit=$?\")",
+      "Bash(rm -f .git/index.lock)",
+      "Bash(echo \"unstaged build/, exit=$?\")",
+      "Bash(git check-ignore *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(cat macos/Runner/DebugProfile.entitlements)",
+      "Bash(cat macos/Runner/Release.entitlements)",
+      "Bash(timeout 12 ./build/macos/Build/Products/Debug/gramin_swasthya.app/Contents/MacOS/gramin_swasthya)",
+      "Bash(echo \"rc=$?\")",
+      "Read(//tmp/**)",
+      "Bash(xcode-select -p)",
+      "Bash(flutter devices *)",
+      "Bash(xcrun simctl *)",
+      "Bash(echo \"boot rc=$?\")",
+      "Bash(open -a Simulator)"
     ]
   }
 }

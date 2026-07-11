@@ -16,7 +16,11 @@ void main() async {
   );
 
   // Initialize Notification Service
-  await NotificationService.init();
+  try {
+    await NotificationService.init();
+  } catch (e) {
+    debugPrint("NotificationService initialization skipped: $e");
+  }
 
   // Initialize Android Alarm Manager
   try {
