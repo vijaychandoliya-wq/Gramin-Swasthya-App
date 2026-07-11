@@ -1,3 +1,5 @@
 
 # Nested Flutter build output (build/ is a symlink to ~/Library/Caches; no trailing slash so the symlink is matched too)
 gramin_swasthya/build
+# Added by code-review-graph
+.code-review-graph/
