@@ -86,7 +86,7 @@ class _AddBpScreenState extends ConsumerState<AddBpScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: LocalizedText('BP सहेजा गया ✓ / BP Saved')),
+      const SnackBar(content: LocalizedText('BP सहेजा गया  / BP Saved')),
     );
 
     context.pop();

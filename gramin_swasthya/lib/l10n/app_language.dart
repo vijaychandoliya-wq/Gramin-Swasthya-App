@@ -1,13 +1,127 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'generated_translations.dart';
+
+class AppLocaleInfo {
+  const AppLocaleInfo({
+    required this.code,
+    required this.englishName,
+    required this.nativeName,
+    this.available = true,
+  });
+
+  final String code;
+  final String englishName;
+  final String nativeName;
+  final bool available;
+}
 
 class AppLanguage {
   AppLanguage._();
 
-  static const supportedCodes = {'en', 'hi'};
+  static const languages = <AppLocaleInfo>[
+    AppLocaleInfo(code: 'en', englishName: 'English', nativeName: 'English'),
+    AppLocaleInfo(code: 'as', englishName: 'Assamese', nativeName: 'অসমীয়া'),
+    AppLocaleInfo(code: 'awa', englishName: 'Awadhi', nativeName: 'अवधी'),
+    AppLocaleInfo(code: 'bn', englishName: 'Bengali', nativeName: 'বাংলা'),
+    AppLocaleInfo(code: 'bho', englishName: 'Bhojpuri', nativeName: 'भोजपुरी'),
+    AppLocaleInfo(
+        code: 'brx', englishName: 'Bodo', nativeName: 'बड़ो', available: false),
+    AppLocaleInfo(code: 'doi', englishName: 'Dogri', nativeName: 'डोगरी'),
+    AppLocaleInfo(code: 'gu', englishName: 'Gujarati', nativeName: 'ગુજરાતી'),
+    AppLocaleInfo(code: 'hi', englishName: 'Hindi', nativeName: 'हिंदी'),
+    AppLocaleInfo(code: 'kn', englishName: 'Kannada', nativeName: 'ಕನ್ನಡ'),
+    AppLocaleInfo(code: 'kha', englishName: 'Khasi', nativeName: 'Khasi'),
+    AppLocaleInfo(code: 'trp', englishName: 'Kokborok', nativeName: 'Kokborok'),
+    AppLocaleInfo(code: 'gom', englishName: 'Konkani', nativeName: 'कोंकणी'),
+    AppLocaleInfo(code: 'mai', englishName: 'Maithili', nativeName: 'मैथिली'),
+    AppLocaleInfo(code: 'ml', englishName: 'Malayalam', nativeName: 'മലയാളം'),
+    AppLocaleInfo(
+        code: 'mni-Mtei',
+        englishName: 'Manipuri (Meiteilon)',
+        nativeName: 'ꯃꯤꯇꯩ ꯂꯣꯟ'),
+    AppLocaleInfo(code: 'mr', englishName: 'Marathi', nativeName: 'मराठी'),
+    AppLocaleInfo(code: 'mwr', englishName: 'Marwadi', nativeName: 'मारवाड़ी'),
+    AppLocaleInfo(code: 'lus', englishName: 'Mizo', nativeName: 'Mizo ṭawng'),
+    AppLocaleInfo(code: 'or', englishName: 'Odia', nativeName: 'ଓଡ଼ିଆ'),
+    AppLocaleInfo(
+        code: 'pa', englishName: 'Punjabi (Gurmukhi)', nativeName: 'ਪੰਜਾਬੀ'),
+    AppLocaleInfo(
+        code: 'pa-Arab',
+        englishName: 'Punjabi (Shahmukhi)',
+        nativeName: 'پنجابی'),
+    AppLocaleInfo(code: 'sa', englishName: 'Sanskrit', nativeName: 'संस्कृतम्'),
+    AppLocaleInfo(code: 'sat', englishName: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ'),
+    AppLocaleInfo(code: 'ta', englishName: 'Tamil', nativeName: 'தமிழ்'),
+    AppLocaleInfo(code: 'te', englishName: 'Telugu', nativeName: 'తెలుగు'),
+    AppLocaleInfo(code: 'tcy', englishName: 'Tulu', nativeName: 'ತುಳು'),
+    AppLocaleInfo(code: 'ur', englishName: 'Urdu', nativeName: 'اردو'),
+  ];
+
+  static final Set<String> supportedCodes = {
+    for (final language in languages)
+      if (language.available) language.code,
+  };
+
+  static final List<Locale> supportedLocales =
+      supportedCodes.map(localeFor).toList();
+  static const Set<String> _flutterMaterialCodes = {
+    'en',
+    'as',
+    'bn',
+    'gu',
+    'hi',
+    'kn',
+    'ml',
+    'mr',
+    'or',
+    'pa',
+    'ta',
+    'te',
+    'ur',
+  };
+  static const List<Locale> materialSupportedLocales = [
+    Locale('en'),
+    Locale('as'),
+    Locale('bn'),
+    Locale('gu'),
+    Locale('hi'),
+    Locale('kn'),
+    Locale('ml'),
+    Locale('mr'),
+    Locale('or'),
+    Locale('pa'),
+    Locale('ta'),
+    Locale('te'),
+    Locale('ur'),
+  ];
   static final ValueNotifier<String> current = ValueNotifier<String>('en');
 
   static bool get isHindi => current.value == 'hi';
+
+  static AppLocaleInfo get currentInfo => languages.firstWhere(
+        (language) => language.code == current.value,
+        orElse: () => languages.first,
+      );
+
+  static Locale localeFor(String code) {
+    final parts = code.split('-');
+    return parts.length == 1
+        ? Locale(parts.first)
+        : Locale.fromSubtags(languageCode: parts.first, scriptCode: parts[1]);
+  }
+
+  /// Flutter does not yet ship Material widget translations for every Google
+  /// Translate locale. App-owned text still uses [current]; framework-owned
+  /// controls use the closest safe locale so selecting a dialect never crashes.
+  static Locale materialLocaleFor(String code) {
+    if (code == 'pa-Arab') return const Locale('ur');
+    final base = code.split('-').first;
+    return _flutterMaterialCodes.contains(base)
+        ? Locale(base)
+        : const Locale('en');
+  }
 
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
@@ -24,8 +138,38 @@ class AppLanguage {
 
   static String text(String source, {String? languageCode}) {
     final code = languageCode ?? current.value;
-    return code == 'hi' ? _toHindi(source) : _toEnglish(source);
+    if (code == 'en') return _toEnglish(source);
+    if (code == 'hi') return _toHindi(source);
+    return _toGeneratedLanguage(source, code);
   }
+
+  static String _toGeneratedLanguage(String source, String code) {
+    final translations = generatedTranslations[code];
+    if (translations == null) return _toEnglish(source);
+    var value = _toEnglish(source);
+    final canonical = _generatedAliases[value.trim()] ?? value.trim();
+    String? exact = translations[canonical];
+    if (exact == null) {
+      for (final entry in translations.entries) {
+        if (entry.key.trim() == canonical) {
+          exact = entry.value.trim();
+          break;
+        }
+      }
+    }
+    if (exact != null) return _restoreOuterWhitespace(value, exact);
+
+    final replacements = translations.entries.toList()
+      ..sort((a, b) => b.key.length.compareTo(a.key.length));
+    for (final entry in replacements) {
+      value = value.replaceAll(entry.key, entry.value);
+    }
+    return value;
+  }
+
+  static const _generatedAliases = {
+    'Let the doctor scan this code': 'Show this code to your doctor',
+  };
 
   static String _toEnglish(String source) {
     var value = _selectBilingualPart(source, wantHindi: false);
@@ -130,6 +274,7 @@ class AppLanguage {
     'Medicines': 'दवाइयाँ',
     'Family member': 'परिवार सदस्य',
     'No results found': 'कोई परिणाम नहीं मिला',
+    'No member': 'कोई सदस्य नहीं',
     'Start searching...': 'खोजना शुरू करें...',
     'Data Synced': 'डेटा सिंक हुआ',
     'Offline': 'ऑफलाइन — डेटा सुरक्षित है',
@@ -350,7 +495,7 @@ class AppLanguage {
     'वापस': 'Back',
     'लें': 'Take',
     'ली गई': 'Taken',
-    'शाबाश! सभी ली गईं ✓': 'Well done! All doses taken ✓',
+    'शाबाश! सभी ली गईं ': 'Well done! All doses taken ',
     'आज, 10:30 AM': 'Today, 10:30 AM',
     'अभी-अभी': 'Just now',
     'भाषा बदल दी गई': 'Language changed',

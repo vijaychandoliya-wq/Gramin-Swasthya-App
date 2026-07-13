@@ -290,7 +290,7 @@ class _QRScreenState extends State<QRScreen> {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        LocalizedText("💬", style: TextStyle(fontSize: 18)),
+                        Icon(Icons.chat_outlined, size: 18),
                         SizedBox(width: 12),
                         LocalizedText("WhatsApp पर भेजें"),
                       ],

@@ -10,6 +10,9 @@ import '../../providers/family_provider.dart';
 import '../../services/google_drive_service.dart';
 import '../../db/database_helper.dart';
 import '../../l10n/app_language.dart';
+import '../../providers/medicines_provider.dart';
+import '../../services/notification_service.dart';
+import '../../widgets/profile_avatar.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -36,6 +39,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final linked = await GoogleDriveService.instance.isSignedIn();
+    if (!mounted) return;
     setState(() {
       _notifEnabled = prefs.getBool('notif_enabled') ?? true;
       _isGoogleLinked = linked;
@@ -49,7 +53,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _toggleNotif(bool val) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notif_enabled', val);
-    setState(() => _notifEnabled = val);
+    if (val) {
+      final medicines = await ref.read(medicinesStreamProvider.future);
+      for (final medicine in medicines.where((medicine) => medicine.isActive)) {
+        await NotificationService.scheduleDailyReminders(medicine);
+      }
+    } else {
+      await NotificationService.cancelAll();
+    }
+    if (mounted) setState(() => _notifEnabled = val);
   }
 
   Future<void> _toggleGoogleLink() async {
@@ -91,16 +103,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _fetchGoogleBackups() async {
+    if (!mounted) return;
     setState(() => _isLoadingBackups = true);
     try {
       final folders = await GoogleDriveService.instance.listBackupFolders();
+      if (!mounted) return;
       setState(() {
         _googleBackupFolders = folders;
       });
     } catch (e) {
       debugPrint("Failed to fetch backups: $e");
     } finally {
-      setState(() => _isLoadingBackups = false);
+      if (mounted) setState(() => _isLoadingBackups = false);
     }
   }
 
@@ -117,7 +131,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         setState(() => _lastSynced = "अभी-अभी / Just now");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: LocalizedText('बैकअप पूरा हुआ! / Backup completed ✓')),
+              content: LocalizedText('बैकअप पूरा हुआ! / Backup completed ')),
         );
       }
     } catch (e) {
@@ -205,7 +219,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: LocalizedText(
-                  '$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
+                  '$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ')),
         );
       }
     } catch (e) {
@@ -271,22 +285,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const LocalizedText('भाषा चुनें / Select Language'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              value: 'hi',
-              groupValue: current,
-              title: const LocalizedText('हिंदी (Hindi)'),
-              onChanged: (v) => Navigator.pop(context, v),
-            ),
-            RadioListTile<String>(
-              value: 'en',
-              groupValue: current,
-              title: const LocalizedText('English'),
-              onChanged: (v) => Navigator.pop(context, v),
-            ),
-          ],
+        content: SizedBox(
+          width: double.maxFinite,
+          height: MediaQuery.sizeOf(context).height * 0.6,
+          child: ListView.builder(
+            itemCount: AppLanguage.languages.length,
+            itemBuilder: (context, index) {
+              final language = AppLanguage.languages[index];
+              return RadioListTile<String>(
+                value: language.code,
+                groupValue: current,
+                title: Text(language.nativeName),
+                subtitle: Text(language.available
+                    ? language.englishName
+                    : '${language.englishName} — translation unavailable'),
+                onChanged: language.available
+                    ? (value) => Navigator.pop(context, value)
+                    : null,
+              );
+            },
+          ),
         ),
         actions: [
           TextButton(
@@ -311,14 +329,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final primaryMember = ref.watch(familyProvider).firstWhere(
-        (m) => m.isPrimary,
-        orElse: () => ref.read(familyProvider).first);
+    final members = ref.watch(familyProvider);
+    final primaryMember = members.isEmpty
+        ? null
+        : members.firstWhere((m) => m.isPrimary, orElse: () => members.first);
 
     return Scaffold(
       appBar: AppBar(
         title: const LocalizedText('सेटिंग्स / Settings'),
         centerTitle: true,
+        actions: const [ProfileAvatarAction(), SizedBox(width: 8)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -340,11 +360,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: colorScheme.primaryContainer,
-                      backgroundImage: primaryMember.photoUrl != null
-                          ? NetworkImage(primaryMember.photoUrl!)
+                      backgroundImage: primaryMember?.photoUrl != null
+                          ? NetworkImage(primaryMember!.photoUrl!)
                           : null,
-                      child: primaryMember.photoUrl == null
-                          ? LocalizedText(primaryMember.name[0],
+                      child: primaryMember?.photoUrl == null
+                          ? LocalizedText(
+                              primaryMember?.name.trim().isNotEmpty == true
+                                  ? primaryMember!.name.trim()[0]
+                                  : '?',
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -357,14 +380,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           LocalizedText(
-                            primaryMember.name,
+                            primaryMember?.name ??
+                                AppLanguage.text('No member'),
                             style: theme.textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           LocalizedText(
-                            primaryMember.phone != null
-                                ? '+91 ${primaryMember.phone}'
-                                : (primaryMember.email ?? ''),
+                            primaryMember?.phone != null
+                                ? '+91 ${primaryMember!.phone}'
+                                : (primaryMember?.email ?? ''),
                             style: theme.textTheme.bodySmall
                                 ?.copyWith(color: colorScheme.onSurfaceVariant),
                           ),
@@ -388,7 +412,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 leading: const Icon(Icons.language_outlined),
                 title: const LocalizedText("ऐप की भाषा / Language"),
                 subtitle: LocalizedText(
-                  AppLanguage.current.value == 'hi' ? 'हिंदी' : 'English',
+                  AppLanguage.currentInfo.nativeName,
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showLanguageDialog(),

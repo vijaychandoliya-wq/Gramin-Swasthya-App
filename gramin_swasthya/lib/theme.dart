@@ -89,7 +89,7 @@ class GraminSwasthyaTheme {
 
       // M3 Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
-        height: 80,
+        height: 72,
         elevation: 2,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         backgroundColor: colorScheme.surface,
@@ -99,14 +99,14 @@ class GraminSwasthyaTheme {
           if (states.contains(WidgetState.selected)) {
             return TextStyle(
               fontFamily: 'Noto Sans',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
+              color: colorScheme.onSecondaryContainer,
             );
           }
           return TextStyle(
             fontFamily: 'Noto Sans',
-            fontSize: 12,
+            fontSize: 11,
             color: colorScheme.onSurfaceVariant,
           );
         }),
@@ -158,14 +158,21 @@ class GraminSwasthyaTheme {
       // M3 Switch
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected))
+          if (states.contains(WidgetState.selected)) {
             return colorScheme.onPrimary;
+          }
           return colorScheme.outline;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colorScheme.primary;
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary;
+          }
           return colorScheme.surfaceContainerHighest;
         }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected)
+                ? Colors.transparent
+                : colorScheme.outline),
       ),
     );
   }

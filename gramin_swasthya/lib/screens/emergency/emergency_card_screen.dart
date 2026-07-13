@@ -54,7 +54,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: LocalizedText(success == true
-                ? '$memberName का कार्ड गैलरी में सहेजा गया ✓'
+                ? '$memberName का कार्ड गैलरी में सहेजा गया '
                 : 'सहेजने में विफल'),
             backgroundColor: success == true ? Colors.green : Colors.red,
           ),
@@ -75,14 +75,14 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
     final conditions = member.diseases.map(AppLanguage.text).join(', ');
     final text = AppLanguage.isHindi
         ? """
-🆘 *आपातकालीन स्वास्थ्य कार्ड* 🆘
+*आपातकालीन स्वास्थ्य कार्ड*
 नाम: ${member.name}
 रक्त समूह: $bloodGroup
 बीमारियां: $conditions
 आपातकालीन संपर्क: ${member.emergencyContactName} (${member.emergencyPhone})
 """
         : """
-🆘 *Emergency Health Card* 🆘
+*Emergency Health Card*
 Name: ${member.name}
 Blood group: $bloodGroup
 Conditions: $conditions
@@ -110,7 +110,7 @@ Emergency contact: ${member.emergencyContactName} (${member.emergencyPhone})
         backgroundColor: colorScheme.error,
         foregroundColor: colorScheme.onError,
         centerTitle: true,
-        title: const LocalizedText('🆘 आपातकालीन कार्ड'),
+        title: const LocalizedText(' आपातकालीन कार्ड'),
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
@@ -160,8 +160,7 @@ Emergency contact: ${member.emergencyContactName} (${member.emergencyPhone})
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
                         ),
-                        icon: const LocalizedText("💬",
-                            style: TextStyle(fontSize: 20)),
+                        icon: const Icon(Icons.chat_outlined, size: 20),
                         label: const LocalizedText("WhatsApp पर शेयर करें",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),

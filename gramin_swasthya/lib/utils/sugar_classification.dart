@@ -43,11 +43,11 @@ class SugarClassification {
   static String getLabel(SugarLevel level) {
     switch (level) {
       case SugarLevel.normal:
-        return '✓ सामान्य (Normal)';
+        return 'सामान्य / Normal';
       case SugarLevel.prediabetic:
-        return '⚠ प्रीडायबिटिक (Prediabetic)';
+        return 'प्रीडायबिटिक / Prediabetic';
       case SugarLevel.diabetic:
-        return '⚡ उच्च (Diabetic)';
+        return 'उच्च / Diabetic';
     }
   }
 }

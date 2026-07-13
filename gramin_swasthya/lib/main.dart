@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,23 +15,39 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Uncaught Flutter error: ${details.exceptionAsString()}');
+  };
+  PlatformDispatcher.instance.onError = (error, stackTrace) {
+    debugPrint('Uncaught platform error: $error\n$stackTrace');
+    return true;
+  };
   await AppLanguage.initialize();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // AlarmManager must be ready before any reminders are restored/scheduled.
+  try {
+    await AndroidAlarmManager.initialize();
+  } catch (e, stackTrace) {
+    debugPrint("AndroidAlarmManager initialization failed: $e\n$stackTrace");
+  }
+
+  // Do not crash the whole offline-first app if Firebase is unavailable or a
+  // device has an incomplete Google Play Services installation.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, stackTrace) {
+    debugPrint("Firebase initialization failed: $e\n$stackTrace");
+  }
 
   // Initialize Notification Service
   try {
     await NotificationService.init();
+    await NotificationService.restoreActiveReminders();
   } catch (e) {
     debugPrint("NotificationService initialization skipped: $e");
-  }
-
-  // Initialize Android Alarm Manager
-  try {
-    await AndroidAlarmManager.initialize();
-  } catch (e) {
-    debugPrint("AndroidAlarmManager initialization skipped: $e");
   }
 
   runApp(
@@ -48,8 +66,8 @@ class GraminSwasthyaApp extends ConsumerWidget {
       valueListenable: AppLanguage.current,
       builder: (context, languageCode, _) => MaterialApp.router(
         title: 'Gramin Swasthya',
-        locale: Locale(languageCode),
-        supportedLocales: const [Locale('en'), Locale('hi')],
+        locale: AppLanguage.materialLocaleFor(languageCode),
+        supportedLocales: AppLanguage.materialSupportedLocales,
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

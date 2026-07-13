@@ -93,7 +93,7 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: LocalizedText('शुगर सहेजी गई ✓ / Sugar Saved')),
+      const SnackBar(content: LocalizedText('शुगर सहेजी गई  / Sugar Saved')),
     );
 
     context.pop();

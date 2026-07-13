@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/family_provider.dart';
 import '../../providers/medicines_provider.dart';
+import '../../widgets/profile_avatar.dart';
 
 class MedicinesScreen extends ConsumerStatefulWidget {
   const MedicinesScreen({super.key});
@@ -69,6 +70,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
             centerTitle: true,
             title: LocalizedText('दवाइयाँ / Medicines'),
             pinned: true,
+            actions: [ProfileAvatarAction(), SizedBox(width: 8)],
           ),
 
           // --- Member Picker ---
@@ -218,7 +220,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                   const SizedBox(height: 4),
                   LocalizedText(
                     allTaken
-                        ? 'शाबाश! सभी ली गईं ✓ / Well done!'
+                        ? 'शाबाश! सभी ली गईं  / Well done!'
                         : '${adherence.total - adherence.taken} बाकी हैं / remaining',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: allTaken

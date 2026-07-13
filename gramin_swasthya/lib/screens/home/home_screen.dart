@@ -9,6 +9,7 @@ import '../../providers/dashboard_provider.dart';
 import '../../providers/medicines_provider.dart';
 import '../../widgets/quick_add_sheet.dart';
 import '../../widgets/global_search_delegate.dart';
+import '../../widgets/profile_avatar.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -158,8 +159,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   isLabelVisible: todayMedicines.any((m) => !m.isTaken),
                   child: const Icon(Icons.notifications_outlined),
                 ),
-                onPressed: () {},
+                tooltip: 'Notifications',
+                onPressed: () => context.push('/notifications'),
               ),
+              ProfileAvatarButton(member: currentMember),
               const SizedBox(width: 8),
             ],
           ),

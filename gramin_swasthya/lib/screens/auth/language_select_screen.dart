@@ -11,7 +11,7 @@ class LanguageSelectScreen extends StatefulWidget {
 }
 
 class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
-  String? _selected; // null by default
+  String? _selected;
 
   Future<void> _onContinue() async {
     if (_selected == null) return;
@@ -37,7 +37,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 48), // Spacer for top
+              const SizedBox(height: 24),
 
               LocalizedText(
                 'अपनी भाषा चुनें / Choose Your Language',
@@ -46,27 +46,18 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 48),
-
-              // Card 1 (Hindi)
-              _buildLanguageCard(
-                context: context,
-                value: 'hi',
-                emoji: '🇮🇳',
-                title: 'Hindi',
-              ),
-
               const SizedBox(height: 16),
-
-              // Card 2 (English)
-              _buildLanguageCard(
-                context: context,
-                value: 'en',
-                emoji: '🇬🇧',
-                title: 'English',
+              Expanded(
+                child: ListView.separated(
+                  itemCount: AppLanguage.languages.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) => _buildLanguageCard(
+                    context: context,
+                    language: AppLanguage.languages[index],
+                  ),
+                ),
               ),
-
-              const Spacer(),
+              const SizedBox(height: 16),
 
               // Continue Button
               FilledButton(
@@ -85,13 +76,11 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
   Widget _buildLanguageCard({
     required BuildContext context,
-    required String value,
-    required String emoji,
-    required String title,
+    required AppLocaleInfo language,
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isSelected = _selected == value;
+    final isSelected = _selected == language.code;
 
     return Card(
       elevation: 0,
@@ -105,35 +94,50 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
       ),
       color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
       child: InkWell(
-        onTap: () {
-          setState(() {
-            _selected = value;
-          });
-        },
+        onTap: language.available
+            ? () {
+                setState(() {
+                  _selected = language.code;
+                });
+              }
+            : null,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: ListTile(
-            leading: Text(
-              emoji,
-              style: const TextStyle(fontSize: 24),
+            leading: Icon(
+              Icons.translate,
+              color: language.available
+                  ? colorScheme.primary
+                  : colorScheme.outline,
             ),
-            title: LocalizedText(
-              title,
+            title: Text(
+              language.nativeName,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 color: isSelected
                     ? colorScheme.onPrimaryContainer
-                    : colorScheme.onSurface,
+                    : language.available
+                        ? colorScheme.onSurface
+                        : colorScheme.onSurfaceVariant,
               ),
             ),
+            subtitle: Text(
+              language.available
+                  ? language.englishName
+                  : '${language.englishName} — translation unavailable',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             trailing: Radio<String>(
-              value: value,
+              value: language.code,
               groupValue: _selected,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selected = newValue;
-                });
-              },
+              onChanged: language.available
+                  ? (String? newValue) {
+                      setState(() {
+                        _selected = newValue;
+                      });
+                    }
+                  : null,
             ),
           ),
         ),

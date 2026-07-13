@@ -6,9 +6,11 @@ import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../providers/family_provider.dart';
 import '../../providers/reports_provider.dart';
+import '../../widgets/profile_avatar.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -60,6 +62,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             icon: Icon(_isGrid ? Icons.list : Icons.grid_view),
             onPressed: () => setState(() => _isGrid = !_isGrid),
           ),
+          const ProfileAvatarAction(),
+          const SizedBox(width: 8),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -107,7 +111,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
         (familyMembers.isNotEmpty ? familyMembers.first : null);
     final activeType = ref.watch(activeReportTypeFilterProvider);
-    final reportTypes = ["सभी", "नुस्खा 💊", "Lab 🧪", "X-Ray 📷", "अन्य"];
+    final reportTypes = ["All", "Prescription", "Lab Report", "X-Ray", "Other"];
 
     return Column(
       children: [
@@ -193,17 +197,24 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       child: Hero(
                         tag: 'report_${report.id}',
                         child: report.imagePath != null
-                            ? Image.file(
-                                File(report.imagePath!),
-                                fit: BoxFit.cover,
-                                errorBuilder: (c, e, s) => Container(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
-                                  child: const Icon(Icons.image_outlined,
-                                      size: 48),
-                                ),
-                              )
+                            ? report.imagePath!.startsWith('http')
+                                ? CachedNetworkImage(
+                                    imageUrl: report.imagePath!,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.broken_image_outlined),
+                                  )
+                                : Image.file(
+                                    File(report.imagePath!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (c, e, s) => Container(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                      child: const Icon(Icons.image_outlined,
+                                          size: 48),
+                                    ),
+                                  )
                             : Container(
                                 color: Theme.of(context)
                                     .colorScheme

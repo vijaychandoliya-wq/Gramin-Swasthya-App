@@ -53,7 +53,7 @@ class QuickAddBottomSheet extends StatelessWidget {
               _buildActionItem(
                 context,
                 icon: Icons.water_drop,
-                label: 'Blood\nSugar',
+                label: 'Blood Sugar',
                 color: Colors.blue,
                 route: '/add-sugar',
               ),

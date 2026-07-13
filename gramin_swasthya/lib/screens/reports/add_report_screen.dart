@@ -9,7 +9,6 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../providers/reports_provider.dart';
 import '../../providers/family_provider.dart';
@@ -31,11 +30,11 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
   double _uploadProgress = 0.0;
 
   final List<String> _reportTypes = [
-    "नुस्खा 💊",
-    "Lab रिपोर्ट 🧪",
-    "X-Ray 📷",
-    "ECG 💓",
-    "अन्य"
+    "Prescription",
+    "Lab Report",
+    "X-Ray",
+    "ECG",
+    "Other"
   ];
 
   @override
@@ -77,7 +76,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
-    if (pickedFile != null) {
+    if (pickedFile != null && mounted) {
       setState(() => _imageFile = pickedFile);
     }
   }
@@ -112,25 +111,16 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       final compressedFile = await _compressImage(File(_imageFile!.path));
       if (compressedFile == null) throw Exception("Compression failed");
 
-      // 2. Determine path/sync status
+      // 2. Always keep a real local copy. The previous online branch stored a
+      // fake Firebase URL, which made both the preview and saved report fail.
       setState(() => _uploadProgress = 0.6);
-      final connectivity = await Connectivity().checkConnectivity();
-      bool isOnline = connectivity.contains(ConnectivityResult.mobile) ||
-          connectivity.contains(ConnectivityResult.wifi);
-
-      String finalPath;
-      if (isOnline) {
-        // Mock Firebase Upload
-        await Future.delayed(const Duration(seconds: 1)); // Simulate delay
-        finalPath =
-            'https://firebasestorage.com/mock/report_${const Uuid().v4()}.jpg';
-      } else {
-        // Save locally
-        final appDir = await getApplicationDocumentsDirectory();
-        final fileName = 'report_${const Uuid().v4()}.jpg';
-        final savedFile = await compressedFile.copy('${appDir.path}/$fileName');
-        finalPath = savedFile.path;
-      }
+      final appDir = await getApplicationDocumentsDirectory();
+      final reportsDir = Directory('${appDir.path}/reports');
+      await reportsDir.create(recursive: true);
+      final fileName = 'report_${const Uuid().v4()}.jpg';
+      final savedFile =
+          await compressedFile.copy('${reportsDir.path}/$fileName');
+      final finalPath = savedFile.path;
 
       // 3. Save to Repo
       setState(() => _uploadProgress = 0.9);
@@ -143,6 +133,9 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
             : 'Unknown Doctor',
         date: _selectedDate,
         imagePath: finalPath,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
       );
 
       await repo.addReport(report);
@@ -152,7 +145,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: LocalizedText('रिपोर्ट सहेजी गई ✓ / Report Saved')),
+              content: LocalizedText('रिपोर्ट सहेजी गई  / Report Saved')),
         );
         context.pop();
       }
@@ -312,12 +305,10 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
               Icon(Icons.add_photo_alternate_outlined,
                   size: 48, color: colorScheme.primary),
               const SizedBox(height: 8),
-              LocalizedText('फोटो या गैलरी से जोड़ें',
+              LocalizedText(
+                  'फोटो या गैलरी से जोड़ें / Add from camera or gallery',
                   style: TextStyle(
                       color: colorScheme.primary, fontWeight: FontWeight.bold)),
-              LocalizedText('Camera or Gallery',
-                  style: TextStyle(
-                      color: colorScheme.onSurfaceVariant, fontSize: 12)),
             ],
           ),
         ),

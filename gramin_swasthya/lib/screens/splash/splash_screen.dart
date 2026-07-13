@@ -41,7 +41,12 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     final onboardingDone = prefs.getBool('onboarding_done') ?? false;
     final language = prefs.getString('language');
-    final user = await AuthService.instance.restoredUser();
+    dynamic user;
+    try {
+      user = await AuthService.instance.restoredUser();
+    } catch (error, stackTrace) {
+      debugPrint('Unable to restore Google session: $error\n$stackTrace');
+    }
     if (!mounted) return;
 
     if (!onboardingDone) {

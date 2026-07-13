@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gramin_swasthya/db/database_helper.dart';
 import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:gramin_swasthya/l10n/localized_text.dart';
+import 'package:gramin_swasthya/l10n/generated_translations.dart';
 import 'package:gramin_swasthya/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +58,27 @@ void main() {
     );
   });
 
+  test('every selectable regional language has a complete offline pack', () {
+    final regionalCodes = AppLanguage.supportedCodes.difference({'en', 'hi'});
+    expect(generatedTranslations.keys.toSet(), regionalCodes);
+    for (final code in regionalCodes) {
+      final pack = generatedTranslations[code]!;
+      expect(pack.length, greaterThanOrEqualTo(260), reason: code);
+      expect(pack.values.where((value) => value.trim().isEmpty), isEmpty,
+          reason: code);
+      expect(AppLanguage.text('Save Report', languageCode: code),
+          isNot('Save Report'),
+          reason: code);
+      expect(AppLanguage.text('Save Report', languageCode: code),
+          isNot(contains(' / ')),
+          reason: code);
+    }
+
+    final bodo =
+        AppLanguage.languages.singleWhere((item) => item.code == 'brx');
+    expect(bodo.available, isFalse);
+  });
+
   testWidgets('localized text updates immediately with language selection',
       (tester) async {
     AppLanguage.current.value = 'en';
@@ -87,6 +109,7 @@ void main() {
     final untranslated = <String>[];
     final missingHindi = <String>[];
     final mixed = <String>[];
+    final missingRegional = <String>[];
     final literalPattern = RegExp(
       r'''(?:LocalizedText|AppLanguage\.text)\(\s*(?:'([^']*)'|"([^"]*)")''',
       multiLine: true,
@@ -120,11 +143,29 @@ void main() {
         if (english.contains(' / ') || hindi.contains(' / ')) {
           mixed.add('${entity.path}: $literal');
         }
+        if (!literal.contains(r'$') &&
+            !literal.contains(r'\') &&
+            !technicalOnly &&
+            RegExp(r'[A-Za-z]').hasMatch(english)) {
+          for (final code
+              in AppLanguage.supportedCodes.difference({'en', 'hi'})) {
+            final lookup = english.trim() == 'Let the doctor scan this code'
+                ? 'Show this code to your doctor'
+                : english.trim();
+            final covered = generatedTranslations[code]!
+                .keys
+                .any((key) => key.trim() == lookup);
+            if (!covered) {
+              missingRegional.add('$code ${entity.path}: $english');
+            }
+          }
+        }
       }
     }
 
     expect(untranslated, isEmpty, reason: untranslated.join('\n'));
     expect(missingHindi, isEmpty, reason: missingHindi.join('\n'));
     expect(mixed, isEmpty, reason: mixed.join('\n'));
+    expect(missingRegional, isEmpty, reason: missingRegional.join('\n'));
   });
 }

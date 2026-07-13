@@ -123,7 +123,7 @@ final reportsStreamProvider =
 });
 
 // State for filtering
-final activeReportTypeFilterProvider = StateProvider<String>((ref) => 'सभी');
+final activeReportTypeFilterProvider = StateProvider<String>((ref) => 'All');
 
 final filteredReportsProvider =
     Provider.autoDispose<AsyncValue<List<MedicalReport>>>((ref) {
@@ -131,7 +131,19 @@ final filteredReportsProvider =
   final activeType = ref.watch(activeReportTypeFilterProvider);
 
   return reportsAsync.whenData((reports) {
-    if (activeType == 'सभी') return reports;
-    return reports.where((r) => r.type == activeType).toList();
+    if (activeType == 'All') return reports;
+    return reports.where((r) {
+      var normalized = r.type;
+      for (final oldIcon in const [0x1F48A, 0x1F9EA, 0x1F4F7, 0x1F493]) {
+        normalized = normalized.replaceAll(String.fromCharCode(oldIcon), '');
+      }
+      normalized = normalized
+          .replaceAll('नुस्खा', 'Prescription')
+          .replaceAll('लैब रिपोर्ट', 'Lab Report')
+          .replaceAll('Lab रिपोर्ट', 'Lab Report')
+          .replaceAll('अन्य', 'Other')
+          .trim();
+      return normalized == activeType;
+    }).toList();
   });
 });

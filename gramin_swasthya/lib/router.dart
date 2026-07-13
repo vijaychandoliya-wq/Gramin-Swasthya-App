@@ -27,6 +27,7 @@ import 'screens/family/family_screen.dart';
 import 'providers/reports_provider.dart';
 import 'providers/medicines_provider.dart';
 import 'providers/family_provider.dart';
+import 'screens/notifications/notification_center_screen.dart';
 
 // Root Navigator Key
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -112,7 +113,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         // We'll pass the report object via extra for now,
         // but the path reflects the hierarchy.
-        final report = state.extra as MedicalReport;
+        final report = state.extra;
+        if (report is! MedicalReport) return const ReportsScreen();
         return ReportViewerScreen(report: report);
       },
     ),
@@ -142,6 +144,11 @@ final GoRouter appRouter = GoRouter(
       path: '/emergency-card',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EmergencyCardScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const NotificationCenterScreen(),
     ),
     GoRoute(
       path: '/add-family-member',

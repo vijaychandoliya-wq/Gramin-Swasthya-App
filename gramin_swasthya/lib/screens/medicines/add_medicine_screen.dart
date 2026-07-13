@@ -122,8 +122,8 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: LocalizedText(widget.medicine == null
-                ? 'दवाई जोड़ दी गई ✓'
-                : 'संपादित की गई ✓')),
+                ? 'दवाई जोड़ दी गई '
+                : 'संपादित की गई ')),
       );
       context.pop();
     }

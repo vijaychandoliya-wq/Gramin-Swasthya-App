@@ -172,6 +172,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet>
           // TabBar
           TabBar(
             controller: _tabController,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             labelColor: colorScheme.onPrimaryContainer,
             unselectedLabelColor: colorScheme.onSurfaceVariant,
             indicator: BoxDecoration(
@@ -181,9 +182,11 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet>
             splashBorderRadius: BorderRadius.circular(50),
             dividerColor: Colors.transparent,
             tabs: const [
-              Tab(text: "BP"),
-              Tab(text: "शुगर"),
-              Tab(text: "वजन"),
+              Tab(child: FittedBox(child: LocalizedText("BP", maxLines: 1))),
+              Tab(child: FittedBox(child: LocalizedText("Sugar", maxLines: 1))),
+              Tab(
+                  child:
+                      FittedBox(child: LocalizedText("Weight", maxLines: 1))),
             ],
           ),
 

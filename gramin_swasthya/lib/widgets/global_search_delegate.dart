@@ -84,7 +84,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
 
         if (members.isNotEmpty) {
           suggestionWidgets
-              .add(_buildSectionHeader("👤 सदस्य / Members", colorScheme));
+              .add(_buildSectionHeader("सदस्य / Members", colorScheme));
           suggestionWidgets.addAll(members.map((m) => ListTile(
                 leading:
                     const CircleAvatar(child: Icon(Icons.person, size: 20)),
@@ -101,7 +101,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
 
         if (medicines.isNotEmpty) {
           suggestionWidgets
-              .add(_buildSectionHeader("💊 दवाइयाँ / Medicines", colorScheme));
+              .add(_buildSectionHeader("दवाइयाँ / Medicines", colorScheme));
           suggestionWidgets.addAll(medicines.map((m) => ListTile(
                 leading:
                     const CircleAvatar(child: Icon(Icons.medication, size: 20)),
@@ -118,7 +118,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
 
         if (reports.isNotEmpty) {
           suggestionWidgets
-              .add(_buildSectionHeader("📁 रिपोर्ट / Reports", colorScheme));
+              .add(_buildSectionHeader("रिपोर्ट / Reports", colorScheme));
           suggestionWidgets.addAll(reports.map((r) => ListTile(
                 leading:
                     const CircleAvatar(child: Icon(Icons.folder, size: 20)),

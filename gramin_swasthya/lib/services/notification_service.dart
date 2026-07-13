@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import '../db/database_helper.dart';
 import '../l10n/app_language.dart';
 import '../providers/medicines_provider.dart';
@@ -27,12 +28,18 @@ void alarmCallback(int id) async {
       prefs.getString('alarm_id_to_med_name_$id') ?? 'medicine';
   final personName = prefs.getString('alarm_id_to_person_name_$id') ?? 'Hello';
 
-  final flutterTts = FlutterTts();
-  await NotificationService.speakReminder(
-    flutterTts,
-    personName: personName,
-    medicineName: medicineName,
-  );
+  try {
+    final flutterTts = FlutterTts();
+    await NotificationService.speakReminder(
+      flutterTts,
+      personName: personName,
+      medicineName: medicineName,
+    );
+  } catch (error) {
+    debugPrint('Unable to speak medicine reminder $id: $error');
+  } finally {
+    await NotificationService.scheduleNextVoiceAlarm(id);
+  }
 }
 
 class NotificationService {
@@ -42,6 +49,13 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
+    try {
+      final timezoneName = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezoneName));
+    } catch (e) {
+      // tz.local remains a safe fallback; log the device-specific failure.
+      debugPrint('Unable to resolve device timezone: $e');
+    }
 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -127,15 +141,21 @@ class NotificationService {
     }
   }
 
-  static Future<void> scheduleDailyReminders(Medicine med) async {
+  static Future<void> scheduleDailyReminders(
+    Medicine med, {
+    bool requestExactPermission = true,
+  }) async {
     // 1. Cancel existing reminders for this medicine first
     await cancelReminders(med.id);
 
     if (!med.isActive) return;
 
     final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('notif_enabled') ?? true)) return;
     final personName = await _personNameFor(med.memberId);
-    final canScheduleExactly = await _requestExactAlarmPermission();
+    final canScheduleExactly = await _requestExactAlarmPermission(
+      requestPermission: requestExactPermission,
+    );
     final List<String> scheduledIds = [];
 
     for (var time in med.times) {
@@ -145,6 +165,8 @@ class NotificationService {
       // Save medicine name for background alarm callback query
       await prefs.setString('alarm_id_to_med_name_$id', med.name);
       await prefs.setString('alarm_id_to_person_name_$id', personName);
+      await prefs.setInt('alarm_id_to_hour_$id', time.hour);
+      await prefs.setInt('alarm_id_to_minute_$id', time.minute);
 
       final payload = jsonEncode({
         'personName': personName,
@@ -154,7 +176,7 @@ class NotificationService {
       // Schedule Local Notification
       await _notificationsPlugin.zonedSchedule(
         id,
-        AppLanguage.text('💊 $personName, दवाई का समय / Medicine time'),
+        AppLanguage.text('$personName, दवाई का समय / Medicine time'),
         AppLanguage.text(
           '${med.name} — ${med.dosage} ${med.unit} लें / Take ${med.name}',
         ),
@@ -181,20 +203,14 @@ class NotificationService {
         payload: payload,
       );
 
-      // Schedule repeating alarm with Android Alarm Manager
+      // Android repeating alarms are intentionally batched by the OS. Use an
+      // exact one-shot and let the background callback schedule tomorrow.
       try {
         final scheduledTime = _nextInstanceOfTime(time, med.startDate);
-        await AndroidAlarmManager.periodic(
-          const Duration(days: 1),
+        await AndroidAlarmManager.oneShotAt(
+          scheduledTime,
           id,
           alarmCallback,
-          startAt: DateTime(
-            scheduledTime.year,
-            scheduledTime.month,
-            scheduledTime.day,
-            scheduledTime.hour,
-            scheduledTime.minute,
-          ),
           exact: canScheduleExactly,
           wakeup: true,
           rescheduleOnReboot: true,
@@ -206,6 +222,34 @@ class NotificationService {
 
     // Save scheduled IDs in SharedPreferences to allow easy canceling later
     await prefs.setStringList('med_notification_ids_${med.id}', scheduledIds);
+  }
+
+  /// Rebuild schedules on startup so app upgrades, timezone changes, and
+  /// vendor-specific reboot behavior cannot silently orphan active reminders.
+  static Future<void> restoreActiveReminders() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('notif_enabled') ?? true)) return;
+
+    final db = await DatabaseHelper.instance.database;
+    final rows =
+        await db.query('medicines', where: 'is_active = ?', whereArgs: [1]);
+    for (final row in rows) {
+      final medicine = Medicine(
+        id: row['id'].toString(),
+        memberId: row['member_id'].toString(),
+        name: row['name']?.toString() ?? 'medicine',
+        dosage: row['dosage']?.toString() ?? '',
+        unit: row['unit']?.toString() ?? '',
+        times: Medicine.timesFromJson(row['times_json']?.toString() ?? '[]'),
+        isActive: true,
+        durationDays: row['duration_days'] as int? ?? -1,
+        startDate: DateTime.tryParse(row['start_date']?.toString() ?? '') ??
+            DateTime.now(),
+      );
+      if (medicine.times.isNotEmpty) {
+        await scheduleDailyReminders(medicine, requestExactPermission: false);
+      }
+    }
   }
 
   static Future<void> cancelReminders(String medId) async {
@@ -220,21 +264,54 @@ class NotificationService {
       } catch (_) {}
       await prefs.remove('alarm_id_to_med_name_$id');
       await prefs.remove('alarm_id_to_person_name_$id');
+      await prefs.remove('alarm_id_to_hour_$id');
+      await prefs.remove('alarm_id_to_minute_$id');
     }
     await prefs.remove('med_notification_ids_$medId');
   }
 
   static Future<void> cancelAll() async {
     await _notificationsPlugin.cancelAll();
+    final prefs = await SharedPreferences.getInstance();
+    final medicineKeys = prefs
+        .getKeys()
+        .where((key) => key.startsWith('med_notification_ids_'))
+        .toList();
+    for (final key in medicineKeys) {
+      await cancelReminders(key.substring('med_notification_ids_'.length));
+    }
   }
 
-  static Future<bool> _requestExactAlarmPermission() async {
+  @pragma('vm:entry-point')
+  static Future<void> scheduleNextVoiceAlarm(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final hour = prefs.getInt('alarm_id_to_hour_$id');
+    final minute = prefs.getInt('alarm_id_to_minute_$id');
+    if (hour == null || minute == null) return;
+
+    final now = DateTime.now();
+    var next = DateTime(now.year, now.month, now.day, hour, minute);
+    if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
+    final exact = await _requestExactAlarmPermission(requestPermission: false);
+    await AndroidAlarmManager.oneShotAt(
+      next,
+      id,
+      alarmCallback,
+      exact: exact,
+      wakeup: true,
+      rescheduleOnReboot: true,
+    );
+  }
+
+  static Future<bool> _requestExactAlarmPermission({
+    bool requestPermission = true,
+  }) async {
     final android = _notificationsPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android == null) return true;
 
     var allowed = await android.canScheduleExactNotifications() ?? true;
-    if (!allowed) {
+    if (!allowed && requestPermission) {
       allowed = await android.requestExactAlarmsPermission() ?? false;
     }
     return allowed;

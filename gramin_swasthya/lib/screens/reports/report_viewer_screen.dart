@@ -44,7 +44,7 @@ class ReportViewerScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: LocalizedText(success == true
-                  ? 'गैलरी में सहेजा गया ✓'
+                  ? 'गैलरी में सहेजा गया '
                   : 'सहेजने में विफल')),
         );
       }
@@ -85,7 +85,7 @@ class ReportViewerScreen extends ConsumerWidget {
       context.pop(); // Close viewer
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: LocalizedText('रिपोर्ट हटा दी गई ✓ / Report Deleted')),
+            content: LocalizedText('रिपोर्ट हटा दी गई  / Report Deleted')),
       );
     }
   }

@@ -56,7 +56,7 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: LocalizedText('✓ डेटा सिंक हुआ / Data Synced'),
+            content: LocalizedText(' डेटा सिंक हुआ / Data Synced'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),

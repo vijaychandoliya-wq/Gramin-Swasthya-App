@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/family_provider.dart';
 import '../../providers/health_data_provider.dart';
+import '../../widgets/profile_avatar.dart';
 
 enum HealthType { bp, sugar, weight }
 
@@ -58,6 +59,7 @@ class _HealthScreenState extends State<HealthScreen>
       appBar: AppBar(
         centerTitle: true,
         title: const LocalizedText('स्वास्थ्य डेटा / Health Data'),
+        actions: const [ProfileAvatarAction(), SizedBox(width: 8)],
         bottom: TabBar(
           controller: _tabController,
           labelColor: colorScheme.onPrimaryContainer,
@@ -70,9 +72,9 @@ class _HealthScreenState extends State<HealthScreen>
           splashBorderRadius: BorderRadius.circular(50),
           dividerColor: Colors.transparent,
           tabs: const [
-            Tab(text: "BP"),
-            Tab(text: "शुगर"),
-            Tab(text: "वजन"),
+            Tab(child: FittedBox(child: LocalizedText("BP", maxLines: 1))),
+            Tab(child: FittedBox(child: LocalizedText("Sugar", maxLines: 1))),
+            Tab(child: FittedBox(child: LocalizedText("Weight", maxLines: 1))),
           ],
         ),
       ),

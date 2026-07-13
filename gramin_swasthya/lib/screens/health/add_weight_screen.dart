@@ -79,7 +79,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: LocalizedText('वजन सहेजा गया ✓ / Weight Saved')),
+      const SnackBar(content: LocalizedText('वजन सहेजा गया  / Weight Saved')),
     );
 
     context.pop();
