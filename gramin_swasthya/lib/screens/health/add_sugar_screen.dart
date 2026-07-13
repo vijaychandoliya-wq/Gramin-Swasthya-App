@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +19,7 @@ class AddSugarScreen extends ConsumerStatefulWidget {
 
 class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
   SugarType? _selectedType;
-  
+
   final _sugarController = TextEditingController();
   final _notesController = TextEditingController();
 
@@ -53,7 +55,7 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
     if (!_isFormValid || _selectedType == null) return;
 
     final val = double.parse(_sugarController.text);
-    
+
     // Combine Date & Time
     final combinedDateTime = DateTime(
       _selectedDate.year,
@@ -66,25 +68,32 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
     // Stringify type for the provider mockup
     String typeStr;
     switch (_selectedType!) {
-      case SugarType.fasting: typeStr = 'Fasting'; break;
-      case SugarType.postMeal: typeStr = 'Post-meal'; break;
-      case SugarType.random: typeStr = 'Random'; break;
+      case SugarType.fasting:
+        typeStr = 'Fasting';
+        break;
+      case SugarType.postMeal:
+        typeStr = 'Post-meal';
+        break;
+      case SugarType.random:
+        typeStr = 'Random';
+        break;
     }
 
-    // Insert 
+    // Insert
     final repo = ref.read(healthRepoProvider);
-    final record = SugarRecord( // NOTE: the provider mocked glucose as int, we'll cast
+    final record = SugarRecord(
+      // NOTE: the provider mocked glucose as int, we'll cast
       id: const Uuid().v4(),
       glucose: val.toInt(),
       type: typeStr,
       date: combinedDateTime,
     );
-    
+
     await repo.addSugar(record);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('शुगर सहेजी गई ✓ / Sugar Saved')),
+      const SnackBar(content: LocalizedText('शुगर सहेजी गई ✓ / Sugar Saved')),
     );
 
     context.pop();
@@ -120,7 +129,7 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('शुगर जोड़ें / Add Sugar'),
+        title: const LocalizedText('शुगर जोड़ें / Add Sugar'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -132,20 +141,28 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              LocalizedText(
                 'किस समय की शुगर है?',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              
+
               SegmentedButton<SugarType>(
                 segments: const [
-                  ButtonSegment(value: SugarType.fasting, label: Text('खाली पेट\n(Fasting)')),
-                  ButtonSegment(value: SugarType.postMeal, label: Text('खाने के बाद\n(Post-meal)')),
-                  ButtonSegment(value: SugarType.random, label: Text('कभी भी\n(Random)')),
+                  ButtonSegment(
+                      value: SugarType.fasting,
+                      label: LocalizedText('खाली पेट\n(Fasting)')),
+                  ButtonSegment(
+                      value: SugarType.postMeal,
+                      label: LocalizedText('खाने के बाद\n(Post-meal)')),
+                  ButtonSegment(
+                      value: SugarType.random,
+                      label: LocalizedText('कभी भी\n(Random)')),
                 ],
-                selected: _selectedType != null ? {_selectedType!} : <SugarType>{},
+                selected:
+                    _selectedType != null ? {_selectedType!} : <SugarType>{},
                 onSelectionChanged: (newSelection) {
                   setState(() {
                     _selectedType = newSelection.first;
@@ -162,9 +179,9 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                child: _selectedType == null 
-                  ? const SizedBox(width: double.infinity)
-                  : _buildDataEntryForm(theme, colorScheme),
+                child: _selectedType == null
+                    ? const SizedBox(width: double.infinity)
+                    : _buildDataEntryForm(theme, colorScheme),
               ),
             ],
           ),
@@ -190,25 +207,28 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
               children: [
                 TextField(
                   controller: _sugarController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,1}')),
                   ],
                   maxLength: 5,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  decoration: const InputDecoration(
-                    labelText: 'शुगर का स्तर (Sugar Level)',
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: AppLanguage.text('शुगर का स्तर (Sugar Level)'),
                     floatingLabelAlignment: FloatingLabelAlignment.center,
-                    hintText: '000',
-                    suffixText: 'mg/dL',
+                    hintText: AppLanguage.text('000'),
+                    suffixText: AppLanguage.text('mg/dL'),
                     border: OutlineInputBorder(),
                     counterText: '',
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Live Classification Chip
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
@@ -232,13 +252,14 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.calendar_today, size: 20),
-                title: Text(DateFormat('EEEE, d MMMM yyyy').format(_selectedDate)),
+                title: LocalizedText(
+                    DateFormat('EEEE, d MMMM yyyy').format(_selectedDate)),
                 onTap: _pickDate,
               ),
               const Divider(height: 0, indent: 48),
               ListTile(
                 leading: const Icon(Icons.schedule, size: 20),
-                title: Text(_selectedTime.format(context)),
+                title: LocalizedText(_selectedTime.format(context)),
                 onTap: _pickTime,
               ),
             ],
@@ -251,9 +272,9 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
         TextField(
           controller: _notesController,
           maxLines: 2,
-          decoration: const InputDecoration(
-            labelText: 'नोट्स (वैकल्पिक)',
-            hintText: 'जैसे: मिठाई खाने के बाद...',
+          decoration: InputDecoration(
+            labelText: AppLanguage.text('नोट्स (वैकल्पिक)'),
+            hintText: AppLanguage.text('जैसे: मिठाई खाने के बाद...'),
             border: OutlineInputBorder(),
             alignLabelWithHint: true,
           ),
@@ -266,23 +287,25 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
           onPressed: _isFormValid ? _onSave : null,
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(56),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
           ),
-          child: const Text('शुगर सहेजें / Save Sugar', style: TextStyle(fontSize: 16)),
+          child: const LocalizedText('शुगर सहेजें / Save Sugar',
+              style: TextStyle(fontSize: 16)),
         ),
-        const SizedBox(height: 32), 
+        const SizedBox(height: 32),
       ],
     );
   }
 
   Widget _buildClassificationChip(ColorScheme colorScheme) {
     if (_selectedType == null) return const SizedBox.shrink();
-    
+
     double val = double.tryParse(_sugarController.text) ?? 0;
-    if (val == 0) return const SizedBox(width: double.infinity, height: 32); 
+    if (val == 0) return const SizedBox(width: double.infinity, height: 32);
 
     final level = SugarClassification.getLevel(_selectedType!, val);
-    
+
     return Container(
       key: ValueKey(level),
       width: double.infinity,
@@ -291,9 +314,11 @@ class _AddSugarScreenState extends ConsumerState<AddSugarScreen> {
         color: SugarClassification.getBgColor(level, colorScheme),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
+      child: LocalizedText(
         SugarClassification.getLabel(level),
-        style: TextStyle(color: SugarClassification.getFgColor(level, colorScheme), fontWeight: FontWeight.bold),
+        style: TextStyle(
+            color: SugarClassification.getFgColor(level, colorScheme),
+            fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
     );

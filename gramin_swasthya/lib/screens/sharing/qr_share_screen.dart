@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrShareScreen extends StatelessWidget {
@@ -8,10 +9,11 @@ class QrShareScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // Mock URL that the QR code will represent
-    const String mockShareUrl = 'https://graminswasthya.web.app/share/session-ab12cd34';
+    const String mockShareUrl =
+        'https://graminswasthya.web.app/share/session-ab12cd34';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan to Share')),
+      appBar: AppBar(title: const LocalizedText('Scan to Share')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -19,15 +21,17 @@ class QrShareScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              LocalizedText(
                 'Show this code to your doctor',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(
+              LocalizedText(
                 'They can scan it to view your selected health records securely.',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
@@ -64,20 +68,20 @@ class QrShareScreen extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: () {
                   // Direct link share implementation
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text('Opening Share Sheet...'))
-                   );
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: LocalizedText('Opening Share Sheet...')));
                 },
                 icon: const Icon(Icons.link),
-                label: const Text('Share Link Instead'),
+                label: const LocalizedText('Share Link Instead'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
               const SizedBox(height: 32),
-              Text(
+              LocalizedText(
                 'This link will expire in 24 hours.',
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
             ],

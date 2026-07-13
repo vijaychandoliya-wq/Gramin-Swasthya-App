@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'l10n/app_language.dart';
 import 'router.dart';
 import 'theme.dart';
 import 'widgets/connectivity_wrapper.dart';
@@ -11,6 +13,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppLanguage.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -41,14 +44,27 @@ class GraminSwasthyaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp.router(
-      title: 'Gramin Swasthya',
-      theme: GraminSwasthyaTheme.lightTheme,
-      routerConfig: appRouter,
-      builder: (context, child) {
-        return ConnectivityWrapper(child: child!);
-      },
-      debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLanguage.current,
+      builder: (context, languageCode, _) => MaterialApp.router(
+        title: 'Gramin Swasthya',
+        locale: Locale(languageCode),
+        supportedLocales: const [Locale('en'), Locale('hi')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        theme: GraminSwasthyaTheme.lightTheme,
+        routerConfig: appRouter,
+        builder: (context, child) {
+          return ConnectivityWrapper(
+            key: const ValueKey('connectivity_wrapper'),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/family_provider.dart';
+import '../../l10n/app_language.dart';
 
 class EmergencyCardScreen extends ConsumerStatefulWidget {
   const EmergencyCardScreen({super.key});
@@ -51,7 +53,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success == true
+            content: LocalizedText(success == true
                 ? '$memberName का कार्ड गैलरी में सहेजा गया ✓'
                 : 'सहेजने में विफल'),
             backgroundColor: success == true ? Colors.green : Colors.red,
@@ -61,19 +63,30 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: LocalizedText('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
   }
 
   Future<void> _shareOnWhatsApp(FamilyMember member) async {
-    final text = """
+    final bloodGroup = AppLanguage.text(member.bloodGroup);
+    final conditions = member.diseases.map(AppLanguage.text).join(', ');
+    final text = AppLanguage.isHindi
+        ? """
 🆘 *आपातकालीन स्वास्थ्य कार्ड* 🆘
 नाम: ${member.name}
-रक्त समूह: ${member.bloodGroup}
-बीमारियां: ${member.diseases.join(", ")}
+रक्त समूह: $bloodGroup
+बीमारियां: $conditions
 आपातकालीन संपर्क: ${member.emergencyContactName} (${member.emergencyPhone})
+"""
+        : """
+🆘 *Emergency Health Card* 🆘
+Name: ${member.name}
+Blood group: $bloodGroup
+Conditions: $conditions
+Emergency contact: ${member.emergencyContactName} (${member.emergencyPhone})
 """;
 
     final whatsappUrl =
@@ -97,12 +110,12 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
         backgroundColor: colorScheme.error,
         foregroundColor: colorScheme.onError,
         centerTitle: true,
-        title: const Text('🆘 आपातकालीन कार्ड'),
+        title: const LocalizedText('🆘 आपातकालीन कार्ड'),
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: members.isEmpty
-          ? const Center(child: Text('कोई सदस्य नहीं मिला'))
+          ? const Center(child: LocalizedText('कोई सदस्य नहीं मिला'))
           : Column(
               children: [
                 const SizedBox(height: 24),
@@ -147,8 +160,9 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
                         ),
-                        icon: const Text("💬", style: TextStyle(fontSize: 20)),
-                        label: const Text("WhatsApp पर शेयर करें",
+                        icon: const LocalizedText("💬",
+                            style: TextStyle(fontSize: 20)),
+                        label: const LocalizedText("WhatsApp पर शेयर करें",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 12),
@@ -167,7 +181,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                               borderRadius: BorderRadius.circular(16)),
                         ),
                         icon: const Icon(Icons.download_rounded),
-                        label: const Text("छवि (Image) सहेजें",
+                        label: const LocalizedText("छवि (Image) सहेजें",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
@@ -216,7 +230,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                         CircleAvatar(
                           radius: 32,
                           backgroundColor: colorScheme.primaryContainer,
-                          child: Text(
+                          child: LocalizedText(
                             member.name[0],
                             style: TextStyle(
                                 fontSize: 24,
@@ -229,13 +243,13 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              LocalizedText(
                                 member.name,
                                 style: theme.textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87),
                               ),
-                              Text(
+                              LocalizedText(
                                 '${member.relation} • ${member.bloodGroup}', // Simplified bio
                                 style: theme.textTheme.bodyMedium
                                     ?.copyWith(color: Colors.grey.shade600),
@@ -253,12 +267,12 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("रक्त समूह / BLOOD GROUP",
+                              LocalizedText("रक्त समूह / BLOOD GROUP",
                                   style: theme.textTheme.labelSmall?.copyWith(
                                       color: Colors.grey.shade500,
                                       letterSpacing: 1.2)),
                               const SizedBox(height: 4),
-                              Text(
+                              LocalizedText(
                                 member.bloodGroup,
                                 style: theme.textTheme.displayMedium?.copyWith(
                                     fontWeight: FontWeight.w900,
@@ -274,7 +288,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("बीमारियां / CONDITIONS",
+                              LocalizedText("बीमारियां / CONDITIONS",
                                   style: theme.textTheme.labelSmall?.copyWith(
                                       color: Colors.grey.shade500,
                                       letterSpacing: 1.2)),
@@ -293,7 +307,7 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                                             border: Border.all(
                                                 color: Colors.red.shade100),
                                           ),
-                                          child: Text(d,
+                                          child: LocalizedText(d,
                                               style: const TextStyle(
                                                   fontSize: 10,
                                                   color: Colors.red,
@@ -314,12 +328,13 @@ class _EmergencyCardScreenState extends ConsumerState<EmergencyCardScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("आपातकालीन संपर्क / EMERGENCY CONTACT",
+                            LocalizedText(
+                                "आपातकालीन संपर्क / EMERGENCY CONTACT",
                                 style: theme.textTheme.labelSmall?.copyWith(
                                     color: Colors.grey.shade500,
                                     letterSpacing: 1.2)),
                             const SizedBox(height: 4),
-                            Text(
+                            LocalizedText(
                               member.emergencyContactName ?? 'Contact',
                               style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,

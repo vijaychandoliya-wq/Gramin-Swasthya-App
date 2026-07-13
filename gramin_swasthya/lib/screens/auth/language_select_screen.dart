@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_language.dart';
 
 class LanguageSelectScreen extends StatefulWidget {
   const LanguageSelectScreen({super.key});
@@ -14,12 +15,11 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
   Future<void> _onContinue() async {
     if (_selected == null) return;
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('language', _selected!);
-    
+
+    await AppLanguage.setLanguage(_selected!);
+
     if (mounted) {
-      context.go('/home');
+      context.go('/google-sign-in');
     }
   }
 
@@ -38,19 +38,12 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 48), // Spacer for top
-              
-              Text(
-                'अपनी भाषा चुनें',
+
+              LocalizedText(
+                'अपनी भाषा चुनें / Choose Your Language',
                 style: textTheme.headlineMedium?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Choose Your Language',
-                style: textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 48),
@@ -60,30 +53,28 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                 context: context,
                 value: 'hi',
                 emoji: '🇮🇳',
-                title: 'हिंदी',
-                subtitle: 'Hindi',
+                title: 'Hindi',
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Card 2 (English)
               _buildLanguageCard(
                 context: context,
                 value: 'en',
                 emoji: '🇬🇧',
                 title: 'English',
-                subtitle: 'अंग्रेज़ी',
               ),
 
               const Spacer(),
-              
+
               // Continue Button
               FilledButton(
                 onPressed: _selected != null ? _onContinue : null,
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                 ),
-                child: const Text('जारी रखें / Continue'),
+                child: const LocalizedText('जारी रखें / Continue'),
               ),
             ],
           ),
@@ -97,7 +88,6 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
     required String value,
     required String emoji,
     required String title,
-    required String subtitle,
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -127,17 +117,13 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               emoji,
               style: const TextStyle(fontSize: 24),
             ),
-            title: Text(
+            title: LocalizedText(
               title,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-              ),
-            ),
-            subtitle: Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: isSelected ? colorScheme.onPrimaryContainer.withOpacity(0.8) : colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurface,
               ),
             ),
             trailing: Radio<String>(

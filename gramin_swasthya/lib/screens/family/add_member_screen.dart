@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -102,6 +104,10 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
         gender: _gender,
         bloodGroup: _bloodGroup,
         photoPath: _photoPath,
+        photoUrl: widget.member!.photoUrl,
+        phone: widget.member!.phone,
+        email: widget.member!.email,
+        ownerUid: widget.member!.ownerUid,
         diseases: _selectedDiseases.toList(),
         emergencyContactName: contactName,
         emergencyPhone: phone,
@@ -114,7 +120,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
     if (Navigator.of(context).canPop()) {
       context.pop();
     } else {
-      context.go('/pin-setup');
+      context.go('/home');
     }
   }
 
@@ -126,7 +132,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? "सदस्य संपादित करें" : "सदस्य जोड़ें"),
+        title: LocalizedText(isEditing ? "सदस्य संपादित करें" : "सदस्य जोड़ें"),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -154,9 +160,18 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                                   fit: BoxFit.cover,
                                 ),
                               )
-                            : Icon(Icons.person_outline,
-                                size: 56,
-                                color: colorScheme.onPrimaryContainer),
+                            : widget.member?.photoUrl != null
+                                ? ClipOval(
+                                    child: Image.network(
+                                      widget.member!.photoUrl!,
+                                      width: 112,
+                                      height: 112,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Icon(Icons.person_outline,
+                                    size: 56,
+                                    color: colorScheme.onPrimaryContainer),
                       ),
                     ),
                     Positioned(
@@ -188,8 +203,8 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                     children: [
                       TextFormField(
                         controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'नाम / Name *',
+                        decoration: InputDecoration(
+                          labelText: AppLanguage.text('नाम / Name *'),
                           prefixIcon: Icon(Icons.person_outline),
                           border: OutlineInputBorder(),
                         ),
@@ -202,9 +217,9 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _ageController,
-                              decoration: const InputDecoration(
-                                labelText: 'उम्र / Age',
-                                suffixText: 'वर्ष',
+                              decoration: InputDecoration(
+                                labelText: AppLanguage.text('उम्र / Age'),
+                                suffixText: AppLanguage.text('वर्ष'),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -217,8 +232,8 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                           Expanded(
                             child: DropdownButtonFormField<String>(
                               value: _gender,
-                              decoration: const InputDecoration(
-                                labelText: 'लिंग / Gender',
+                              decoration: InputDecoration(
+                                labelText: AppLanguage.text('लिंग / Gender'),
                                 border: OutlineInputBorder(),
                                 contentPadding:
                                     EdgeInsets.symmetric(horizontal: 12),
@@ -230,7 +245,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                               ]
                                   .map((g) => DropdownMenuItem(
                                       value: g,
-                                      child: Text(g,
+                                      child: LocalizedText(g,
                                           style:
                                               const TextStyle(fontSize: 12))))
                                   .toList(),
@@ -242,12 +257,14 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
                         value: _bloodGroup,
-                        decoration: const InputDecoration(
-                          labelText: 'रक्त समूह / Blood Group',
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLanguage.text('रक्त समूह / Blood Group'),
                           prefixIcon: Icon(Icons.water_drop, color: Colors.red),
                           border: OutlineInputBorder(),
                         ),
                         items: [
+                          'अज्ञात / Unknown',
                           'A+',
                           'A-',
                           'B+',
@@ -257,8 +274,8 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                           'O+',
                           'O-'
                         ]
-                            .map((bg) =>
-                                DropdownMenuItem(value: bg, child: Text(bg)))
+                            .map((bg) => DropdownMenuItem(
+                                value: bg, child: LocalizedText(bg)))
                             .toList(),
                         onChanged: (v) => setState(() => _bloodGroup = v!),
                       ),
@@ -282,7 +299,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("मौजूदा बीमारियाँ / Conditions",
+                      LocalizedText("मौजूदा बीमारियाँ / Conditions",
                           style: theme.textTheme.titleSmall
                               ?.copyWith(color: Colors.grey)),
                       const SizedBox(height: 12),
@@ -292,8 +309,8 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                         children: _diseaseOptions.map((d) {
                           final isSelected = _selectedDiseases.contains(d);
                           return FilterChip(
-                            label:
-                                Text(d, style: const TextStyle(fontSize: 11)),
+                            label: LocalizedText(d,
+                                style: const TextStyle(fontSize: 11)),
                             selected: isSelected,
                             onSelected: (v) {
                               setState(() {
@@ -330,8 +347,9 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                     children: [
                       TextFormField(
                         controller: _contactNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'संपर्क नाम / Contact Name',
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLanguage.text('संपर्क नाम / Contact Name'),
                           prefixIcon: Icon(Icons.person_pin_outlined),
                           border: OutlineInputBorder(),
                         ),
@@ -339,8 +357,8 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _phoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'फोन नंबर / Phone *',
+                        decoration: InputDecoration(
+                          labelText: AppLanguage.text('फोन नंबर / Phone *'),
                           prefixIcon: Icon(Icons.phone_outlined),
                           border: OutlineInputBorder(),
                         ),
@@ -367,7 +385,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Text(
+                child: LocalizedText(
                   isEditing
                       ? "बदलाव सहेजें / Save Changes"
                       : "सदस्य जोड़ें / Add Member",
@@ -382,7 +400,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                   onPressed: () => _confirmDelete(ref, widget.member!),
                   style:
                       TextButton.styleFrom(foregroundColor: colorScheme.error),
-                  child: const Text("सदस्य हटाएं / Delete Member"),
+                  child: const LocalizedText("सदस्य हटाएं / Delete Member"),
                 ),
               ],
 
@@ -397,7 +415,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(title,
+      child: LocalizedText(title,
           style: const TextStyle(
               fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
     );
@@ -407,16 +425,17 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${member.name} को हटाएं?'),
-        content: const Text('क्या आप वाकई इस प्रोफाइल को हटाना चाहते हैं?'),
+        title: LocalizedText('${member.name} को हटाएं?'),
+        content:
+            const LocalizedText('क्या आप वाकई इस प्रोफाइल को हटाना चाहते हैं?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('रद्द')),
+              child: const LocalizedText('रद्द')),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('हटाएं'),
+            child: const LocalizedText('हटाएं'),
           ),
         ],
       ),

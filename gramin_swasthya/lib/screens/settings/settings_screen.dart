@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../providers/family_provider.dart';
 import '../../services/google_drive_service.dart';
 import '../../db/database_helper.dart';
+import '../../l10n/app_language.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -18,10 +19,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  final LocalAuthentication _auth = LocalAuthentication();
   bool _notifEnabled = true;
-  bool _biometricEnabled = false;
-  bool _biometricAvailable = false;
   String _lastSynced = "आज, 10:30 AM";
 
   bool _isGoogleLinked = false;
@@ -33,7 +31,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void initState() {
     super.initState();
     _loadSettings();
-    _checkBiometrics();
   }
 
   Future<void> _loadSettings() async {
@@ -41,7 +38,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final linked = await GoogleDriveService.instance.isSignedIn();
     setState(() {
       _notifEnabled = prefs.getBool('notif_enabled') ?? true;
-      _biometricEnabled = prefs.getBool('biometric_enabled') ?? false;
       _isGoogleLinked = linked;
       _googleUserEmail = GoogleDriveService.instance.currentUser?.email;
     });
@@ -50,26 +46,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _checkBiometrics() async {
-    try {
-      final canCheck = await _auth.canCheckBiometrics;
-      final isSupported = await _auth.isDeviceSupported();
-      setState(() => _biometricAvailable = canCheck && isSupported);
-    } catch (e) {
-      debugPrint("Biometric check error: $e");
-    }
-  }
-
   Future<void> _toggleNotif(bool val) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notif_enabled', val);
     setState(() => _notifEnabled = val);
-  }
-
-  Future<void> _toggleBiometric(bool val) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('biometric_enabled', val);
-    setState(() => _biometricEnabled = val);
   }
 
   Future<void> _toggleGoogleLink() async {
@@ -82,7 +62,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _googleBackupFolders = [];
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Google खाता हटाया गया / Google account unlinked')),
+        const SnackBar(
+            content: LocalizedText(
+                'Google खाता हटाया गया / Google account unlinked')),
       );
     } else {
       final account = await GoogleDriveService.instance.signIn();
@@ -93,12 +75,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _googleUserEmail = account.email;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google खाता जोड़ा गया / Google account linked')),
+          const SnackBar(
+              content: LocalizedText(
+                  'Google खाता जोड़ा गया / Google account linked')),
         );
         _fetchGoogleBackups();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('लिंक करने में विफल / Failed to link account')),
+          const SnackBar(
+              content:
+                  LocalizedText('लिंक करने में विफल / Failed to link account')),
         );
       }
     }
@@ -120,7 +106,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _backupToGoogle() async {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('गूगल ड्राइव पर बैकअप हो रहा है... / Uploading backup to Drive...')),
+      const SnackBar(
+          content: LocalizedText(
+              'गूगल ड्राइव पर बैकअप हो रहा है... / Uploading backup to Drive...')),
     );
     try {
       await GoogleDriveService.instance.backupProfiles(context);
@@ -128,13 +116,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (mounted) {
         setState(() => _lastSynced = "अभी-अभी / Just now");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('बैकअप पूरा हुआ! / Backup completed ✓')),
+          const SnackBar(
+              content: LocalizedText('बैकअप पूरा हुआ! / Backup completed ✓')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('बैकअप त्रुटि: $e / Backup failed: $e')),
+          SnackBar(
+              content: LocalizedText('बैकअप त्रुटि: $e / Backup failed: $e')),
         );
       }
     }
@@ -144,19 +134,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (_googleBackupFolders.isEmpty) {
       await _fetchGoogleBackups();
     }
-    
+
     if (!mounted) return;
-    
+
     if (_googleBackupFolders.isEmpty) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('कोई बैकअप नहीं / No Backups'),
-          content: const Text('गूगल ड्राइव पर कोई भी प्रोफाइल बैकअप नहीं मिला। / No profile backups found on Google Drive.'),
+          title: const LocalizedText('कोई बैकअप नहीं / No Backups'),
+          content: const LocalizedText(
+              'गूगल ड्राइव पर कोई भी प्रोफाइल बैकअप नहीं मिला। / No profile backups found on Google Drive.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ठीक है / OK'),
+              child: const LocalizedText('ठीक है / OK'),
             ),
           ],
         ),
@@ -167,7 +158,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('प्रोफ़ाइल आयात करें / Import Profile'),
+        title: const LocalizedText('प्रोफ़ाइल आयात करें / Import Profile'),
         content: SizedBox(
           width: double.maxFinite,
           child: _isLoadingBackups
@@ -179,8 +170,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     final folder = _googleBackupFolders[index];
                     return ListTile(
                       leading: const Icon(Icons.person),
-                      title: Text(folder['name'] ?? ''),
-                      subtitle: const Text('गूगल ड्राइव से आयात करें / Import from Drive'),
+                      title: LocalizedText(folder['name'] ?? ''),
+                      subtitle: const LocalizedText(
+                          'गूगल ड्राइव से आयात करें / Import from Drive'),
                       onTap: () async {
                         Navigator.pop(context);
                         _importFolder(folder['id']!, folder['name']!);
@@ -192,7 +184,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('रद्द / Cancel'),
+            child: const LocalizedText('रद्द / Cancel'),
           ),
         ],
       ),
@@ -201,7 +193,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _importFolder(String folderId, String profileName) async {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$profileName आयात किया जा रहा है... / Importing $profileName...')),
+      SnackBar(
+          content: LocalizedText(
+              '$profileName आयात किया जा रहा है... / Importing $profileName...')),
     );
     try {
       await GoogleDriveService.instance.importProfile(folderId);
@@ -209,13 +203,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(selectedFamilyMemberProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
+          SnackBar(
+              content: LocalizedText(
+                  '$profileName सफलतापूर्वक आयात किया गया! / Imported successfully ✓')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('आयात त्रुटि: $e / Import failed: $e')),
+          SnackBar(
+              content: LocalizedText('आयात त्रुटि: $e / Import failed: $e')),
         );
       }
     }
@@ -225,21 +222,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('सभी डेटा हटाएं? / Erase All Data?'),
-        content: const Text(
+        title: const LocalizedText('सभी डेटा हटाएं? / Erase All Data?'),
+        content: const LocalizedText(
           'क्या आप वाकई सभी डेटा हटाना चाहते हैं? यह क्रिया आपके फ़ोन से सभी प्रोफ़ाइल, स्वास्थ्य रिकॉर्ड और दवाइयों की सूची को स्थायी रूप से हटा देगी।\n\nAre you sure you want to delete all data? This will permanently erase all profiles, records, and medicines from your phone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('रद्द / Cancel'),
+            child: const LocalizedText('रद्द / Cancel'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('सब कुछ हटाएं / Erase All'),
+            child: const LocalizedText('सब कुछ हटाएं / Erase All'),
           ),
         ],
       ),
@@ -249,14 +246,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await DatabaseHelper.instance.eraseAllData();
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
-      
+
       // Invalidate local providers
       ref.invalidate(familyProvider);
       ref.invalidate(selectedFamilyMemberProvider);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('सभी डेटा मिटा दिया गया है / All data has been erased')),
+          const SnackBar(
+              content: LocalizedText(
+                  'सभी डेटा मिटा दिया गया है / All data has been erased')),
         );
         context.go('/splash');
       }
@@ -271,20 +270,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final selected = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('भाषा चुनें / Select Language'),
+        title: const LocalizedText('भाषा चुनें / Select Language'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
               value: 'hi',
               groupValue: current,
-              title: const Text('हिंदी (Hindi)'),
+              title: const LocalizedText('हिंदी (Hindi)'),
               onChanged: (v) => Navigator.pop(context, v),
             ),
             RadioListTile<String>(
               value: 'en',
               groupValue: current,
-              title: const Text('English'),
+              title: const LocalizedText('English'),
               onChanged: (v) => Navigator.pop(context, v),
             ),
           ],
@@ -292,17 +291,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('रद्द / Cancel'),
+            child: const LocalizedText('रद्द / Cancel'),
           ),
         ],
       ),
     );
 
     if (selected != null && mounted) {
-      await prefs.setString('language', selected);
+      await AppLanguage.setLanguage(selected);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('भाषा बदल दी गई / Language changed')),
+        const SnackBar(
+            content: LocalizedText('भाषा बदल दी गई / Language changed')),
       );
     }
   }
@@ -311,11 +311,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final primaryMember = ref.watch(familyProvider).firstWhere((m) => m.isPrimary, orElse: () => ref.read(familyProvider).first);
+    final primaryMember = ref.watch(familyProvider).firstWhere(
+        (m) => m.isPrimary,
+        orElse: () => ref.read(familyProvider).first);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('सेटिंग्स / Settings'),
+        title: const LocalizedText('सेटिंग्स / Settings'),
         centerTitle: true,
       ),
       body: ListView(
@@ -338,25 +340,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: colorScheme.primaryContainer,
-                      child: Text(primaryMember.name[0], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                      backgroundImage: primaryMember.photoUrl != null
+                          ? NetworkImage(primaryMember.photoUrl!)
+                          : null,
+                      child: primaryMember.photoUrl == null
+                          ? LocalizedText(primaryMember.name[0],
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.primary))
+                          : null,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "चंदोलिया परिवार / Chandoliya Family",
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          LocalizedText(
+                            primaryMember.name,
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          Text(
-                            "+91 ••••• 54321", // Mock masked phone
-                            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                          LocalizedText(
+                            primaryMember.phone != null
+                                ? '+91 ${primaryMember.phone}'
+                                : (primaryMember.email ?? ''),
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+                    Icon(Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant),
                   ],
                 ),
               ),
@@ -370,24 +386,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             [
               ListTile(
                 leading: const Icon(Icons.language_outlined),
-                title: const Text("ऐप की भाषा / Language"),
-                subtitle: const Text("हिन्दी (Hindi)"),
+                title: const LocalizedText("ऐप की भाषा / Language"),
+                subtitle: LocalizedText(
+                  AppLanguage.current.value == 'hi' ? 'हिंदी' : 'English',
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showLanguageDialog(),
               ),
               SwitchListTile(
                 secondary: const Icon(Icons.notifications_active_outlined),
-                title: const Text("दवाई अनुस्मारक / Reminders"),
-                subtitle: const Text("दवाइयों के लिए सूचनाएं प्राप्त करें"),
+                title: const LocalizedText("दवाई अनुस्मारक / Reminders"),
+                subtitle:
+                    const LocalizedText("दवाइयों के लिए सूचनाएं प्राप्त करें"),
                 value: _notifEnabled,
                 onChanged: _toggleNotif,
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.fingerprint),
-                title: const Text("फिंगरप्रिंट लॉगिन"),
-                subtitle: Text(_biometricAvailable ? "सुरक्षित लॉगिन के लिए" : "उपलब्ध नहीं है"),
-                value: _biometricEnabled,
-                onChanged: _biometricAvailable ? _toggleBiometric : null,
               ),
             ],
             colorScheme,
@@ -398,14 +410,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             [
               ListTile(
                 leading: const Icon(Icons.cloud_outlined),
-                title: const Text("गूगल ड्राइव लिंक / Google Drive Link"),
-                subtitle: Text(_isGoogleLinked
+                title:
+                    const LocalizedText("गूगल ड्राइव लिंक / Google Drive Link"),
+                subtitle: LocalizedText(_isGoogleLinked
                     ? "संबद्ध / Linked: $_googleUserEmail"
                     : "बैकअप के लिए साइन इन करें / Sign in to backup"),
-                trailing: Text(
+                trailing: LocalizedText(
                   _isGoogleLinked ? "हटाएं / Unlink" : "लिंक करें / Link",
                   style: TextStyle(
-                    color: _isGoogleLinked ? colorScheme.error : colorScheme.primary,
+                    color: _isGoogleLinked
+                        ? colorScheme.error
+                        : colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -414,8 +429,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               if (_isGoogleLinked) ...[
                 ListTile(
                   leading: const Icon(Icons.backup_outlined),
-                  title: const Text("गूगल ड्राइव बैकअप / Google Drive Backup"),
-                  subtitle: Text("पिछला बैकअप: $_lastSynced"),
+                  title: const LocalizedText(
+                      "गूगल ड्राइव बैकअप / Google Drive Backup"),
+                  subtitle: LocalizedText("पिछला बैकअप: $_lastSynced"),
                   trailing: IconButton(
                     icon: const Icon(Icons.cloud_upload_outlined),
                     onPressed: _backupToGoogle,
@@ -423,8 +439,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.download_outlined),
-                  title: const Text("प्रोफ़ाइल आयात करें / Import Profile"),
-                  subtitle: const Text("गूगल ड्राइव से प्रोफ़ाइल बहाल करें"),
+                  title: const LocalizedText(
+                      "प्रोफ़ाइल आयात करें / Import Profile"),
+                  subtitle:
+                      const LocalizedText("गूगल ड्राइव से प्रोफ़ाइल बहाल करें"),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _showImportDialog,
                 ),
@@ -438,8 +456,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             [
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text("ऐप वर्शन / Version"),
-                trailing: Text("v1.0.0", style: theme.textTheme.bodySmall),
+                title: const LocalizedText("ऐप वर्शन / Version"),
+                trailing:
+                    LocalizedText("v1.0.0", style: theme.textTheme.bodySmall),
                 onTap: () => showAboutDialog(
                   context: context,
                   applicationName: "   ग्रामीण स्वास्थ्य",
@@ -453,13 +472,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.policy_outlined),
-                title: const Text("गोपनीयता नीति / Privacy"),
+                title: const LocalizedText("गोपनीयता नीति / Privacy"),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => launchUrl(Uri.parse("https://graminsw.app/privacy")),
+                onTap: () =>
+                    launchUrl(Uri.parse("https://graminsw.app/privacy")),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
-                title: const Text("मदद / Help"),
+                title: const LocalizedText("मदद / Help"),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => launchUrl(Uri.parse("https://graminsw.app/help")),
               ),
@@ -476,7 +496,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             icon: const Icon(Icons.delete_forever),
-            label: const Text("सब कुछ मिटाएं / Erase All Data", style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const LocalizedText("सब कुछ मिटाएं / Erase All Data",
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
 
           const SizedBox(height: 40),
@@ -485,15 +506,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildSection(String title, List<Widget> tiles, ColorScheme colorScheme) {
+  Widget _buildSection(
+      String title, List<Widget> tiles, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
+          child: LocalizedText(
             title,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+            style: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
           ),
         ),
         Card(
@@ -506,8 +529,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               for (int i = 0; i < tiles.length; i++) ...[
                 tiles[i],
-                if (i < tiles.length - 1)
-                  const Divider(height: 0, indent: 56),
+                if (i < tiles.length - 1) const Divider(height: 0, indent: 56),
               ],
             ],
           ),

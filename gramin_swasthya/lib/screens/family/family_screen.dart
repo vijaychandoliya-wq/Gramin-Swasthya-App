@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,22 +9,25 @@ import '../../providers/family_provider.dart';
 class FamilyScreen extends ConsumerWidget {
   const FamilyScreen({super.key});
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, FamilyMember member) async {
+  Future<void> _confirmDelete(
+      BuildContext context, WidgetRef ref, FamilyMember member) async {
     final theme = Theme.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${member.name} को हटाएं?'),
-        content: const Text('क्या आप वाकई इस प्रोफाइल को हटाना चाहते हैं? इससे उनका सारा स्वास्थ्य डेटा भी हट जाएगा।\nWarning: This will delete all associated health data.'),
+        title: LocalizedText('${member.name} को हटाएं?'),
+        content: const LocalizedText(
+            'क्या आप वाकई इस प्रोफाइल को हटाना चाहते हैं? इससे उनका सारा स्वास्थ्य डेटा भी हट जाएगा।\nWarning: This will delete all associated health data.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('रद्द / Cancel'),
+            child: const LocalizedText('रद्द / Cancel'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
+            style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('हटाएं / Delete'),
+            child: const LocalizedText('हटाएं / Delete'),
           ),
         ],
       ),
@@ -33,7 +37,7 @@ class FamilyScreen extends ConsumerWidget {
       ref.read(familyProvider.notifier).deleteMember(member.id);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${member.name} को हटा दिया गया')),
+          SnackBar(content: LocalizedText('${member.name} को हटा दिया गया')),
         );
       }
     }
@@ -44,7 +48,7 @@ class FamilyScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final members = ref.watch(familyProvider);
-    
+
     // In a real app, this would come from a preference or the primary member's name
     const familyName = "चंदोलिया परिवार / Chandoliya Family";
 
@@ -61,7 +65,7 @@ class FamilyScreen extends ConsumerWidget {
             expandedHeight: 120,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
+              title: LocalizedText(
                 familyName,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurface,
@@ -81,12 +85,13 @@ class FamilyScreen extends ConsumerWidget {
                 final member = members[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: _buildMemberCard(context, ref, theme, colorScheme, member),
+                  child: _buildMemberCard(
+                      context, ref, theme, colorScheme, member),
                 );
               },
             ),
           ),
-          
+
           // Extra padding for FAB
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
@@ -94,13 +99,8 @@ class FamilyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMemberCard(
-    BuildContext context, 
-    WidgetRef ref, 
-    ThemeData theme, 
-    ColorScheme colorScheme, 
-    FamilyMember member
-  ) {
+  Widget _buildMemberCard(BuildContext context, WidgetRef ref, ThemeData theme,
+      ColorScheme colorScheme, FamilyMember member) {
     final initials = member.name.isNotEmpty ? member.name[0] : '?';
 
     return Card(
@@ -121,7 +121,9 @@ class FamilyScreen extends ConsumerWidget {
                 tag: 'avatar_${member.id}',
                 child: CircleAvatar(
                   radius: 32,
-                  backgroundColor: member.isPrimary ? colorScheme.primary : colorScheme.primaryContainer,
+                  backgroundColor: member.isPrimary
+                      ? colorScheme.primary
+                      : colorScheme.primaryContainer,
                   child: member.photoPath != null
                       ? ClipOval(
                           child: Image.file(
@@ -131,14 +133,25 @@ class FamilyScreen extends ConsumerWidget {
                             fit: BoxFit.cover,
                           ),
                         )
-                      : Text(
-                          initials,
-                          style: TextStyle(
-                            fontSize: 24, 
-                            fontWeight: FontWeight.bold,
-                            color: member.isPrimary ? colorScheme.onPrimary : colorScheme.onPrimaryContainer,
-                          ),
-                        ),
+                      : member.photoUrl != null
+                          ? ClipOval(
+                              child: Image.network(
+                                member.photoUrl!,
+                                width: 64,
+                                height: 64,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : LocalizedText(
+                              initials,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: member.isPrimary
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onPrimaryContainer,
+                              ),
+                            ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -149,26 +162,31 @@ class FamilyScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
+                        LocalizedText(
                           member.name,
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         if (member.isPrimary) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: colorScheme.primary,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text("मुख्य", style: TextStyle(color: Colors.white, fontSize: 10)),
+                            child: const LocalizedText("मुख्य",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 10)),
                           ),
                         ],
                       ],
                     ),
-                    Text(
+                    LocalizedText(
                       "${member.age} वर्ष · ${member.gender} · ${member.bloodGroup}",
-                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 8),
                     // Diseases
@@ -177,9 +195,14 @@ class FamilyScreen extends ConsumerWidget {
                         spacing: 4,
                         runSpacing: 4,
                         children: [
-                          ...member.diseases.take(2).map((d) => _buildMiniChip(d, colorScheme)),
+                          ...member.diseases
+                              .take(2)
+                              .map((d) => _buildMiniChip(d, colorScheme)),
                           if (member.diseases.length > 2)
-                            _buildMiniChip("+${member.diseases.length - 2} अधिक", colorScheme, isOverflow: true),
+                            _buildMiniChip(
+                                "+${member.diseases.length - 2} अधिक",
+                                colorScheme,
+                                isOverflow: true),
                         ],
                       ),
                   ],
@@ -206,15 +229,17 @@ class FamilyScreen extends ConsumerWidget {
                     value: 'edit',
                     child: ListTile(
                       leading: Icon(Icons.edit_outlined),
-                      title: Text('संपादित करें / Edit'),
+                      title: LocalizedText('संपादित करें / Edit'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: 'emergency',
                     child: ListTile(
-                      leading: Icon(Icons.emergency_outlined, color: colorScheme.error),
-                      title: Text('आपातकालीन कार्ड', style: TextStyle(color: colorScheme.error)),
+                      leading: Icon(Icons.emergency_outlined,
+                          color: colorScheme.error),
+                      title: LocalizedText('आपातकालीन कार्ड',
+                          style: TextStyle(color: colorScheme.error)),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -222,8 +247,10 @@ class FamilyScreen extends ConsumerWidget {
                   PopupMenuItem(
                     value: 'delete',
                     child: ListTile(
-                      leading: Icon(Icons.delete_outline, color: colorScheme.error),
-                      title: Text('हटाएं / Delete', style: TextStyle(color: colorScheme.error)),
+                      leading:
+                          Icon(Icons.delete_outline, color: colorScheme.error),
+                      title: LocalizedText('हटाएं / Delete',
+                          style: TextStyle(color: colorScheme.error)),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -236,19 +263,24 @@ class FamilyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMiniChip(String label, ColorScheme colorScheme, {bool isOverflow = false}) {
+  Widget _buildMiniChip(String label, ColorScheme colorScheme,
+      {bool isOverflow = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: isOverflow ? colorScheme.surfaceContainerHighest : colorScheme.secondaryContainer.withOpacity(0.5),
+        color: isOverflow
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.secondaryContainer.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
-      child: Text(
+      child: LocalizedText(
         label,
         style: TextStyle(
-          fontSize: 10, 
-          color: isOverflow ? colorScheme.onSurfaceVariant : colorScheme.onSecondaryContainer,
+          fontSize: 10,
+          color: isOverflow
+              ? colorScheme.onSurfaceVariant
+              : colorScheme.onSecondaryContainer,
         ),
       ),
     );

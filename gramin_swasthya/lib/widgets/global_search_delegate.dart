@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../db/database_helper.dart';
@@ -52,7 +54,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
     return SearchAnchor(
       searchController: _controller,
       isFullScreen: true,
-      viewHintText: 'सदस्य, दवाई या रिपोर्ट खोजें...',
+      viewHintText: AppLanguage.text('सदस्य, दवाई या रिपोर्ट खोजें...'),
       builder: (context, controller) {
         return IconButton(
           icon: const Icon(Icons.search),
@@ -61,7 +63,7 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
       },
       suggestionsBuilder: (context, controller) async {
         final query = controller.text.trim();
-        
+
         if (query.isEmpty) {
           return _buildRecentSearches(context);
         }
@@ -81,45 +83,54 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
         final List<Widget> suggestionWidgets = [];
 
         if (members.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("👤 सदस्य / Members", colorScheme));
+          suggestionWidgets
+              .add(_buildSectionHeader("👤 सदस्य / Members", colorScheme));
           suggestionWidgets.addAll(members.map((m) => ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person, size: 20)),
-            title: Text(m['name']),
-            subtitle: const Text("परिवार सदस्य", style: TextStyle(fontSize: 12)),
-            onTap: () {
-              _saveSearch(query);
-              controller.closeView('');
-              context.push('/family');
-            },
-          )));
+                leading:
+                    const CircleAvatar(child: Icon(Icons.person, size: 20)),
+                title: LocalizedText(m['name']),
+                subtitle: const LocalizedText("परिवार सदस्य",
+                    style: TextStyle(fontSize: 12)),
+                onTap: () {
+                  _saveSearch(query);
+                  controller.closeView('');
+                  context.push('/family');
+                },
+              )));
         }
 
         if (medicines.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("💊 दवाइयाँ / Medicines", colorScheme));
+          suggestionWidgets
+              .add(_buildSectionHeader("💊 दवाइयाँ / Medicines", colorScheme));
           suggestionWidgets.addAll(medicines.map((m) => ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.medication, size: 20)),
-            title: Text(m['name']),
-            subtitle: Text("${m['dosage']} ${m['unit']}", style: const TextStyle(fontSize: 12)),
-            onTap: () {
-              _saveSearch(query);
-              controller.closeView('');
-              context.push('/medicines');
-            },
-          )));
+                leading:
+                    const CircleAvatar(child: Icon(Icons.medication, size: 20)),
+                title: LocalizedText(m['name']),
+                subtitle: LocalizedText("${m['dosage']} ${m['unit']}",
+                    style: const TextStyle(fontSize: 12)),
+                onTap: () {
+                  _saveSearch(query);
+                  controller.closeView('');
+                  context.push('/medicines');
+                },
+              )));
         }
 
         if (reports.isNotEmpty) {
-          suggestionWidgets.add(_buildSectionHeader("📁 रिपोर्ट / Reports", colorScheme));
+          suggestionWidgets
+              .add(_buildSectionHeader("📁 रिपोर्ट / Reports", colorScheme));
           suggestionWidgets.addAll(reports.map((r) => ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.folder, size: 20)),
-            title: Text(r['type'] ?? 'Report'),
-            subtitle: Text(r['doctor_name'] ?? 'Medical Report', style: const TextStyle(fontSize: 12)),
-            onTap: () {
-              _saveSearch(query);
-              controller.closeView('');
-              context.push('/reports');
-            },
-          )));
+                leading:
+                    const CircleAvatar(child: Icon(Icons.folder, size: 20)),
+                title: LocalizedText(r['type'] ?? 'Report'),
+                subtitle: LocalizedText(r['doctor_name'] ?? 'Medical Report',
+                    style: const TextStyle(fontSize: 12)),
+                onTap: () {
+                  _saveSearch(query);
+                  controller.closeView('');
+                  context.push('/reports');
+                },
+              )));
         }
 
         if (suggestionWidgets.isEmpty) {
@@ -129,9 +140,12 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
                 padding: const EdgeInsets.all(40.0),
                 child: Column(
                   children: [
-                    Icon(Icons.search_off, size: 48, color: colorScheme.outline),
+                    Icon(Icons.search_off,
+                        size: 48, color: colorScheme.outline),
                     const SizedBox(height: 16),
-                    Text("'$query' के लिए कोई परिणाम नहीं मिला", style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.outline)),
+                    LocalizedText("'$query' के लिए कोई परिणाम नहीं मिला",
+                        style: theme.textTheme.bodyLarge
+                            ?.copyWith(color: colorScheme.outline)),
                   ],
                 ),
               ),
@@ -149,7 +163,9 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
       return [
         const Padding(
           padding: EdgeInsets.all(24.0),
-          child: Center(child: Text("खोजना शुरू करें...", style: TextStyle(color: Colors.grey))),
+          child: Center(
+              child: LocalizedText("खोजना शुरू करें...",
+                  style: TextStyle(color: Colors.grey))),
         )
       ];
     }
@@ -157,26 +173,34 @@ class _GlobalSearchAnchorState extends State<GlobalSearchAnchor> {
     return [
       Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text("हालिया खोजें / Recent Searches", style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.grey)),
+        child: LocalizedText("हालिया खोजें / Recent Searches",
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge
+                ?.copyWith(color: Colors.grey)),
       ),
       ..._recentSearches.map((term) => ListTile(
-        leading: const Icon(Icons.history, size: 20, color: Colors.grey),
-        title: Text(term),
-        trailing: IconButton(
-          icon: const Icon(Icons.close, size: 16),
-          onPressed: () => _removeRecentSearch(term),
-        ),
-        onTap: () => _controller.text = term,
-      )),
+            leading: const Icon(Icons.history, size: 20, color: Colors.grey),
+            title: LocalizedText(term),
+            trailing: IconButton(
+              icon: const Icon(Icons.close, size: 16),
+              onPressed: () => _removeRecentSearch(term),
+            ),
+            onTap: () => _controller.text = term,
+          )),
     ];
   }
 
   Widget _buildSectionHeader(String title, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
+      child: LocalizedText(
         title,
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary, letterSpacing: 1.1),
+        style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+            letterSpacing: 1.1),
       ),
     );
   }

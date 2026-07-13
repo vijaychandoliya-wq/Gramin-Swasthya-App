@@ -52,7 +52,8 @@ class ReportsRepo {
         memberId: _memberId.toString(),
         type: r['type'] as String? ?? 'अन्य',
         doctorName: r['doctor_name'] as String? ?? '',
-        date: DateTime.tryParse(r['report_date'] as String? ?? '') ?? DateTime.now(),
+        date: DateTime.tryParse(r['report_date'] as String? ?? '') ??
+            DateTime.now(),
         imagePath: (r['firebase_url'] as String?)?.isNotEmpty == true
             ? r['firebase_url'] as String
             : r['local_path'] as String?,
@@ -115,7 +116,8 @@ final reportsRepoProvider = Provider<ReportsRepo>((ref) {
   return ReportsRepo(dbId);
 });
 
-final reportsStreamProvider = StreamProvider.autoDispose<List<MedicalReport>>((ref) {
+final reportsStreamProvider =
+    StreamProvider.autoDispose<List<MedicalReport>>((ref) {
   final repo = ref.watch(reportsRepoProvider);
   return repo.watchReports();
 });
@@ -123,7 +125,8 @@ final reportsStreamProvider = StreamProvider.autoDispose<List<MedicalReport>>((r
 // State for filtering
 final activeReportTypeFilterProvider = StateProvider<String>((ref) => 'सभी');
 
-final filteredReportsProvider = Provider.autoDispose<AsyncValue<List<MedicalReport>>>((ref) {
+final filteredReportsProvider =
+    Provider.autoDispose<AsyncValue<List<MedicalReport>>>((ref) {
   final reportsAsync = ref.watch(reportsStreamProvider);
   final activeType = ref.watch(activeReportTypeFilterProvider);
 

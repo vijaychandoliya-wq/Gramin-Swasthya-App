@@ -75,18 +75,24 @@ class HealthDataState {
   }
 }
 
-final healthProvider = StateNotifierProvider<HealthNotifier, HealthDataState>((ref) {
+final healthProvider =
+    StateNotifierProvider<HealthNotifier, HealthDataState>((ref) {
   return HealthNotifier();
 });
 
 class HealthNotifier extends StateNotifier<HealthDataState> {
   HealthNotifier() : super(HealthDataState());
 
-  void addBpReading({required int systolic, required int diastolic, int? pulse, String? notes}) {
+  void addBpReading(
+      {required int systolic,
+      required int diastolic,
+      int? pulse,
+      String? notes}) {
     // Deprecated — use healthRepoProvider from health_data_provider.dart
   }
 
-  void addSugarReading({required double value, required String type, String? notes}) {
+  void addSugarReading(
+      {required double value, required String type, String? notes}) {
     // Deprecated
   }
 

@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +30,13 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
   bool _isUploading = false;
   double _uploadProgress = 0.0;
 
-  final List<String> _reportTypes = ["नुस्खा 💊", "Lab रिपोर्ट 🧪", "X-Ray 📷", "ECG 💓", "अन्य"];
+  final List<String> _reportTypes = [
+    "नुस्खा 💊",
+    "Lab रिपोर्ट 🧪",
+    "X-Ray 📷",
+    "ECG 💓",
+    "अन्य"
+  ];
 
   @override
   void dispose() {
@@ -46,7 +54,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('कैमरा / Camera'),
+              title: const LocalizedText('कैमरा / Camera'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -54,7 +62,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('गैलरी / Gallery'),
+              title: const LocalizedText('गैलरी / Gallery'),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -77,7 +85,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
   Future<File?> _compressImage(File file) async {
     final tempDir = await getTemporaryDirectory();
     final path = '${tempDir.path}/${const Uuid().v4()}.jpg';
-    
+
     return await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
       path,
@@ -98,7 +106,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
     try {
       final selectedMember = ref.read(selectedFamilyMemberProvider);
       final repo = ref.read(reportsRepoProvider);
-      
+
       // 1. Compress
       setState(() => _uploadProgress = 0.3);
       final compressedFile = await _compressImage(File(_imageFile!.path));
@@ -107,14 +115,15 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
       // 2. Determine path/sync status
       setState(() => _uploadProgress = 0.6);
       final connectivity = await Connectivity().checkConnectivity();
-      bool isOnline = connectivity.contains(ConnectivityResult.mobile) || 
-                      connectivity.contains(ConnectivityResult.wifi);
+      bool isOnline = connectivity.contains(ConnectivityResult.mobile) ||
+          connectivity.contains(ConnectivityResult.wifi);
 
       String finalPath;
       if (isOnline) {
         // Mock Firebase Upload
         await Future.delayed(const Duration(seconds: 1)); // Simulate delay
-        finalPath = 'https://firebasestorage.com/mock/report_${const Uuid().v4()}.jpg';
+        finalPath =
+            'https://firebasestorage.com/mock/report_${const Uuid().v4()}.jpg';
       } else {
         // Save locally
         final appDir = await getApplicationDocumentsDirectory();
@@ -129,25 +138,29 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
         id: const Uuid().v4(),
         memberId: selectedMember?.id ?? '1',
         type: _selectedType!,
-        doctorName: _doctorController.text.isNotEmpty ? _doctorController.text : 'Unknown Doctor',
+        doctorName: _doctorController.text.isNotEmpty
+            ? _doctorController.text
+            : 'Unknown Doctor',
         date: _selectedDate,
         imagePath: finalPath,
       );
 
       await repo.addReport(report);
-      
+
       setState(() => _uploadProgress = 1.0);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('रिपोर्ट सहेजी गई ✓ / Report Saved')),
+          const SnackBar(
+              content: LocalizedText('रिपोर्ट सहेजी गई ✓ / Report Saved')),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: LocalizedText('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -175,7 +188,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('रिपोर्ट जोड़ें / Add Report'),
+        title: const LocalizedText('रिपोर्ट जोड़ें / Add Report'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -199,21 +212,26 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
 
               // Form fields
               DropdownMenu<String>(
-                label: const Text('रिपोर्ट का प्रकार * (Report Type)'),
+                label: const LocalizedText('रिपोर्ट का प्रकार * (Report Type)'),
                 expandedInsets: EdgeInsets.zero,
                 onSelected: (val) => setState(() => _selectedType = val),
-                dropdownMenuEntries: _reportTypes.map((t) => DropdownMenuEntry(value: t, label: t)).toList(),
+                dropdownMenuEntries: _reportTypes
+                    .map((t) => DropdownMenuEntry(
+                          value: t,
+                          label: AppLanguage.text(t),
+                        ))
+                    .toList(),
               ),
 
               const SizedBox(height: 16),
 
               TextField(
                 controller: _doctorController,
-                decoration: const InputDecoration(
-                  labelText: 'डॉक्टर का नाम (Doctor Name)',
+                decoration: InputDecoration(
+                  labelText: AppLanguage.text('डॉक्टर का नाम (Doctor Name)'),
                   prefixIcon: Icon(Icons.person_outline),
                   border: OutlineInputBorder(),
-                  hintText: 'वैकल्पिक',
+                  hintText: AppLanguage.text('वैकल्पिक'),
                 ),
               ),
 
@@ -225,7 +243,8 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
                   side: BorderSide(color: colorScheme.outlineVariant),
                 ),
                 leading: const Icon(Icons.calendar_today_outlined),
-                title: Text(DateFormat('dd MMMM yyyy').format(_selectedDate)),
+                title: LocalizedText(
+                    DateFormat('dd MMMM yyyy').format(_selectedDate)),
                 onTap: _pickDate,
               ),
 
@@ -234,9 +253,9 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
               TextField(
                 controller: _notesController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'नोट्स (Notes)',
-                  hintText: 'वैकल्पिक (Optional)',
+                decoration: InputDecoration(
+                  labelText: AppLanguage.text('नोट्स (Notes)'),
+                  hintText: AppLanguage.text('वैकल्पिक (Optional)'),
                   border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
@@ -249,19 +268,23 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
                   children: [
                     LinearProgressIndicator(value: _uploadProgress),
                     const SizedBox(height: 8),
-                    const Text('सहेजा जा रहा है... / Saving...', style: TextStyle(fontSize: 12)),
+                    const LocalizedText('सहेजा जा रहा है... / Saving...',
+                        style: TextStyle(fontSize: 12)),
                   ],
                 )
               else
                 FilledButton(
-                  onPressed: (_imageFile != null && _selectedType != null) ? _saveReport : null,
+                  onPressed: (_imageFile != null && _selectedType != null)
+                      ? _saveReport
+                      : null,
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(56),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('रिपोर्ट सहेजें / Save Report'),
+                  child: const LocalizedText('रिपोर्ट सहेजें / Save Report'),
                 ),
-              
+
               const SizedBox(height: 32),
             ],
           ),
@@ -286,10 +309,15 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_photo_alternate_outlined, size: 48, color: colorScheme.primary),
+              Icon(Icons.add_photo_alternate_outlined,
+                  size: 48, color: colorScheme.primary),
               const SizedBox(height: 8),
-              Text('फोटो या गैलरी से जोड़ें', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
-              Text('Camera or Gallery', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+              LocalizedText('फोटो या गैलरी से जोड़ें',
+                  style: TextStyle(
+                      color: colorScheme.primary, fontWeight: FontWeight.bold)),
+              LocalizedText('Camera or Gallery',
+                  style: TextStyle(
+                      color: colorScheme.onSurfaceVariant, fontSize: 12)),
             ],
           ),
         ),
@@ -323,7 +351,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
               children: [
                 Icon(Icons.edit, size: 16),
                 SizedBox(width: 4),
-                Text('बदलें (Change)'),
+                LocalizedText('बदलें (Change)'),
               ],
             ),
           ),

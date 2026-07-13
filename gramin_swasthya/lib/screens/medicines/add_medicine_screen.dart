@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,14 +23,22 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
   final _nameController = TextEditingController();
   final _dosageController = TextEditingController();
   final _notesController = TextEditingController();
-  
+
   String _selectedUnit = 'Tablet';
   List<TimeOfDay> _selectedTimes = [];
   int _durationDays = -1; // -1 for Always
   DateTime _startDate = DateTime.now();
   bool _isActive = true;
 
-  final List<String> _units = ["mg", "ml", "Tablet", "Capsule", "Drops", "IU", "Units"];
+  final List<String> _units = [
+    "mg",
+    "ml",
+    "Tablet",
+    "Capsule",
+    "Drops",
+    "IU",
+    "Units"
+  ];
 
   @override
   void initState() {
@@ -51,7 +61,8 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     super.dispose();
   }
 
-  bool get _isFormValid => _nameController.text.isNotEmpty && _selectedTimes.isNotEmpty;
+  bool get _isFormValid =>
+      _nameController.text.isNotEmpty && _selectedTimes.isNotEmpty;
 
   void _addTime() async {
     final picked = await showTimePicker(
@@ -104,14 +115,15 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
       saved = medicine;
     } else {
       saved = await repo.addMedicine(medicine);
+      await NotificationService.scheduleDailyReminders(saved);
     }
-
-    // Schedule Notifications
-    await NotificationService.scheduleDailyReminders(saved);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.medicine == null ? 'दवाई जोड़ दी गई ✓' : 'संपादित की गई ✓')),
+        SnackBar(
+            content: LocalizedText(widget.medicine == null
+                ? 'दवाई जोड़ दी गई ✓'
+                : 'संपादित की गई ✓')),
       );
       context.pop();
     }
@@ -125,7 +137,9 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.medicine == null ? 'दवाई जोड़ें / Add Med' : 'संपादित करें / Edit Med'),
+        title: LocalizedText(widget.medicine == null
+            ? 'दवाई जोड़ें / Add Med'
+            : 'संपादित करें / Edit Med'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -141,8 +155,8 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                   TextField(
                     controller: _nameController,
                     maxLength: 60,
-                    decoration: const InputDecoration(
-                      labelText: 'दवाई का नाम *',
+                    decoration: InputDecoration(
+                      labelText: AppLanguage.text('दवाई का नाम *'),
                       prefixIcon: Icon(Icons.medication_outlined),
                       border: OutlineInputBorder(),
                       counterText: '',
@@ -155,10 +169,14 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                       Expanded(
                         child: TextField(
                           controller: _dosageController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}'))],
-                          decoration: const InputDecoration(
-                            labelText: 'खुराक / Dosage',
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,1}'))
+                          ],
+                          decoration: InputDecoration(
+                            labelText: AppLanguage.text('खुराक / Dosage'),
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -168,9 +186,12 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                         width: 140,
                         child: DropdownMenu<String>(
                           initialSelection: _selectedUnit,
-                          label: const Text('इकाई / Unit'),
-                          onSelected: (val) => setState(() => _selectedUnit = val!),
-                          dropdownMenuEntries: _units.map((u) => DropdownMenuEntry(value: u, label: u)).toList(),
+                          label: const LocalizedText('इकाई / Unit'),
+                          onSelected: (val) =>
+                              setState(() => _selectedUnit = val!),
+                          dropdownMenuEntries: _units
+                              .map((u) => DropdownMenuEntry(value: u, label: u))
+                              .toList(),
                         ),
                       ),
                     ],
@@ -193,14 +214,14 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                     runSpacing: 8,
                     children: [
                       ..._selectedTimes.map((time) => InputChip(
-                        label: Text(_formatTime(time)),
-                        onDeleted: () => _removeTime(time),
-                        deleteIcon: const Icon(Icons.close, size: 16),
-                      )),
+                            label: LocalizedText(_formatTime(time)),
+                            onDeleted: () => _removeTime(time),
+                            deleteIcon: const Icon(Icons.close, size: 16),
+                          )),
                       if (_selectedTimes.length < 4)
                         ActionChip(
                           avatar: const Icon(Icons.add, size: 16),
-                          label: const Text('जोड़ें'),
+                          label: const LocalizedText('जोड़ें'),
                           onPressed: _addTime,
                         ),
                     ],
@@ -208,9 +229,10 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                   if (_selectedTimes.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
+                      child: LocalizedText(
                         'कम से कम एक समय चुनें',
-                        style: TextStyle(color: colorScheme.error, fontSize: 12),
+                        style:
+                            TextStyle(color: colorScheme.error, fontSize: 12),
                       ),
                     ),
                 ],
@@ -228,21 +250,23 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                 children: [
                   SegmentedButton<int>(
                     segments: const [
-                      ButtonSegment(value: 3, label: Text('3 दिन')),
-                      ButtonSegment(value: 7, label: Text('7 दिन')),
-                      ButtonSegment(value: 30, label: Text('30 दिन')),
-                      ButtonSegment(value: -1, label: Text('हमेशा')),
+                      ButtonSegment(value: 3, label: LocalizedText('3 दिन')),
+                      ButtonSegment(value: 7, label: LocalizedText('7 दिन')),
+                      ButtonSegment(value: 30, label: LocalizedText('30 दिन')),
+                      ButtonSegment(value: -1, label: LocalizedText('हमेशा')),
                     ],
                     selected: {_durationDays},
-                    onSelectionChanged: (val) => setState(() => _durationDays = val.first),
+                    onSelectionChanged: (val) =>
+                        setState(() => _durationDays = val.first),
                   ),
                   if (_durationDays != -1) ...[
                     const SizedBox(height: 16),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.calendar_today_outlined),
-                      title: const Text('प्रारंभ तिथि / Start Date'),
-                      subtitle: Text(DateFormat('dd MMMM yyyy').format(_startDate)),
+                      title: const LocalizedText('प्रारंभ तिथि / Start Date'),
+                      subtitle: LocalizedText(
+                          DateFormat('dd MMMM yyyy').format(_startDate)),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: _pickStartDate,
                     ),
@@ -255,8 +279,11 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
 
             // Section 4: Settings
             SwitchListTile(
-              title: const Text('अभी से शुरू करें / Start Immediately'),
-              subtitle: const Text('अनुस्मारक चालू करें'),
+              title: const LocalizedText(
+                  'दवाई रिमाइंडर चालू करें / Enable reminders'),
+              subtitle: const LocalizedText(
+                'चुने हुए समय पर नाम लेकर आवाज़ में याद दिलाएँ',
+              ),
               value: _isActive,
               onChanged: (val) => setState(() => _isActive = val),
             ),
@@ -267,9 +294,12 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
               onPressed: _isFormValid ? _save : null,
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text(widget.medicine == null ? 'दवाई सहेजें / Save Medicine' : 'अपडेट करें / Update'),
+              child: LocalizedText(widget.medicine == null
+                  ? 'दवाई सहेजें / Save Medicine'
+                  : 'अपडेट करें / Update'),
             ),
             const SizedBox(height: 32),
           ],
@@ -278,7 +308,10 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
     );
   }
 
-  Widget _buildSectionCard({required String title, required ColorScheme colorScheme, required Widget child}) {
+  Widget _buildSectionCard(
+      {required String title,
+      required ColorScheme colorScheme,
+      required Widget child}) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -290,7 +323,11 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: colorScheme.primary)),
+            LocalizedText(title,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary)),
             const SizedBox(height: 16),
             child,
           ],

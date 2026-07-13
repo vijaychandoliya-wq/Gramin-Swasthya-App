@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -42,19 +44,20 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final familyMembers = ref.watch(familyProvider);
-    final selectedMember = ref.watch(selectedFamilyMemberProvider) ?? 
-                          (familyMembers.isNotEmpty ? familyMembers.first : null);
-    
-    final medicinesAsync = ref.watch(filteredMedicinesProvider(selectedMember?.id));
+    final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
+        (familyMembers.isNotEmpty ? familyMembers.first : null);
+
+    final medicinesAsync =
+        ref.watch(filteredMedicinesProvider(selectedMember?.id));
     final adherence = ref.watch(dailyAdherenceProvider(selectedMember?.id));
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/add-medicine'),
         icon: const Icon(Icons.add),
-        label: const Text('दवाई जोड़ें / Add Med'),
+        label: const LocalizedText('दवाई जोड़ें / Add Med'),
         isExtended: _isFabExtended,
         backgroundColor: colorScheme.primaryContainer,
       ),
@@ -64,7 +67,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
           // --- AppBar ---
           const SliverAppBar.medium(
             centerTitle: true,
-            title: Text('दवाइयाँ / Medicines'),
+            title: LocalizedText('दवाइयाँ / Medicines'),
             pinned: true,
           ),
 
@@ -82,12 +85,22 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                       selected: isSelected,
                       avatar: CircleAvatar(
                         radius: 12,
-                        backgroundColor: isSelected ? colorScheme.onPrimaryContainer : colorScheme.outline,
-                        child: Text(member.name[0], style: TextStyle(fontSize: 10, color: isSelected ? colorScheme.primaryContainer : colorScheme.surface)),
+                        backgroundColor: isSelected
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.outline,
+                        child: LocalizedText(member.name[0],
+                            style: TextStyle(
+                                fontSize: 10,
+                                color: isSelected
+                                    ? colorScheme.primaryContainer
+                                    : colorScheme.surface)),
                       ),
-                      label: Text(member.name.split(' ').first),
+                      label: LocalizedText(member.name.split(' ').first),
                       onSelected: (val) {
-                        if (val) ref.read(selectedFamilyMemberProvider.notifier).state = member;
+                        if (val)
+                          ref
+                              .read(selectedFamilyMemberProvider.notifier)
+                              .state = member;
                       },
                     ),
                   );
@@ -114,9 +127,10 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.medication_outlined, size: 64, color: Colors.grey),
+                        Icon(Icons.medication_outlined,
+                            size: 64, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('कोई दवाई नहीं / No Medicines'),
+                        LocalizedText('कोई दवाई नहीं / No Medicines'),
                       ],
                     ),
                   ),
@@ -129,26 +143,32 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final med = medicines[index];
-                      return _buildMedicineItem(context, ref, theme, colorScheme, med);
+                      return _buildMedicineItem(
+                          context, ref, theme, colorScheme, med);
                     },
                     childCount: medicines.length,
                   ),
                 ),
               );
             },
-            loading: () => const SliverToBoxAdapter(child: Center(child: Padding(
+            loading: () => const SliverToBoxAdapter(
+                child: Center(
+                    child: Padding(
               padding: EdgeInsets.all(32.0),
               child: CircularProgressIndicator(),
             ))),
-            error: (err, stack) => SliverToBoxAdapter(child: Center(child: Text('Error: $err'))),
+            error: (err, stack) => SliverToBoxAdapter(
+                child: Center(child: LocalizedText('Error: $err'))),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAdherenceCard(ThemeData theme, ColorScheme colorScheme, AdherenceData adherence) {
-    final bool allTaken = adherence.total > 0 && adherence.taken == adherence.total;
+  Widget _buildAdherenceCard(
+      ThemeData theme, ColorScheme colorScheme, AdherenceData adherence) {
+    final bool allTaken =
+        adherence.total > 0 && adherence.taken == adherence.total;
 
     return Card(
       elevation: 0,
@@ -175,7 +195,7 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                     strokeCap: StrokeCap.round,
                   ),
                 ),
-                Text(
+                LocalizedText(
                   '${adherence.taken}/${adherence.total}',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -190,18 +210,22 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  LocalizedText(
                     'आज की दवाइयाँ / Today\'s Meds',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    allTaken 
-                      ? 'शाबाश! सभी ली गईं ✓ / Well done!' 
-                      : '${adherence.total - adherence.taken} बाकी हैं / remaining',
+                  LocalizedText(
+                    allTaken
+                        ? 'शाबाश! सभी ली गईं ✓ / Well done!'
+                        : '${adherence.total - adherence.taken} बाकी हैं / remaining',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: allTaken ? Colors.green : colorScheme.onSurfaceVariant,
-                      fontWeight: allTaken ? FontWeight.bold : FontWeight.normal,
+                      color: allTaken
+                          ? Colors.green
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight:
+                          allTaken ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -213,13 +237,8 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
     );
   }
 
-  Widget _buildMedicineItem(
-    BuildContext context, 
-    WidgetRef ref, 
-    ThemeData theme, 
-    ColorScheme colorScheme, 
-    Medicine med
-  ) {
+  Widget _buildMedicineItem(BuildContext context, WidgetRef ref,
+      ThemeData theme, ColorScheme colorScheme, Medicine med) {
     return Dismissible(
       key: Key(med.id),
       direction: DismissDirection.endToStart,
@@ -227,14 +246,18 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
         return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('दवाई हटाएं? / Delete Medicine?'),
-            content: const Text('क्या आप इसे हटाना चाहते हैं? रिमाइंडर्स बंद हो जाएंगे।\nAre you sure you want to delete this medication? Reminders will be cancelled.'),
+            title: const LocalizedText('दवाई हटाएं? / Delete Medicine?'),
+            content: const LocalizedText(
+                'क्या आप इसे हटाना चाहते हैं? रिमाइंडर्स बंद हो जाएंगे।\nAre you sure you want to delete this medication? Reminders will be cancelled.'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('वापस / Back')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const LocalizedText('वापस / Back')),
               FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
-                onPressed: () => Navigator.pop(context, true), 
-                child: const Text('हटाएं / Delete'),
+                style:
+                    FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                onPressed: () => Navigator.pop(context, true),
+                child: const LocalizedText('हटाएं / Delete'),
               ),
             ],
           ),
@@ -244,9 +267,9 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
         ref.read(medicinesRepoProvider).deleteMedicine(med.id);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${med.name} हटा दी गई / Deleted'),
+            content: LocalizedText('${med.name} हटा दी गई / Deleted'),
             action: SnackBarAction(
-              label: 'Undo',
+              label: AppLanguage.text('Undo'),
               onPressed: () => ref.read(medicinesRepoProvider).addMedicine(med),
             ),
           ),
@@ -276,7 +299,8 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                   color: colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.medication, size: 32, color: colorScheme.primary),
+                child: Icon(Icons.medication,
+                    size: 32, color: colorScheme.primary),
               ),
               const SizedBox(width: 16),
               // Name & Dose
@@ -284,13 +308,15 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    LocalizedText(
                       med.name,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    Text(
+                    LocalizedText(
                       '${med.dosage} ${med.unit}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 8),
                     // Times
@@ -299,27 +325,40 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                       children: med.times.map((t) {
                         final timeStr = _formatTime(context, t);
                         // Check if taken today (simplified mock check)
-                        final isTaken = med.takenHistory.any((dt) => 
-                          dt.hour == t.hour && dt.minute == t.minute && _isToday(dt)
-                        );
+                        final isTaken = med.takenHistory.any((dt) =>
+                            dt.hour == t.hour &&
+                            dt.minute == t.minute &&
+                            _isToday(dt));
 
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isTaken ? Colors.green.withOpacity(0.1) : colorScheme.secondaryContainer,
+                            color: isTaken
+                                ? Colors.green.withOpacity(0.1)
+                                : colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(6),
-                            border: isTaken ? Border.all(color: Colors.green.withOpacity(0.5)) : null,
+                            border: isTaken
+                                ? Border.all(
+                                    color: Colors.green.withOpacity(0.5))
+                                : null,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (isTaken) const Icon(Icons.check, size: 12, color: Colors.green),
+                              if (isTaken)
+                                const Icon(Icons.check,
+                                    size: 12, color: Colors.green),
                               if (isTaken) const SizedBox(width: 4),
-                              Text(
+                              LocalizedText(
                                 timeStr,
                                 style: theme.textTheme.labelSmall?.copyWith(
-                                  color: isTaken ? Colors.green : colorScheme.onSecondaryContainer,
-                                  fontWeight: isTaken ? FontWeight.bold : FontWeight.normal,
+                                  color: isTaken
+                                      ? Colors.green
+                                      : colorScheme.onSecondaryContainer,
+                                  fontWeight: isTaken
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                                 ),
                               ),
                             ],
@@ -335,13 +374,17 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                 children: [
                   Switch(
                     value: med.isActive,
-                    onChanged: (_) => ref.read(medicinesRepoProvider).toggleActive(med.id),
+                    onChanged: (_) =>
+                        ref.read(medicinesRepoProvider).toggleActive(med.id),
                     activeColor: colorScheme.primary,
                   ),
                   IconButton(
-                    onPressed: med.isActive ? () => ref.read(medicinesRepoProvider).markAsTaken(med.id) : null,
+                    onPressed: med.isActive
+                        ? () =>
+                            ref.read(medicinesRepoProvider).markAsTaken(med.id)
+                        : null,
                     icon: const Icon(Icons.check_circle_outline),
-                    tooltip: 'Mark as Taken',
+                    tooltip: AppLanguage.text('Mark as Taken'),
                   ),
                 ],
               ),

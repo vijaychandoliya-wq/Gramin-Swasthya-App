@@ -43,9 +43,11 @@ Map<String, dynamic> _classifyBp(int systolic, int diastolic) {
     return {'category': 'Normal', 'color': Colors.green};
   } else if (systolic >= 120 && systolic <= 129 && diastolic < 80) {
     return {'category': 'Elevated', 'color': Colors.amber};
-  } else if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89)) {
+  } else if ((systolic >= 130 && systolic <= 139) ||
+      (diastolic >= 80 && diastolic <= 89)) {
     return {'category': 'Stage 1', 'color': Colors.orange};
-  } else if ((systolic >= 140 && systolic <= 179) || (diastolic >= 90 && diastolic <= 119)) {
+  } else if ((systolic >= 140 && systolic <= 179) ||
+      (diastolic >= 90 && diastolic <= 119)) {
     return {'category': 'Stage 2', 'color': Colors.redAccent};
   } else if (systolic >= 180 || diastolic >= 120) {
     return {'category': 'Crisis', 'color': Colors.red.shade900};
@@ -74,14 +76,16 @@ final healthSummaryProvider = Provider<HealthSummary>((ref) {
   });
 
   final latestSugar = sugarAsync.whenOrNull(data: (list) {
-    if (list.isEmpty) return '--';
-    return '${list.first.glucose} mg/dL';
-  }) ?? '--';
+        if (list.isEmpty) return '--';
+        return '${list.first.glucose} mg/dL';
+      }) ??
+      '--';
 
   final latestWeight = weightAsync.whenOrNull(data: (list) {
-    if (list.isEmpty) return '--';
-    return '${list.first.weight} kg';
-  }) ?? '--';
+        if (list.isEmpty) return '--';
+        return '${list.first.weight} kg';
+      }) ??
+      '--';
 
   return HealthSummary(
     latestBp: latestBp,
@@ -111,7 +115,9 @@ final todayMedicinesProvider = Provider<List<MedicineReminder>>((ref) {
 
           // Check if this specific time slot was taken today
           final isTaken = med.takenHistory.any((dt) =>
-              dt.year == now.year && dt.month == now.month && dt.day == now.day);
+              dt.year == now.year &&
+              dt.month == now.month &&
+              dt.day == now.day);
 
           reminders.add(MedicineReminder(
             id: med.id,
@@ -140,7 +146,8 @@ final familyBrandingProvider = Provider<String>((ref) {
   final members = ref.watch(familyProvider);
   if (members.isEmpty) return 'My Family';
 
-  final primary = members.firstWhere((m) => m.isPrimary, orElse: () => members.first);
+  final primary =
+      members.firstWhere((m) => m.isPrimary, orElse: () => members.first);
   final parts = primary.name.trim().split(' ');
   final lastName = parts.length > 1 ? parts.last : parts.first;
   return '$lastName परिवार / $lastName Family';

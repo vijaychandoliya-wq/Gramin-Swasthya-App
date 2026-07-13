@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +19,8 @@ class AddWeightScreen extends ConsumerStatefulWidget {
 
 class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
   final _weightController = TextEditingController();
-  final _heightController = TextEditingController(); // Optional, but triggers BMI logic if present
+  final _heightController =
+      TextEditingController(); // Optional, but triggers BMI logic if present
   final _notesController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
@@ -54,7 +57,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     if (!_isFormValid) return;
 
     final val = double.parse(_weightController.text);
-    
+
     // Combine Date & Time
     final combinedDateTime = DateTime(
       _selectedDate.year,
@@ -71,12 +74,12 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
       weight: val,
       date: combinedDateTime,
     );
-    
+
     await repo.addWeight(record);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('वजन सहेजा गया ✓ / Weight Saved')),
+      const SnackBar(content: LocalizedText('वजन सहेजा गया ✓ / Weight Saved')),
     );
 
     context.pop();
@@ -112,7 +115,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('वजन जोड़ें / Add Weight'),
+        title: const LocalizedText('वजन जोड़ें / Add Weight'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -137,36 +140,40 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
                     children: [
                       TextField(
                         controller: _weightController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,1}')),
                         ],
                         maxLength: 5,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                        decoration: const InputDecoration(
-                          labelText: 'वजन / Weight',
+                        style: const TextStyle(
+                            fontSize: 32, fontWeight: FontWeight.bold),
+                        decoration: InputDecoration(
+                          labelText: AppLanguage.text('वजन / Weight'),
                           floatingLabelAlignment: FloatingLabelAlignment.center,
-                          hintText: '00.0',
-                          suffixText: 'किग्रा (kg)',
+                          hintText: AppLanguage.text('00.0'),
+                          suffixText: AppLanguage.text('किग्रा (kg)'),
                           border: OutlineInputBorder(),
                           counterText: '',
                         ),
                       ),
-                      
                       const SizedBox(height: 16),
-                      
                       TextField(
                         controller: _heightController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,1}')),
                         ],
                         maxLength: 5,
-                        decoration: const InputDecoration(
-                          labelText: 'लंबाई / Height (वैकल्पिक)',
-                          hintText: 'e.g. 170',
-                          suffixText: 'सेमी (cm)',
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLanguage.text('लंबाई / Height (वैकल्पिक)'),
+                          hintText: AppLanguage.text('e.g. 170'),
+                          suffixText: AppLanguage.text('सेमी (cm)'),
                           border: OutlineInputBorder(),
                           counterText: '',
                         ),
@@ -206,13 +213,14 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.calendar_today, size: 20),
-                      title: Text(DateFormat('EEEE, d MMMM yyyy').format(_selectedDate)),
+                      title: LocalizedText(DateFormat('EEEE, d MMMM yyyy')
+                          .format(_selectedDate)),
                       onTap: _pickDate,
                     ),
                     const Divider(height: 0, indent: 48),
                     ListTile(
                       leading: const Icon(Icons.schedule, size: 20),
-                      title: Text(_selectedTime.format(context)),
+                      title: LocalizedText(_selectedTime.format(context)),
                       onTap: _pickTime,
                     ),
                   ],
@@ -225,8 +233,8 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
               TextField(
                 controller: _notesController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'नोट्स (वैकल्पिक)',
+                decoration: InputDecoration(
+                  labelText: AppLanguage.text('नोट्स (वैकल्पिक)'),
                   border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
@@ -239,11 +247,13 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
                 onPressed: _isFormValid ? _onSave : null,
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28)),
                 ),
-                child: const Text('वजन सहेजें / Save Weight', style: TextStyle(fontSize: 16)),
+                child: const LocalizedText('वजन सहेजें / Save Weight',
+                    style: TextStyle(fontSize: 16)),
               ),
-              const SizedBox(height: 32), 
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -266,7 +276,8 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     return Card(
       key: const ValueKey('visible'),
       elevation: 0,
-      color: colorScheme.surfaceContainerHighest, // M3 filled card style equivalent
+      color: colorScheme
+          .surfaceContainerHighest, // M3 filled card style equivalent
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 24.0),
@@ -275,14 +286,14 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
           children: [
             Column(
               children: [
-                Text(
+                LocalizedText(
                   'BMI',
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
+                LocalizedText(
                   bmi.toStringAsFixed(1),
                   style: theme.textTheme.displayMedium?.copyWith(
                     color: colorScheme.primary,
@@ -295,18 +306,20 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                LocalizedText(
                   BmiCalculator.getLabelHindi(category),
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: BmiCalculator.getBgColor(category, colorScheme),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(
+                  child: LocalizedText(
                     category.name.toUpperCase(),
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: BmiCalculator.getFgColor(category, colorScheme),

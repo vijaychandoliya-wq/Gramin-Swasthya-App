@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -15,7 +17,8 @@ class QuickAddSheet extends ConsumerStatefulWidget {
   ConsumerState<QuickAddSheet> createState() => _QuickAddSheetState();
 }
 
-class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTickerProviderStateMixin {
+class _QuickAddSheetState extends ConsumerState<QuickAddSheet>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   final _systolicController = TextEditingController();
@@ -56,7 +59,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
         // BP
         final sys = int.tryParse(_systolicController.text);
         final dia = int.tryParse(_diastolicController.text);
-        if (sys == null || dia == null || sys < 50 || sys > 250 || dia < 40 || dia > 150) {
+        if (sys == null ||
+            dia == null ||
+            sys < 50 ||
+            sys > 250 ||
+            dia < 40 ||
+            dia > 150) {
           _showError('कृपया सही BP दर्ज करें / Enter valid BP');
           return;
         }
@@ -75,9 +83,15 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
         }
         String typeStr;
         switch (_sugarType) {
-          case SugarType.fasting: typeStr = 'Fasting'; break;
-          case SugarType.postMeal: typeStr = 'Post-meal'; break;
-          case SugarType.random: typeStr = 'Random'; break;
+          case SugarType.fasting:
+            typeStr = 'Fasting';
+            break;
+          case SugarType.postMeal:
+            typeStr = 'Post-meal';
+            break;
+          case SugarType.random:
+            typeStr = 'Random';
+            break;
         }
         await repo.addSugar(SugarRecord(
           id: const Uuid().v4(),
@@ -110,7 +124,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
   void _showError(String msg) {
     setState(() => _saving = false);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: LocalizedText(msg)));
     }
   }
 
@@ -121,7 +136,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
     final textTheme = theme.textTheme;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -141,7 +157,7 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
 
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 24, right: 24),
-            child: Text(
+            child: LocalizedText(
               'त्वरित जोड़ें / Quick Add',
               style: textTheme.titleMedium?.copyWith(
                 color: colorScheme.primary,
@@ -175,7 +191,8 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
           SizedBox(
             height: 180,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               child: TabBarView(
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
@@ -190,17 +207,19 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
 
           // Action Buttons
           Padding(
-            padding: EdgeInsets.only(top: 16, bottom: max(24, 16), left: 24, right: 24),
+            padding: EdgeInsets.only(
+                top: 16, bottom: max(24, 16), left: 24, right: 24),
             child: Row(
               children: [
                 Expanded(
                   flex: 1,
                   child: OutlinedButton(
-                    onPressed: _saving ? null : () => Navigator.pop(context, false),
+                    onPressed:
+                        _saving ? null : () => Navigator.pop(context, false),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('रद्द'),
+                    child: const LocalizedText('रद्द'),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -212,8 +231,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: _saving
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('सहेजें (Save)'),
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
+                        : const LocalizedText('सहेजें (Save)'),
                   ),
                 ),
               ],
@@ -234,9 +257,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 3,
-            decoration: const InputDecoration(
-              labelText: 'Systolic',
-              suffixText: 'mmHg',
+            decoration: InputDecoration(
+              labelText: AppLanguage.text('Systolic'),
+              suffixText: AppLanguage.text('mmHg'),
               border: OutlineInputBorder(),
               counterText: '',
             ),
@@ -249,9 +272,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 3,
-            decoration: const InputDecoration(
-              labelText: 'Diastolic',
-              suffixText: 'mmHg',
+            decoration: InputDecoration(
+              labelText: AppLanguage.text('Diastolic'),
+              suffixText: AppLanguage.text('mmHg'),
               border: OutlineInputBorder(),
               counterText: '',
             ),
@@ -267,9 +290,12 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
         children: [
           SegmentedButton<SugarType>(
             segments: const [
-              ButtonSegment(value: SugarType.fasting, label: Text('Fasting')),
-              ButtonSegment(value: SugarType.random, label: Text('Random')),
-              ButtonSegment(value: SugarType.postMeal, label: Text('Post-meal')),
+              ButtonSegment(
+                  value: SugarType.fasting, label: LocalizedText('Fasting')),
+              ButtonSegment(
+                  value: SugarType.random, label: LocalizedText('Random')),
+              ButtonSegment(
+                  value: SugarType.postMeal, label: LocalizedText('Post-meal')),
             ],
             selected: <SugarType>{_sugarType},
             onSelectionChanged: (newSelection) {
@@ -287,9 +313,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 3,
-            decoration: const InputDecoration(
-              labelText: 'Sugar Level',
-              suffixText: 'mg/dL',
+            decoration: InputDecoration(
+              labelText: AppLanguage.text('Sugar Level'),
+              suffixText: AppLanguage.text('mg/dL'),
               border: OutlineInputBorder(),
               counterText: '',
             ),
@@ -307,9 +333,9 @@ class _QuickAddSheetState extends ConsumerState<QuickAddSheet> with SingleTicker
         textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         maxLength: 5,
-        decoration: const InputDecoration(
-          labelText: 'वजन (Weight)',
-          suffixText: 'kg',
+        decoration: InputDecoration(
+          labelText: AppLanguage.text('वजन (Weight)'),
+          suffixText: AppLanguage.text('kg'),
           border: OutlineInputBorder(),
           counterText: '',
           floatingLabelAlignment: FloatingLabelAlignment.center,

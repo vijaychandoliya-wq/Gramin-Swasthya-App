@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -36,7 +37,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
-    await prefs.setBool('first_run', false);
     if (mounted) {
       context.go('/language');
     }
@@ -75,7 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               right: 16,
               child: TextButton(
                 onPressed: _completeOnboarding,
-                child: const Text('छोड़ें / Skip', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const LocalizedText('छोड़ें / Skip',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
 
@@ -106,7 +107,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: Text(_currentPage < 2 ? 'आगे / Next' : 'शुरू करें / Get Started'),
+                  child: LocalizedText(_currentPage < 2
+                      ? 'आगे / Next'
+                      : 'शुरू करें / Get Started'),
                 ),
               ],
             ),
@@ -131,8 +134,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     _PageData(
       gradientColors: [Color(0xFFD5E5FF), Color(0xFFEEF3FF)],
-      title: 'डॉक्टर को QR से शेयर करें',
-      body: 'बिना कागज़ के, एक क्लिक में',
+      title: 'Google से एक बार साइन इन करें',
+      body: 'आपकी पहली प्रोफ़ाइल अपने आप बनेगी और यह फ़ोन आपका खाता याद रखेगा',
       imagePath: 'assets/images/onboarding_doctor.png',
     ),
   ];
@@ -189,13 +192,14 @@ class _OnboardingPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Center(
-                      child: Icon(Icons.image, size: 64, color: colorScheme.primary),
+                      child: Icon(Icons.image,
+                          size: 64, color: colorScheme.primary),
                     ),
                   );
                 },
               ),
               const SizedBox(height: 48),
-              Text(
+              LocalizedText(
                 pageData.title,
                 style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -204,7 +208,7 @@ class _OnboardingPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              Text(
+              LocalizedText(
                 pageData.body,
                 style: textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,

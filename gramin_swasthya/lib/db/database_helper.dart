@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DatabaseHelper {
   static const _databaseName = "GraminSwasthya.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -23,8 +23,22 @@ class DatabaseHelper {
 
   _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: _databaseVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE family_members ADD COLUMN relation TEXT');
+      await db.execute('ALTER TABLE family_members ADD COLUMN phone TEXT');
+      await db.execute('ALTER TABLE family_members ADD COLUMN email TEXT');
+      await db.execute('ALTER TABLE family_members ADD COLUMN photo_url TEXT');
+      await db.execute('ALTER TABLE family_members ADD COLUMN owner_uid TEXT');
+    }
   }
 
   Future _onCreate(Database db, int version) async {
@@ -33,9 +47,14 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         family_id TEXT,
         name TEXT NOT NULL,
+        relation TEXT,
         age INTEGER,
         gender TEXT,
         blood_group TEXT,
+        phone TEXT,
+        email TEXT,
+        photo_url TEXT,
+        owner_uid TEXT,
         diseases TEXT,
         emergency_contact TEXT,
         emergency_phone TEXT,
@@ -241,24 +260,56 @@ class MockDatabase {
     if (where != null && whereArgs != null) {
       if (where.contains('synced = 0')) {
         result = result.where((r) => r['synced'] == 0).toList();
+      } else if (where.contains('member_id = ?')) {
+        final memberId = whereArgs[0];
+        result = result
+            .where((r) => r['member_id'].toString() == memberId.toString())
+            .toList();
+      } else if (where.contains('medicine_id = ?')) {
+        final medicineId = whereArgs[0];
+        result = result
+            .where((r) => r['medicine_id'].toString() == medicineId.toString())
+            .toList();
+        if (where.contains('status = ?') && whereArgs.length > 1) {
+          result = result
+              .where((r) => r['status'].toString() == whereArgs[1].toString())
+              .toList();
+        }
       } else if (where.contains('id = ?')) {
         final idVal = whereArgs[0];
-        result = result.where((r) => r['id'].toString() == idVal.toString()).toList();
+        result = result
+            .where((r) => r['id'].toString() == idVal.toString())
+            .toList();
       } else if (where.contains('name LIKE ?')) {
-        final String match = (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
+        final String match =
+            (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
         result = result.where((r) {
           final String name = (r['name'] as String? ?? '').toLowerCase();
           return name.contains(match);
         }).toList();
       } else if (where.contains('doctor_name LIKE ?')) {
-        final String match = (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
+        final String match =
+            (whereArgs[0] as String).replaceAll('%', '').toLowerCase();
         result = result.where((r) {
           final String doc = (r['doctor_name'] as String? ?? '').toLowerCase();
           final String notes = (r['notes'] as String? ?? '').toLowerCase();
           final String type = (r['type'] as String? ?? '').toLowerCase();
-          return doc.contains(match) || notes.contains(match) || type.contains(match);
+          return doc.contains(match) ||
+              notes.contains(match) ||
+              type.contains(match);
         }).toList();
       }
+    }
+    if (orderBy != null) {
+      final parts = orderBy.trim().split(RegExp(r'\s+'));
+      final column = parts.first;
+      final descending = parts.length > 1 && parts[1].toUpperCase() == 'DESC';
+      result = List<Map<String, dynamic>>.from(result)
+        ..sort((a, b) {
+          final comparison =
+              '${a[column] ?? ''}'.compareTo('${b[column] ?? ''}');
+          return descending ? -comparison : comparison;
+        });
     }
     return result;
   }
@@ -297,7 +348,9 @@ class MockDatabase {
       final before = list.length;
       list.removeWhere((r) => r['id'].toString() == idVal.toString());
       count = before - list.length;
-    } else if (where != null && where.contains('medicine_id = ?') && whereArgs != null) {
+    } else if (where != null &&
+        where.contains('medicine_id = ?') &&
+        whereArgs != null) {
       final idVal = whereArgs[0];
       final before = list.length;
       list.removeWhere((r) => r['medicine_id'].toString() == idVal.toString());

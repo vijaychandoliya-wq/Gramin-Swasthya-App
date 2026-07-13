@@ -11,7 +11,11 @@ class BpRecord {
   final int diastolic;
   final DateTime date;
 
-  BpRecord({required this.id, required this.systolic, required this.diastolic, required this.date});
+  BpRecord(
+      {required this.id,
+      required this.systolic,
+      required this.diastolic,
+      required this.date});
 }
 
 class SugarRecord {
@@ -20,7 +24,11 @@ class SugarRecord {
   final String type; // 'Fasting', 'Random', 'Post-meal'
   final DateTime date;
 
-  SugarRecord({required this.id, required this.glucose, required this.type, required this.date});
+  SugarRecord(
+      {required this.id,
+      required this.glucose,
+      required this.type,
+      required this.date});
 }
 
 class WeightRecord {
@@ -43,8 +51,10 @@ class HealthRepo {
 
   // Stream Controllers
   final _bpStreamController = StreamController<List<BpRecord>>.broadcast();
-  final _sugarStreamController = StreamController<List<SugarRecord>>.broadcast();
-  final _weightStreamController = StreamController<List<WeightRecord>>.broadcast();
+  final _sugarStreamController =
+      StreamController<List<SugarRecord>>.broadcast();
+  final _weightStreamController =
+      StreamController<List<WeightRecord>>.broadcast();
 
   HealthRepo(this._memberId) {
     _loadFromDb();
@@ -65,12 +75,16 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _bpDb = bpRows.map((r) => BpRecord(
-      id: r['id'].toString(),
-      systolic: r['systolic'] as int,
-      diastolic: r['diastolic'] as int,
-      date: DateTime.parse(r['recorded_at'] as String),
-    )).toList();
+    // db is dynamic (web mock support), so map() must pin its type argument
+    // or the runtime produces List<dynamic> and these assignments throw.
+    _bpDb = bpRows
+        .map<BpRecord>((r) => BpRecord(
+              id: r['id'].toString(),
+              systolic: r['systolic'] as int,
+              diastolic: r['diastolic'] as int,
+              date: DateTime.parse(r['recorded_at'] as String),
+            ))
+        .toList();
 
     // Load Sugar
     final sugarRows = await db.query(
@@ -79,12 +93,14 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _sugarDb = sugarRows.map((r) => SugarRecord(
-      id: r['id'].toString(),
-      glucose: (r['value'] as num).toInt(),
-      type: r['type'] as String,
-      date: DateTime.parse(r['recorded_at'] as String),
-    )).toList();
+    _sugarDb = sugarRows
+        .map<SugarRecord>((r) => SugarRecord(
+              id: r['id'].toString(),
+              glucose: (r['value'] as num).toInt(),
+              type: r['type'] as String,
+              date: DateTime.parse(r['recorded_at'] as String),
+            ))
+        .toList();
 
     // Load Weight
     final weightRows = await db.query(
@@ -93,11 +109,13 @@ class HealthRepo {
       whereArgs: [_memberId],
       orderBy: 'recorded_at DESC',
     );
-    _weightDb = weightRows.map((r) => WeightRecord(
-      id: r['id'].toString(),
-      weight: (r['weight_kg'] as num).toDouble(),
-      date: DateTime.parse(r['recorded_at'] as String),
-    )).toList();
+    _weightDb = weightRows
+        .map<WeightRecord>((r) => WeightRecord(
+              id: r['id'].toString(),
+              weight: (r['weight_kg'] as num).toDouble(),
+              date: DateTime.parse(r['recorded_at'] as String),
+            ))
+        .toList();
 
     _emitAll();
   }
@@ -140,7 +158,8 @@ class HealthRepo {
 
   Future<void> deleteBp(String id) async {
     final db = await DatabaseHelper.instance.database;
-    await db.delete('bp_readings', where: 'id = ?', whereArgs: [int.tryParse(id)]);
+    await db
+        .delete('bp_readings', where: 'id = ?', whereArgs: [int.tryParse(id)]);
     _bpDb.removeWhere((item) => item.id == id);
     _bpStreamController.add(List.from(_bpDb));
   }
@@ -175,7 +194,8 @@ class HealthRepo {
 
   Future<void> deleteSugar(String id) async {
     final db = await DatabaseHelper.instance.database;
-    await db.delete('sugar_readings', where: 'id = ?', whereArgs: [int.tryParse(id)]);
+    await db.delete('sugar_readings',
+        where: 'id = ?', whereArgs: [int.tryParse(id)]);
     _sugarDb.removeWhere((item) => item.id == id);
     _sugarStreamController.add(List.from(_sugarDb));
   }
@@ -209,7 +229,8 @@ class HealthRepo {
 
   Future<void> deleteWeight(String id) async {
     final db = await DatabaseHelper.instance.database;
-    await db.delete('weight_entries', where: 'id = ?', whereArgs: [int.tryParse(id)]);
+    await db.delete('weight_entries',
+        where: 'id = ?', whereArgs: [int.tryParse(id)]);
     _weightDb.removeWhere((item) => item.id == id);
     _weightStreamController.add(List.from(_weightDb));
   }

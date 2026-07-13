@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,12 +39,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    final String? language = prefs.getString('language');
+    final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+    final language = prefs.getString('language');
+    final user = await AuthService.instance.restoredUser();
+    if (!mounted) return;
 
-    if (language != null && language.isNotEmpty) {
-      context.go('/home');
-    } else {
+    if (!onboardingDone) {
+      context.go('/onboarding');
+    } else if (language == null || language.isEmpty) {
       context.go('/language');
+    } else if (user == null ||
+        prefs.getString('account_setup_complete_uid') != user.uid) {
+      context.go('/google-sign-in');
+    } else {
+      context.go('/home');
     }
   }
 
@@ -74,16 +85,17 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Text(
+                    LocalizedText(
                       'Gramin Swasthya',
-                      style: textTheme.displaySmall?.copyWith( // Adjusted from displayLarge for better mobile fit
+                      style: textTheme.displaySmall?.copyWith(
+                        // Adjusted from displayLarge for better mobile fit
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    LocalizedText(
                       'ग्रामीण स्वास्थ्य',
                       style: textTheme.bodyLarge?.copyWith(
                         color: Colors.white.withOpacity(0.7),

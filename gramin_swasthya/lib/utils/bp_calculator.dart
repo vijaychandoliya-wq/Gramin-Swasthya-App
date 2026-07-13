@@ -63,8 +63,7 @@ class BPCalculator {
       categoryHindi = 'गंभीर स्थिति';
       color = Colors.red.shade800;
       textColor = Colors.white;
-      advice =
-          'Seek emergency care immediately / तुरंत आपातकालीन चिकित्सा लें';
+      advice = 'Seek emergency care immediately / तुरंत आपातकालीन चिकित्सा लें';
     } else {
       category = 'Unknown';
       categoryHindi = 'अज्ञात';

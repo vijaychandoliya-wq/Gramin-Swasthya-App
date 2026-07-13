@@ -24,7 +24,8 @@ class GoogleAuthClient extends http.BaseClient {
 
 class GoogleDriveService {
   GoogleDriveService._privateConstructor();
-  static final GoogleDriveService instance = GoogleDriveService._privateConstructor();
+  static final GoogleDriveService instance =
+      GoogleDriveService._privateConstructor();
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [drive.DriveApi.driveFileScope],
@@ -56,7 +57,8 @@ class GoogleDriveService {
     GoogleSignInAccount? account = _googleSignIn.currentUser;
     account ??= await _googleSignIn.signInSilently();
     if (account == null) {
-      throw Exception("Google account is not linked. Please link your account first.");
+      throw Exception(
+          "Google account is not linked. Please link your account first.");
     }
 
     final authHeaders = await account.authHeaders;
@@ -64,8 +66,10 @@ class GoogleDriveService {
     final driveApi = drive.DriveApi(authenticateClient);
 
     // 1. Get root backups folder "Gramin Swasthya Backups"
-    String? rootFolderId = await _findFolder(driveApi, "Gramin Swasthya Backups", "root");
-    rootFolderId ??= await _createFolder(driveApi, "Gramin Swasthya Backups", "root");
+    String? rootFolderId =
+        await _findFolder(driveApi, "Gramin Swasthya Backups", "root");
+    rootFolderId ??=
+        await _createFolder(driveApi, "Gramin Swasthya Backups", "root");
 
     final dbHelper = DatabaseHelper.instance;
     final db = await dbHelper.database;
@@ -85,65 +89,87 @@ class GoogleDriveService {
 
       // Fetch related data
       final bpReadings = kIsWeb
-          ? await db.query('bp_readings', where: 'member_id = ?', whereArgs: [memberId])
-          : await (db).query('bp_readings', where: 'member_id = ?', whereArgs: [memberId]);
+          ? await db.query('bp_readings',
+              where: 'member_id = ?', whereArgs: [memberId])
+          : await (db).query('bp_readings',
+              where: 'member_id = ?', whereArgs: [memberId]);
 
       final sugarReadings = kIsWeb
-          ? await db.query('sugar_readings', where: 'member_id = ?', whereArgs: [memberId])
-          : await (db).query('sugar_readings', where: 'member_id = ?', whereArgs: [memberId]);
+          ? await db.query('sugar_readings',
+              where: 'member_id = ?', whereArgs: [memberId])
+          : await (db).query('sugar_readings',
+              where: 'member_id = ?', whereArgs: [memberId]);
 
       final weightEntries = kIsWeb
-          ? await db.query('weight_entries', where: 'member_id = ?', whereArgs: [memberId])
-          : await (db).query('weight_entries', where: 'member_id = ?', whereArgs: [memberId]);
+          ? await db.query('weight_entries',
+              where: 'member_id = ?', whereArgs: [memberId])
+          : await (db).query('weight_entries',
+              where: 'member_id = ?', whereArgs: [memberId]);
 
       final medicines = kIsWeb
-          ? await db.query('medicines', where: 'member_id = ?', whereArgs: [memberId])
-          : await (db).query('medicines', where: 'member_id = ?', whereArgs: [memberId]);
+          ? await db
+              .query('medicines', where: 'member_id = ?', whereArgs: [memberId])
+          : await (db).query('medicines',
+              where: 'member_id = ?', whereArgs: [memberId]);
 
       final List<Map<String, dynamic>> medicineLogs = [];
       for (final med in medicines) {
         final medId = med['id'];
         final logs = kIsWeb
-            ? await db.query('medicine_log', where: 'medicine_id = ?', whereArgs: [medId])
-            : await (db).query('medicine_log', where: 'medicine_id = ?', whereArgs: [medId]);
+            ? await db.query('medicine_log',
+                where: 'medicine_id = ?', whereArgs: [medId])
+            : await (db).query('medicine_log',
+                where: 'medicine_id = ?', whereArgs: [medId]);
         medicineLogs.addAll(logs);
       }
 
       final medicalReports = kIsWeb
-          ? await db.query('medical_reports', where: 'member_id = ?', whereArgs: [memberId])
-          : await (db).query('medical_reports', where: 'member_id = ?', whereArgs: [memberId]);
+          ? await db.query('medical_reports',
+              where: 'member_id = ?', whereArgs: [memberId])
+          : await (db).query('medical_reports',
+              where: 'member_id = ?', whereArgs: [memberId]);
 
       // Upload JSON files
       await _uploadJsonFile(driveApi, "profile.json", member, memberFolderId);
-      await _uploadJsonFile(driveApi, "bp_readings.json", bpReadings, memberFolderId);
-      await _uploadJsonFile(driveApi, "sugar_readings.json", sugarReadings, memberFolderId);
-      await _uploadJsonFile(driveApi, "weight_entries.json", weightEntries, memberFolderId);
-      await _uploadJsonFile(driveApi, "medicines.json", medicines, memberFolderId);
-      await _uploadJsonFile(driveApi, "medicine_log.json", medicineLogs, memberFolderId);
+      await _uploadJsonFile(
+          driveApi, "bp_readings.json", bpReadings, memberFolderId);
+      await _uploadJsonFile(
+          driveApi, "sugar_readings.json", sugarReadings, memberFolderId);
+      await _uploadJsonFile(
+          driveApi, "weight_entries.json", weightEntries, memberFolderId);
+      await _uploadJsonFile(
+          driveApi, "medicines.json", medicines, memberFolderId);
+      await _uploadJsonFile(
+          driveApi, "medicine_log.json", medicineLogs, memberFolderId);
 
       // Handle reports and their binary files
       final List<Map<String, dynamic>> updatedReportsMetadata = [];
       String? reportsFolderId;
 
       for (final report in medicalReports) {
-        final Map<String, dynamic> reportMeta = Map<String, dynamic>.from(report);
+        final Map<String, dynamic> reportMeta =
+            Map<String, dynamic>.from(report);
         final localPath = report['local_path'] as String?;
 
         if (localPath != null && localPath.isNotEmpty && !kIsWeb) {
           final file = File(localPath);
           if (await file.exists()) {
-            reportsFolderId ??= await _findFolder(driveApi, "medical_reports_files", memberFolderId);
-            reportsFolderId ??= await _createFolder(driveApi, "medical_reports_files", memberFolderId);
+            reportsFolderId ??= await _findFolder(
+                driveApi, "medical_reports_files", memberFolderId);
+            reportsFolderId ??= await _createFolder(
+                driveApi, "medical_reports_files", memberFolderId);
 
             final filename = path.basename(localPath);
-            final driveFileId = await _uploadBinaryFile(driveApi, filename, file, reportsFolderId);
+            final driveFileId = await _uploadBinaryFile(
+                driveApi, filename, file, reportsFolderId);
             reportMeta['drive_file_id'] = driveFileId;
           }
         }
         updatedReportsMetadata.add(reportMeta);
       }
 
-      await _uploadJsonFile(driveApi, "medical_reports.json", updatedReportsMetadata, memberFolderId);
+      await _uploadJsonFile(driveApi, "medical_reports.json",
+          updatedReportsMetadata, memberFolderId);
     }
   }
 
@@ -156,10 +182,12 @@ class GoogleDriveService {
     final authenticateClient = GoogleAuthClient(authHeaders);
     final driveApi = drive.DriveApi(authenticateClient);
 
-    final rootFolderId = await _findFolder(driveApi, "Gramin Swasthya Backups", "root");
+    final rootFolderId =
+        await _findFolder(driveApi, "Gramin Swasthya Backups", "root");
     if (rootFolderId == null) return [];
 
-    final query = "'$rootFolderId' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+    final query =
+        "'$rootFolderId' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
     final fileList = await driveApi.files.list(q: query, spaces: 'drive');
 
     final List<Map<String, String>> folders = [];
@@ -186,23 +214,43 @@ class GoogleDriveService {
     final driveApi = drive.DriveApi(authenticateClient);
 
     // 1. Download all JSON files
-    final memberData = await _downloadJsonFile(driveApi, "profile.json", folderId);
+    final memberData =
+        await _downloadJsonFile(driveApi, "profile.json", folderId);
     if (memberData == null) {
       throw Exception("Profile data is missing in selected folder.");
     }
 
-    final bpData = (await _downloadJsonFile(driveApi, "bp_readings.json", folderId) as List?) ?? [];
-    final sugarData = (await _downloadJsonFile(driveApi, "sugar_readings.json", folderId) as List?) ?? [];
-    final weightData = (await _downloadJsonFile(driveApi, "weight_entries.json", folderId) as List?) ?? [];
-    final medicinesData = (await _downloadJsonFile(driveApi, "medicines.json", folderId) as List?) ?? [];
-    final logsData = (await _downloadJsonFile(driveApi, "medicine_log.json", folderId) as List?) ?? [];
-    final reportsData = (await _downloadJsonFile(driveApi, "medical_reports.json", folderId) as List?) ?? [];
+    final bpData =
+        (await _downloadJsonFile(driveApi, "bp_readings.json", folderId)
+                as List?) ??
+            [];
+    final sugarData =
+        (await _downloadJsonFile(driveApi, "sugar_readings.json", folderId)
+                as List?) ??
+            [];
+    final weightData =
+        (await _downloadJsonFile(driveApi, "weight_entries.json", folderId)
+                as List?) ??
+            [];
+    final medicinesData =
+        (await _downloadJsonFile(driveApi, "medicines.json", folderId)
+                as List?) ??
+            [];
+    final logsData =
+        (await _downloadJsonFile(driveApi, "medicine_log.json", folderId)
+                as List?) ??
+            [];
+    final reportsData =
+        (await _downloadJsonFile(driveApi, "medical_reports.json", folderId)
+                as List?) ??
+            [];
 
     final dbHelper = DatabaseHelper.instance;
     final db = await dbHelper.database;
 
     // 2. Insert member profile
-    final Map<String, dynamic> cleanMember = Map<String, dynamic>.from(memberData);
+    final Map<String, dynamic> cleanMember =
+        Map<String, dynamic>.from(memberData);
     cleanMember.remove('id'); // let SQLite auto-increment
     cleanMember['synced'] = 0;
 
@@ -292,7 +340,8 @@ class GoogleDriveService {
       if (driveFileId != null && localPath != null && !kIsWeb) {
         try {
           final filename = path.basename(localPath);
-          final downloadedFile = await _downloadBinaryFile(driveApi, driveFileId, filename);
+          final downloadedFile =
+              await _downloadBinaryFile(driveApi, driveFileId, filename);
           cleanReport['local_path'] = downloadedFile.path;
         } catch (e) {
           debugPrint("Failed to download report file: $e");
@@ -305,9 +354,11 @@ class GoogleDriveService {
     }
   }
 
-  Future<String?> _findFolder(drive.DriveApi api, String name, String parentId) async {
+  Future<String?> _findFolder(
+      drive.DriveApi api, String name, String parentId) async {
     try {
-      final query = "name = '$name' and mimeType = 'application/vnd.google-apps.folder' and '$parentId' in parents and trashed = false";
+      final query =
+          "name = '$name' and mimeType = 'application/vnd.google-apps.folder' and '$parentId' in parents and trashed = false";
       final fileList = await api.files.list(q: query, spaces: 'drive');
       if (fileList.files != null && fileList.files!.isNotEmpty) {
         return fileList.files!.first.id;
@@ -318,7 +369,8 @@ class GoogleDriveService {
     return null;
   }
 
-  Future<String> _createFolder(drive.DriveApi api, String name, String parentId) async {
+  Future<String> _createFolder(
+      drive.DriveApi api, String name, String parentId) async {
     final folder = drive.File()
       ..name = name
       ..mimeType = "application/vnd.google-apps.folder"
@@ -327,13 +379,15 @@ class GoogleDriveService {
     return result.id!;
   }
 
-  Future<String> _uploadJsonFile(drive.DriveApi api, String name, dynamic data, String parentId) async {
+  Future<String> _uploadJsonFile(
+      drive.DriveApi api, String name, dynamic data, String parentId) async {
     final content = jsonEncode(data);
     final bytes = utf8.encode(content);
     final media = drive.Media(Stream.value(bytes), bytes.length);
 
     // Delete existing file if any
-    final query = "name = '$name' and '$parentId' in parents and trashed = false";
+    final query =
+        "name = '$name' and '$parentId' in parents and trashed = false";
     final fileList = await api.files.list(q: query);
     if (fileList.files != null && fileList.files!.isNotEmpty) {
       for (final f in fileList.files!) {
@@ -349,11 +403,13 @@ class GoogleDriveService {
     return result.id!;
   }
 
-  Future<String> _uploadBinaryFile(drive.DriveApi api, String name, File file, String parentId) async {
+  Future<String> _uploadBinaryFile(
+      drive.DriveApi api, String name, File file, String parentId) async {
     final media = drive.Media(file.openRead(), await file.length());
 
     // Delete existing file if any
-    final query = "name = '$name' and '$parentId' in parents and trashed = false";
+    final query =
+        "name = '$name' and '$parentId' in parents and trashed = false";
     final fileList = await api.files.list(q: query);
     if (fileList.files != null && fileList.files!.isNotEmpty) {
       for (final f in fileList.files!) {
@@ -369,13 +425,16 @@ class GoogleDriveService {
     return result.id!;
   }
 
-  Future<dynamic> _downloadJsonFile(drive.DriveApi api, String name, String parentId) async {
-    final query = "name = '$name' and '$parentId' in parents and trashed = false";
+  Future<dynamic> _downloadJsonFile(
+      drive.DriveApi api, String name, String parentId) async {
+    final query =
+        "name = '$name' and '$parentId' in parents and trashed = false";
     final fileList = await api.files.list(q: query);
     if (fileList.files == null || fileList.files!.isEmpty) return null;
 
     final fileId = fileList.files!.first.id!;
-    final drive.Media mediaContent = await api.files.get(fileId, downloadOptions: drive.DownloadOptions.fullMedia) as drive.Media;
+    final drive.Media mediaContent = await api.files.get(fileId,
+        downloadOptions: drive.DownloadOptions.fullMedia) as drive.Media;
 
     final List<int> bytes = [];
     await for (final chunk in mediaContent.stream) {
@@ -385,10 +444,13 @@ class GoogleDriveService {
     return jsonDecode(content);
   }
 
-  Future<File> _downloadBinaryFile(drive.DriveApi api, String fileId, String filename) async {
-    final drive.Media mediaContent = await api.files.get(fileId, downloadOptions: drive.DownloadOptions.fullMedia) as drive.Media;
+  Future<File> _downloadBinaryFile(
+      drive.DriveApi api, String fileId, String filename) async {
+    final drive.Media mediaContent = await api.files.get(fileId,
+        downloadOptions: drive.DownloadOptions.fullMedia) as drive.Media;
     final directory = await getApplicationDocumentsDirectory();
-    final localPath = path.join(directory.path, "reports", "${DateTime.now().millisecondsSinceEpoch}_$filename");
+    final localPath = path.join(directory.path, "reports",
+        "${DateTime.now().millisecondsSinceEpoch}_$filename");
 
     final localFile = File(localPath);
     await localFile.parent.create(recursive: true);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +18,8 @@ class HealthScreen extends StatefulWidget {
   State<HealthScreen> createState() => _HealthScreenState();
 }
 
-class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderStateMixin {
+class _HealthScreenState extends State<HealthScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -54,7 +57,7 @@ class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderSt
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('स्वास्थ्य डेटा / Health Data'),
+        title: const LocalizedText('स्वास्थ्य डेटा / Health Data'),
         bottom: TabBar(
           controller: _tabController,
           labelColor: colorScheme.onPrimaryContainer,
@@ -103,7 +106,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
   @override
   Widget build(BuildContext context) {
     final familyMembers = ref.watch(familyProvider);
-    final selectedMember = ref.watch(selectedFamilyMemberProvider) ?? (familyMembers.isNotEmpty ? familyMembers.first : null);
+    final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
+        (familyMembers.isNotEmpty ? familyMembers.first : null);
 
     if (selectedMember == null) {
       return const Center(child: CircularProgressIndicator());
@@ -130,15 +134,15 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
           // Filter Chips Row
           _buildFamilySelectorRow(familyMembers, selectedMember),
           const SizedBox(height: 16),
-          
+
           // Segmented Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SegmentedButton<int>(
               segments: const [
-                ButtonSegment(value: 7, label: Text('7 दिन')),
-                ButtonSegment(value: 30, label: Text('30 दिन')),
-                ButtonSegment(value: 90, label: Text('90 दिन')),
+                ButtonSegment(value: 7, label: LocalizedText('7 दिन')),
+                ButtonSegment(value: 30, label: LocalizedText('30 दिन')),
+                ButtonSegment(value: 90, label: LocalizedText('90 दिन')),
               ],
               selected: <int>{_selectedRange},
               onSelectionChanged: (newSelection) {
@@ -148,45 +152,51 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
 
           // Chart Render
           Container(
             height: 220,
-            padding: const EdgeInsets.only(right: 24, left: 16, top: 24, bottom: 0),
+            padding:
+                const EdgeInsets.only(right: 24, left: 16, top: 24, bottom: 0),
             child: streamValue.when(
               data: (data) => _buildChart(data),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (err, stack) =>
+                  Center(child: LocalizedText('Error: $err')),
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // History List
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
+            child: LocalizedText(
               'इतिहास / History',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           const Divider(height: 32),
-          
+
           streamValue.when(
             data: (data) => _buildHistoryList(data),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => const SizedBox(),
           ),
-          
+
           const SizedBox(height: 80), // FAB padding
         ],
       ),
     );
   }
 
-  Widget _buildFamilySelectorRow(List<FamilyMember> familyMembers, FamilyMember currentMember) {
+  Widget _buildFamilySelectorRow(
+      List<FamilyMember> familyMembers, FamilyMember currentMember) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Padding(
@@ -200,13 +210,14 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
               padding: const EdgeInsets.only(right: 8.0),
               child: FilterChip(
                 selected: isSelected,
-                label: Text(member.name.split(' ').first),
-                avatar: isSelected 
+                label: LocalizedText(member.name.split(' ').first),
+                avatar: isSelected
                     ? CircleAvatar(
                         backgroundColor: colorScheme.primary,
-                        child: Text(
+                        child: LocalizedText(
                           member.name[0].toUpperCase(),
-                          style: TextStyle(color: colorScheme.onPrimary, fontSize: 12),
+                          style: TextStyle(
+                              color: colorScheme.onPrimary, fontSize: 12),
                         ),
                       )
                     : null,
@@ -215,7 +226,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                 selectedColor: colorScheme.primaryContainer,
                 onSelected: (bool selected) {
                   if (selected) {
-                    ref.read(selectedFamilyMemberProvider.notifier).state = member;
+                    ref.read(selectedFamilyMemberProvider.notifier).state =
+                        member;
                   }
                 },
               ),
@@ -231,27 +243,32 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
   Widget _buildChart(List<dynamic> data) {
     if (data.isEmpty) {
       return Center(
-        child: Text(
+        child: LocalizedText(
           'कोई डेटा नहीं / No Data',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style:
+              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
 
     final now = DateTime.now();
     final cutoff = now.subtract(Duration(days: _selectedRange));
-    final filtered = data.where((r) => r.date.isAfter(cutoff) || r.date.isAtSameMomentAs(cutoff)).toList();
-    
+    final filtered = data
+        .where((r) => r.date.isAfter(cutoff) || r.date.isAtSameMomentAs(cutoff))
+        .toList();
+
     // Sort chronological for chart
     filtered.sort((a, b) => a.date.compareTo(b.date));
 
     if (filtered.isEmpty) {
-      return const Center(child: Text('इस सीमा में कोई डेटा नहीं / No data in range'));
+      return const Center(
+          child: LocalizedText('इस सीमा में कोई डेटा नहीं / No data in range'));
     }
 
     final double minX = filtered.first.date.millisecondsSinceEpoch.toDouble();
     final double maxX = filtered.last.date.millisecondsSinceEpoch.toDouble();
-    final double interval = ((maxX - minX) / 4) <= 0 ? 86400000.0 : ((maxX - minX) / 3);
+    final double interval =
+        ((maxX - minX) / 4) <= 0 ? 86400000.0 : ((maxX - minX) / 3);
 
     return LineChart(
       LineChartData(
@@ -269,8 +286,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         ),
         titlesData: FlTitlesData(
           show: true,
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -281,7 +300,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                 final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(DateFormat('MMM dd').format(date), style: const TextStyle(fontSize: 10)),
+                  child: LocalizedText(DateFormat('MMM dd').format(date),
+                      style: const TextStyle(fontSize: 10)),
                 );
               },
             ),
@@ -291,7 +311,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
               showTitles: true,
               getTitlesWidget: (value, meta) => Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10)),
+                child: LocalizedText(value.toInt().toString(),
+                    style: const TextStyle(fontSize: 10)),
               ),
               reservedSize: 40,
             ),
@@ -318,7 +339,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
       return [
         // Systolic
         LineChartBarData(
-          spots: filtered.map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.systolic.toDouble())).toList(),
+          spots: filtered
+              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
+                  r.systolic.toDouble()))
+              .toList(),
           isCurved: true,
           color: primary,
           barWidth: 3,
@@ -327,7 +351,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         ),
         // Diastolic
         LineChartBarData(
-          spots: filtered.map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.diastolic.toDouble())).toList(),
+          spots: filtered
+              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
+                  r.diastolic.toDouble()))
+              .toList(),
           isCurved: true,
           color: tertiary,
           barWidth: 3,
@@ -338,7 +365,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
     } else if (widget.type == HealthType.sugar) {
       return [
         LineChartBarData(
-          spots: filtered.map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.glucose.toDouble())).toList(),
+          spots: filtered
+              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
+                  r.glucose.toDouble()))
+              .toList(),
           isCurved: true,
           color: Colors.blueAccent,
           barWidth: 3,
@@ -349,7 +379,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
     } else {
       return [
         LineChartBarData(
-          spots: filtered.map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.weight.toDouble())).toList(),
+          spots: filtered
+              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
+                  r.weight.toDouble()))
+              .toList(),
           isCurved: true,
           color: Colors.green,
           barWidth: 3,
@@ -373,7 +406,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
               show: true,
               alignment: Alignment.topRight,
               padding: const EdgeInsets.only(right: 5, bottom: 5),
-              style: const TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold),
               labelResolver: (line) => 'Threshold',
             ),
           )
@@ -389,7 +425,7 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
     if (data.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('कोई इतिहास नहीं / No History'),
+        child: LocalizedText('कोई इतिहास नहीं / No History'),
       );
     }
 
@@ -401,20 +437,20 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
       itemCount: data.length,
       itemBuilder: (context, index) {
         final item = data[index];
-        
+
         String title = '';
         String subtitle = DateFormat('dd MMM yyyy, hh:mm a').format(item.date);
         Widget icon;
 
         if (widget.type == HealthType.bp) {
-           title = '${item.systolic} / ${item.diastolic} mmHg';
-           icon = _buildIconBox(Icons.monitor_heart, Colors.redAccent);
+          title = '${item.systolic} / ${item.diastolic} mmHg';
+          icon = _buildIconBox(Icons.monitor_heart, Colors.redAccent);
         } else if (widget.type == HealthType.sugar) {
-           title = '${item.glucose} mg/dL (${item.type})';
-           icon = _buildIconBox(Icons.bloodtype, Colors.blueAccent);
+          title = '${item.glucose} mg/dL (${item.type})';
+          icon = _buildIconBox(Icons.bloodtype, Colors.blueAccent);
         } else {
-           title = '${item.weight} kg';
-           icon = _buildIconBox(Icons.scale, Colors.green);
+          title = '${item.weight} kg';
+          icon = _buildIconBox(Icons.scale, Colors.green);
         }
 
         return Dismissible(
@@ -424,7 +460,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
             color: Theme.of(context).colorScheme.errorContainer,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+            child:
+                Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
           ),
           onDismissed: (direction) {
             // Delete from repo
@@ -439,9 +476,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('रिकॉर्ड हटा दिया गया / Record deleted'),
+                content: const LocalizedText(
+                    'रिकॉर्ड हटा दिया गया / Record deleted'),
                 action: SnackBarAction(
-                  label: 'Undo',
+                  label: AppLanguage.text('Undo'),
                   onPressed: () {
                     // Restore item
                     if (widget.type == HealthType.bp) {
@@ -458,8 +496,9 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
           },
           child: ListTile(
             leading: icon,
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(subtitle),
+            title: LocalizedText(title,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: LocalizedText(subtitle),
           ),
         );
       },

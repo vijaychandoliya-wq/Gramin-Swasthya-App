@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gramin_swasthya/screens/medicines/add_medicine_screen.dart';
 import 'package:gramin_swasthya/screens/reports/add_report_screen.dart';
@@ -12,9 +14,7 @@ import 'screens/settings/settings_screen.dart';
 
 import 'screens/splash/splash_screen.dart';
 import 'screens/auth/language_select_screen.dart';
-import 'screens/auth/register_screen.dart';
-import 'screens/auth/pin_setup_screen.dart';
-import 'screens/auth/pin_login_screen.dart';
+import 'screens/auth/google_sign_in_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/health/add_bp_screen.dart';
 import 'screens/health/add_sugar_screen.dart';
@@ -23,6 +23,7 @@ import 'screens/sharing/share_screen.dart';
 import 'screens/sharing/qr_screen.dart';
 import 'screens/emergency/emergency_card_screen.dart';
 import 'screens/family/add_member_screen.dart';
+import 'screens/family/family_screen.dart';
 import 'providers/reports_provider.dart';
 import 'providers/medicines_provider.dart';
 import 'providers/family_provider.dart';
@@ -63,7 +64,7 @@ final GoRouter appRouter = GoRouter(
         ),
       ],
     ),
-    // Auth Routes
+    // First-run routes
     GoRoute(
       path: '/splash',
       parentNavigatorKey: _rootNavigatorKey,
@@ -75,19 +76,9 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const LanguageSelectScreen(),
     ),
     GoRoute(
-      path: '/register',
+      path: '/google-sign-in',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RegistrationScreen(),
-    ),
-    GoRoute(
-      path: '/pin-setup',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PinSetupScreen(),
-    ),
-    GoRoute(
-      path: '/login',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PinLoginScreen(),
+      builder: (context, state) => const GoogleSignInScreen(),
     ),
     GoRoute(
       path: '/onboarding',
@@ -160,6 +151,11 @@ final GoRouter appRouter = GoRouter(
         return AddMemberScreen(member: member);
       },
     ),
+    GoRoute(
+      path: '/family',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const FamilyScreen(),
+    ),
   ],
 );
 
@@ -179,27 +175,27 @@ class ScaffoldWithNavBar extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _calculateSelectedIndex(context),
         onDestinationSelected: (int idx) => _onItemTapped(idx, context),
-        destinations: const [
+        destinations: [
           NavigationDestination(
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
-              label: 'Home'),
+              label: AppLanguage.text('Home')),
           NavigationDestination(
               icon: Icon(Icons.favorite_outline),
               selectedIcon: Icon(Icons.favorite),
-              label: 'Health'),
+              label: AppLanguage.text('Health')),
           NavigationDestination(
               icon: Icon(Icons.folder_outlined),
               selectedIcon: Icon(Icons.folder),
-              label: 'Reports'),
+              label: AppLanguage.text('Reports')),
           NavigationDestination(
               icon: Icon(Icons.medication_outlined),
               selectedIcon: Icon(Icons.medication),
-              label: 'Meds'),
+              label: AppLanguage.text('Meds')),
           NavigationDestination(
               icon: Icon(Icons.settings_outlined),
               selectedIcon: Icon(Icons.settings),
-              label: 'Settings'),
+              label: AppLanguage.text('Settings')),
         ],
       ),
     );
@@ -244,8 +240,8 @@ class PlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('Placeholder for $title')),
+      appBar: AppBar(title: LocalizedText(title)),
+      body: Center(child: LocalizedText('Placeholder for $title')),
     );
   }
 }

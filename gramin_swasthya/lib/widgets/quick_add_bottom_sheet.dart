@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:go_router/go_router.dart';
 
 class QuickAddBottomSheet extends StatelessWidget {
@@ -17,7 +18,7 @@ class QuickAddBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -27,9 +28,10 @@ class QuickAddBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              LocalizedText(
                 'Add New Record',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
@@ -70,7 +72,11 @@ class QuickAddBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildActionItem(BuildContext context, {required IconData icon, required String label, required Color color, required String route}) {
+  Widget _buildActionItem(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required Color color,
+      required String route}) {
     final theme = Theme.of(context);
     return InkWell(
       onTap: () {
@@ -91,7 +97,7 @@ class QuickAddBottomSheet extends StatelessWidget {
               child: Icon(icon, color: color, size: 32),
             ),
             const SizedBox(height: 8),
-            Text(
+            LocalizedText(
               label,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(

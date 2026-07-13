@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../l10n/app_language.dart';
 
 class QRScreen extends StatefulWidget {
   final String tokenId;
@@ -36,11 +38,14 @@ class _QRScreenState extends State<QRScreen> {
 
   Future<void> _fetchAndStartTimer() async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('shares').doc(widget.tokenId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('shares')
+          .doc(widget.tokenId)
+          .get();
       if (doc.exists && mounted) {
         final data = doc.data()!;
         final expiry = (data['expiry'] as Timestamp).toDate();
-        
+
         setState(() {
           _shareData = data;
           _updateRemaining(expiry);
@@ -60,7 +65,7 @@ class _QRScreenState extends State<QRScreen> {
   void _updateRemaining(DateTime expiry) {
     final now = DateTime.now();
     final diff = expiry.difference(now);
-    
+
     if (diff.isNegative) {
       _timer?.cancel();
       setState(() {
@@ -85,20 +90,31 @@ class _QRScreenState extends State<QRScreen> {
 
   Future<void> _shareLink() async {
     final url = "https://graminsw.app/share/${widget.tokenId}";
-    await Share.share("डॉक्टर के लिए मेरा स्वास्थ्य रिकॉर्ड लिंक: $url", subject: 'Health Record Access');
+    await Share.share(
+      AppLanguage.isHindi
+          ? 'डॉक्टर के लिए मेरा स्वास्थ्य रिकॉर्ड लिंक: $url'
+          : 'My health record link for the doctor: $url',
+      subject: AppLanguage.isHindi
+          ? 'स्वास्थ्य रिकॉर्ड की पहुँच'
+          : 'Health Record Access',
+    );
   }
 
   Future<void> _launchWhatsApp() async {
     final url = "https://graminsw.app/share/${widget.tokenId}";
-    final text = "नमस्ते डॉक्टर, मेरे स्वास्थ्य रिकॉर्ड को देखने के लिए इस लिंक का उपयोग करें: $url";
-    final whatsappUrl = Uri.parse("whatsapp://send?text=${Uri.encodeComponent(text)}");
-    
+    final text = AppLanguage.isHindi
+        ? 'नमस्ते डॉक्टर, मेरे स्वास्थ्य रिकॉर्ड को देखने के लिए इस लिंक का उपयोग करें: $url'
+        : 'Hello Doctor, use this link to view my health records: $url';
+    final whatsappUrl =
+        Uri.parse("whatsapp://send?text=${Uri.encodeComponent(text)}");
+
     if (await canLaunchUrl(whatsappUrl)) {
       await launchUrl(whatsappUrl);
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('WhatsApp शुरू करने में असमर्थ')),
+          const SnackBar(
+              content: LocalizedText('WhatsApp शुरू करने में असमर्थ')),
         );
       }
     }
@@ -117,7 +133,8 @@ class _QRScreenState extends State<QRScreen> {
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        title: const Text('QR कोड', style: TextStyle(color: Colors.black)),
+        title: const LocalizedText('QR कोड',
+            style: TextStyle(color: Colors.black)),
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           IconButton(
@@ -132,10 +149,14 @@ class _QRScreenState extends State<QRScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  Text("डॉक्टर को दिखाएं", style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                  LocalizedText("डॉक्टर को दिखाएं",
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary)),
                   const SizedBox(height: 8),
-                  const Text("यह कोड scan करने दें", style: TextStyle(color: Colors.grey)),
-                  
+                  const LocalizedText("यह कोड scan करने दें",
+                      style: TextStyle(color: Colors.grey)),
+
                   const SizedBox(height: 32),
 
                   // QR Card
@@ -169,7 +190,8 @@ class _QRScreenState extends State<QRScreen> {
                               if (_isExpired)
                                 ClipRect(
                                   child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 10, sigmaY: 10),
                                     child: Container(
                                       width: 240,
                                       height: 240,
@@ -178,13 +200,19 @@ class _QRScreenState extends State<QRScreen> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.timer_off_outlined, size: 48, color: Colors.red),
+                                          const Icon(Icons.timer_off_outlined,
+                                              size: 48, color: Colors.red),
                                           const SizedBox(height: 8),
-                                          const Text("समाप्त / Expired", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                                          const LocalizedText(
+                                              "समाप्त / Expired",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red)),
                                           const SizedBox(height: 12),
                                           FilledButton.tonal(
                                             onPressed: () => context.pop(),
-                                            child: const Text("नया बनाएं"),
+                                            child: const LocalizedText(
+                                                "नया बनाएं"),
                                           ),
                                         ],
                                       ),
@@ -194,25 +222,37 @@ class _QRScreenState extends State<QRScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          Text(
+                          LocalizedText(
                             _shareData?['memberName'] ?? 'Member',
-                            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            (_shareData?['dataTypes'] as List? ?? []).join(" • "),
-                            style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                          LocalizedText(
+                            (_shareData?['dataTypes'] as List? ?? [])
+                                .join(" • "),
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Countdown Chip
                           Chip(
-                            label: Text(
-                              _isExpired ? "समाप्त / Expired" : _formatDuration(_remaining),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            label: LocalizedText(
+                              _isExpired
+                                  ? "समाप्त / Expired"
+                                  : _formatDuration(_remaining),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            avatar: Icon(_isExpired ? Icons.timer_off : Icons.timer_outlined, size: 16),
-                            backgroundColor: _isExpired ? Colors.grey.shade200 : colorScheme.tertiaryContainer,
+                            avatar: Icon(
+                                _isExpired
+                                    ? Icons.timer_off
+                                    : Icons.timer_outlined,
+                                size: 16),
+                            backgroundColor: _isExpired
+                                ? Colors.grey.shade200
+                                : colorScheme.tertiaryContainer,
                             side: BorderSide.none,
                           ),
                         ],
@@ -227,14 +267,15 @@ class _QRScreenState extends State<QRScreen> {
                     onPressed: _shareLink,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.link),
                         SizedBox(width: 12),
-                        Text("लिंक शेयर करें / Share Link"),
+                        LocalizedText("लिंक शेयर करें / Share Link"),
                       ],
                     ),
                   ),
@@ -243,14 +284,15 @@ class _QRScreenState extends State<QRScreen> {
                     onPressed: _launchWhatsApp,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("💬", style: TextStyle(fontSize: 18)),
+                        LocalizedText("💬", style: TextStyle(fontSize: 18)),
                         SizedBox(width: 12),
-                        Text("WhatsApp पर भेजें"),
+                        LocalizedText("WhatsApp पर भेजें"),
                       ],
                     ),
                   ),

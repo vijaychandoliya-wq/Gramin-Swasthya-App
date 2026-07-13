@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:go_router/go_router.dart';
 
 class DoctorSharingScreen extends StatefulWidget {
@@ -25,15 +26,16 @@ class _DoctorSharingScreenState extends State<DoctorSharingScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Share with Doctor')),
+      appBar: AppBar(title: const LocalizedText('Share with Doctor')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            LocalizedText(
               'Select what you want to share',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Card(
@@ -45,7 +47,7 @@ class _DoctorSharingScreenState extends State<DoctorSharingScreen> {
               child: Column(
                 children: _shareOptions.keys.map((String key) {
                   return CheckboxListTile(
-                    title: Text(key),
+                    title: LocalizedText(key),
                     value: _shareOptions[key],
                     onChanged: (bool? value) {
                       setState(() {
@@ -61,7 +63,7 @@ class _DoctorSharingScreenState extends State<DoctorSharingScreen> {
             ElevatedButton.icon(
               onPressed: _generateQr,
               icon: const Icon(Icons.qr_code_2),
-              label: const Text('Generate QR Code'),
+              label: const LocalizedText('Generate QR Code'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -69,13 +71,12 @@ class _DoctorSharingScreenState extends State<DoctorSharingScreen> {
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () {
-                 // Direct link share implementation
-                 ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('Opening Share Sheet...'))
-                 );
+                // Direct link share implementation
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: LocalizedText('Opening Share Sheet...')));
               },
               icon: const Icon(Icons.share),
-              label: const Text('Share Link Directly'),
+              label: const LocalizedText('Share Link Directly'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),

@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.gramin_swasthya"
     compileSdk = 36
-    ndkVersion = "29.0.14206865"
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

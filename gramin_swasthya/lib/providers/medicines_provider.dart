@@ -58,7 +58,9 @@ class Medicine {
   static List<TimeOfDay> timesFromJson(String json) {
     try {
       final list = jsonDecode(json) as List;
-      return list.map((m) => TimeOfDay(hour: m['h'] as int, minute: m['m'] as int)).toList();
+      return list
+          .map((m) => TimeOfDay(hour: m['h'] as int, minute: m['m'] as int))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -101,9 +103,11 @@ class MedicinesRepo {
         orderBy: 'taken_at DESC',
       );
 
-      final takenHistory = logs
+      // db is dynamic (web mock support), so map() must pin its type argument
+      // or takenHistory becomes List<dynamic> and the Medicine() call throws.
+      final List<DateTime> takenHistory = logs
           .where((l) => l['taken_at'] != null)
-          .map((l) => DateTime.parse(l['taken_at'] as String))
+          .map<DateTime>((l) => DateTime.parse(l['taken_at'] as String))
           .toList();
 
       _medicinesDb.add(Medicine(
@@ -115,7 +119,8 @@ class MedicinesRepo {
         times: Medicine.timesFromJson(r['times_json'] as String? ?? '[]'),
         isActive: (r['is_active'] as int?) == 1,
         durationDays: (r['duration_days'] as int?) ?? -1,
-        startDate: DateTime.tryParse(r['start_date'] as String? ?? '') ?? DateTime.now(),
+        startDate: DateTime.tryParse(r['start_date'] as String? ?? '') ??
+            DateTime.now(),
         takenHistory: takenHistory,
       ));
     }
@@ -168,7 +173,8 @@ class MedicinesRepo {
     final db = await DatabaseHelper.instance.database;
     final dbId = int.tryParse(id);
     if (dbId != null) {
-      await db.delete('medicine_log', where: 'medicine_id = ?', whereArgs: [dbId]);
+      await db
+          .delete('medicine_log', where: 'medicine_id = ?', whereArgs: [dbId]);
       await db.delete('medicines', where: 'id = ?', whereArgs: [dbId]);
     }
     _medicinesDb.removeWhere((m) => m.id == id);
@@ -203,7 +209,8 @@ class MedicinesRepo {
     final idx = _medicinesDb.indexWhere((m) => m.id == id);
     if (idx != -1) {
       final now = DateTime.now();
-      final newHistory = List<DateTime>.from(_medicinesDb[idx].takenHistory)..add(now);
+      final newHistory = List<DateTime>.from(_medicinesDb[idx].takenHistory)
+        ..add(now);
       _medicinesDb[idx] = _medicinesDb[idx].copyWith(takenHistory: newHistory);
 
       final db = await DatabaseHelper.instance.database;
@@ -225,15 +232,19 @@ class MedicinesRepo {
     final db = await DatabaseHelper.instance.database;
     final dbId = int.tryParse(med.id);
     if (dbId != null) {
-      await db.update('medicines', {
-        'name': med.name,
-        'dosage': med.dosage,
-        'unit': med.unit,
-        'times_json': Medicine.timesToJson(med.times),
-        'duration_days': med.durationDays,
-        'start_date': med.startDate.toIso8601String(),
-        'is_active': med.isActive ? 1 : 0,
-      }, where: 'id = ?', whereArgs: [dbId]);
+      await db.update(
+          'medicines',
+          {
+            'name': med.name,
+            'dosage': med.dosage,
+            'unit': med.unit,
+            'times_json': Medicine.timesToJson(med.times),
+            'duration_days': med.durationDays,
+            'start_date': med.startDate.toIso8601String(),
+            'is_active': med.isActive ? 1 : 0,
+          },
+          where: 'id = ?',
+          whereArgs: [dbId]);
     }
 
     final idx = _medicinesDb.indexWhere((m) => m.id == med.id);
@@ -260,7 +271,8 @@ final medicinesStreamProvider = StreamProvider<List<Medicine>>((ref) {
 });
 
 // Selector for filtered medicines by member
-final filteredMedicinesProvider = Provider.family<AsyncValue<List<Medicine>>, String?>((ref, memberId) {
+final filteredMedicinesProvider =
+    Provider.family<AsyncValue<List<Medicine>>, String?>((ref, memberId) {
   final medicinesAsync = ref.watch(medicinesStreamProvider);
   return medicinesAsync.whenData((list) {
     if (memberId == null) return list;
@@ -276,7 +288,8 @@ class AdherenceData {
   AdherenceData(this.taken, this.total);
 }
 
-final dailyAdherenceProvider = Provider.family<AdherenceData, String?>((ref, memberId) {
+final dailyAdherenceProvider =
+    Provider.family<AdherenceData, String?>((ref, memberId) {
   final medicinesAsync = ref.watch(filteredMedicinesProvider(memberId));
   return medicinesAsync.maybeWhen(
     data: (list) {
@@ -289,11 +302,15 @@ final dailyAdherenceProvider = Provider.family<AdherenceData, String?>((ref, mem
 
         totalDoses += med.times.length;
 
-        final todayEntries = med.takenHistory.where((dt) =>
-          dt.year == now.year && dt.month == now.month && dt.day == now.day
-        ).length;
+        final todayEntries = med.takenHistory
+            .where((dt) =>
+                dt.year == now.year &&
+                dt.month == now.month &&
+                dt.day == now.day)
+            .length;
 
-        takenDoses += todayEntries > med.times.length ? med.times.length : todayEntries;
+        takenDoses +=
+            todayEntries > med.times.length ? med.times.length : todayEntries;
       }
       return AdherenceData(takenDoses, totalDoses);
     },

@@ -3,7 +3,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 enum ConnectivityStatus { online, offline }
 
-final connectivityStatusProvider = StateNotifierProvider<ConnectivityStatusNotifier, ConnectivityStatus>((ref) {
+final connectivityStatusProvider =
+    StateNotifierProvider<ConnectivityStatusNotifier, ConnectivityStatus>(
+        (ref) {
   return ConnectivityStatusNotifier();
 });
 
@@ -13,7 +15,9 @@ class ConnectivityStatusNotifier extends StateNotifier<ConnectivityStatus> {
   }
 
   void _init() {
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) {
       if (results.contains(ConnectivityResult.none)) {
         state = ConnectivityStatus.offline;
       } else {

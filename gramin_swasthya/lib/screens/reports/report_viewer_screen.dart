@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../providers/reports_provider.dart';
+import '../../l10n/app_language.dart';
 
 class ReportViewerScreen extends ConsumerWidget {
   final MedicalReport report;
@@ -20,11 +22,16 @@ class ReportViewerScreen extends ConsumerWidget {
     if (report.imagePath!.startsWith('http')) {
       // For network images, in a real app we'd download to a temp file first.
       // For mock, we'll share the URL.
-      await Share.share(
-          'Medical Report: ${report.type} from ${report.doctorName}\n${report.imagePath}');
+      await Share.share(AppLanguage.isHindi
+          ? 'मेडिकल रिपोर्ट: ${report.type}, डॉक्टर ${report.doctorName}\n${report.imagePath}'
+          : 'Medical Report: ${report.type} from ${report.doctorName}\n${report.imagePath}');
     } else {
-      await Share.shareXFiles([XFile(report.imagePath!)],
-          text: 'Medical Report: ${report.type}');
+      await Share.shareXFiles(
+        [XFile(report.imagePath!)],
+        text: AppLanguage.isHindi
+            ? 'मेडिकल रिपोर्ट: ${report.type}'
+            : 'Medical Report: ${report.type}',
+      );
     }
   }
 
@@ -36,7 +43,7 @@ class ReportViewerScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(success == true
+              content: LocalizedText(success == true
                   ? 'गैलरी में सहेजा गया ✓'
                   : 'सहेजने में विफल')),
         );
@@ -44,7 +51,8 @@ class ReportViewerScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: LocalizedText('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -54,19 +62,19 @@ class ReportViewerScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('रिपोर्ट हटाएं? / Delete Report?'),
-        content: const Text(
+        title: const LocalizedText('रिपोर्ट हटाएं? / Delete Report?'),
+        content: const LocalizedText(
             'क्या आप वाकई इस रिपोर्ट को स्थायी रूप से हटाना चाहते हैं?\nAre you sure you want to delete this report permanently?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('रद्द / Cancel'),
+            child: const LocalizedText('रद्द / Cancel'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('हटाएं / Delete'),
+            child: const LocalizedText('हटाएं / Delete'),
           ),
         ],
       ),
@@ -76,7 +84,8 @@ class ReportViewerScreen extends ConsumerWidget {
       ref.read(reportsRepoProvider).deleteReport(report.id);
       context.pop(); // Close viewer
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('रिपोर्ट हटा दी गई ✓ / Report Deleted')),
+        const SnackBar(
+            content: LocalizedText('रिपोर्ट हटा दी गई ✓ / Report Deleted')),
       );
     }
   }
@@ -94,9 +103,9 @@ class ReportViewerScreen extends ConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(report.type,
+            LocalizedText(report.type,
                 style: const TextStyle(color: Colors.white, fontSize: 16)),
-            Text(dateStr,
+            LocalizedText(dateStr,
                 style: TextStyle(
                     color: Colors.white.withOpacity(0.7), fontSize: 12)),
           ],
@@ -160,7 +169,7 @@ class ReportViewerScreen extends ConsumerWidget {
           children: [
             Icon(Icons.broken_image, size: 48, color: Colors.white54),
             SizedBox(height: 8),
-            Text('लोड करने में असमर्थ',
+            LocalizedText('लोड करने में असमर्थ',
                 style: TextStyle(color: Colors.white54)),
           ],
         ),
@@ -198,7 +207,7 @@ class _BottomAction extends StatelessWidget {
         children: [
           Icon(icon, color: color ?? Colors.white),
           const SizedBox(height: 4),
-          Text(
+          LocalizedText(
             label,
             style: TextStyle(color: color ?? Colors.white, fontSize: 12),
           ),

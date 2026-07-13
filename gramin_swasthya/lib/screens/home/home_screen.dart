@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -69,21 +70,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     color: colorScheme.primaryContainer.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.family_restroom, size: 64, color: colorScheme.primary),
+                  child: Icon(Icons.family_restroom,
+                      size: 64, color: colorScheme.primary),
                 ),
                 const SizedBox(height: 24),
-                Text('परिवार का सदस्य जोड़ें', style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                LocalizedText('परिवार का सदस्य जोड़ें',
+                    style: textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text(
+                LocalizedText(
                   'शुरू करने के लिए अपना पहला सदस्य जोड़ें\nAdd your first family member to get started',
-                  style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
                 FilledButton.icon(
                   onPressed: () => context.push('/add-family-member'),
                   icon: const Icon(Icons.person_add),
-                  label: const Text('सदस्य जोड़ें / Add Member'),
+                  label: const LocalizedText('सदस्य जोड़ें / Add Member'),
                 ),
               ],
             ),
@@ -99,7 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: () => _showQuickAddBottomSheet(context),
         isExtended: _isExtended,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('रिकॉर्ड जोड़ें'),
+        label: const LocalizedText('रिकॉर्ड जोड़ें'),
       ),
       body: CustomScrollView(
         controller: _scrollController,
@@ -122,7 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    LocalizedText(
                       familyBranding,
                       style: textTheme.labelSmall?.copyWith(
                         color: colorScheme.primary,
@@ -130,7 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    Text(
+                    LocalizedText(
                       'नमस्ते, ${currentMember.name.split(' ').first}',
                       style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -146,7 +151,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const GlobalSearchAnchor(),
               IconButton(
                 icon: Badge(
-                  label: Text(todayMedicines.where((m) => !m.isTaken).length.toString()),
+                  label: LocalizedText(todayMedicines
+                      .where((m) => !m.isTaken)
+                      .length
+                      .toString()),
                   isLabelVisible: todayMedicines.any((m) => !m.isTaken),
                   child: const Icon(Icons.notifications_outlined),
                 ),
@@ -169,14 +177,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
                         selected: isSelected,
-                        label: Text(member.name.split(' ').first),
+                        label: LocalizedText(member.name.split(' ').first),
                         avatar: CircleAvatar(
                           radius: 14,
-                          backgroundColor: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
-                          child: Text(
+                          backgroundColor: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.surfaceContainerHighest,
+                          child: LocalizedText(
                             member.name[0].toUpperCase(),
                             style: TextStyle(
-                              color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                              color: isSelected
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurfaceVariant,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
@@ -185,7 +197,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         showCheckmark: false,
                         onSelected: (bool selected) {
                           if (selected) {
-                            ref.read(selectedFamilyMemberProvider.notifier).state = member;
+                            ref
+                                .read(selectedFamilyMemberProvider.notifier)
+                                .state = member;
                           }
                         },
                       ),
@@ -205,9 +219,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  LocalizedText(
                     'आज का स्वास्थ्य / Health Today',
-                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -218,7 +233,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           title: 'BP',
                           value: healthSummary.latestBp,
                           subtitle: healthSummary.bpCategory,
-                          accentColor: healthSummary.bpColor ?? Colors.redAccent,
+                          accentColor:
+                              healthSummary.bpColor ?? Colors.redAccent,
                           onTap: () => context.push('/health?tab=bp'),
                         ),
                       ),
@@ -261,23 +277,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      LocalizedText(
                         'दवाइयाँ / Medicines',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       if (todayMedicines.isNotEmpty)
                         TextButton(
                           onPressed: () => context.go('/medicines'),
-                          child: const Text('सभी देखें →'),
+                          child: const LocalizedText('सभी देखें →'),
                         ),
                     ],
                   ),
                   const SizedBox(height: 8),
-
                   if (todayMedicines.isEmpty)
                     Card(
                       elevation: 0,
-                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      color:
+                          colorScheme.surfaceContainerHighest.withOpacity(0.3),
                       child: InkWell(
                         onTap: () => context.push('/add-medicine'),
                         borderRadius: BorderRadius.circular(16),
@@ -286,11 +303,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.medication_outlined, color: colorScheme.onSurfaceVariant),
+                              Icon(Icons.medication_outlined,
+                                  color: colorScheme.onSurfaceVariant),
                               const SizedBox(width: 12),
-                              Text(
+                              LocalizedText(
                                 'दवाई जोड़ें / Add Medicine',
-                                style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                                style: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant),
                               ),
                             ],
                           ),
@@ -298,12 +317,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     )
                   else
-                    ...todayMedicines.take(5).map((med) => _MedicineReminderTile(
-                      reminder: med,
-                      onMarkTaken: () {
-                        ref.read(medicinesRepoProvider).markAsTaken(med.id);
-                      },
-                    )),
+                    ...todayMedicines
+                        .take(5)
+                        .map((med) => _MedicineReminderTile(
+                              reminder: med,
+                              onMarkTaken: () {
+                                ref
+                                    .read(medicinesRepoProvider)
+                                    .markAsTaken(med.id);
+                              },
+                            )),
                 ],
               ),
             ),
@@ -328,7 +351,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ref.invalidate(healthSummaryProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('रिकॉर्ड सफलतापूर्वक जोड़ा गया / Record Added')),
+          const SnackBar(
+              content: LocalizedText(
+                  'रिकॉर्ड सफलतापूर्वक जोड़ा गया / Record Added')),
         );
       }
     }
@@ -384,7 +409,7 @@ class _HealthMetricCard extends StatelessWidget {
                 child: Icon(icon, color: accentColor, size: 24),
               ),
               const SizedBox(height: 10),
-              Text(
+              LocalizedText(
                 title,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
@@ -392,11 +417,13 @@ class _HealthMetricCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
+              LocalizedText(
                 value,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isEmpty ? colorScheme.onSurfaceVariant : colorScheme.onSurface,
+                  color: isEmpty
+                      ? colorScheme.onSurfaceVariant
+                      : colorScheme.onSurface,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -404,12 +431,13 @@ class _HealthMetricCard extends StatelessWidget {
               if (subtitle != null && subtitle!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: accentColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
+                  child: LocalizedText(
                     subtitle!,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: accentColor,
@@ -470,17 +498,20 @@ class _MedicineReminderTile extends StatelessWidget {
             color: reminder.isTaken ? Colors.green : colorScheme.primary,
           ),
         ),
-        title: Text(
+        title: LocalizedText(
           reminder.name,
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
             decoration: reminder.isTaken ? TextDecoration.lineThrough : null,
-            color: reminder.isTaken ? colorScheme.onSurfaceVariant : colorScheme.onSurface,
+            color: reminder.isTaken
+                ? colorScheme.onSurfaceVariant
+                : colorScheme.onSurface,
           ),
         ),
-        subtitle: Text(
+        subtitle: LocalizedText(
           '${reminder.dosage}  •  ${reminder.time}',
-          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodySmall
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         trailing: reminder.isTaken
             ? Container(
@@ -489,7 +520,11 @@ class _MedicineReminderTile extends StatelessWidget {
                   color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text('ली गई', style: TextStyle(color: Colors.green.shade700, fontSize: 11, fontWeight: FontWeight.w600)),
+                child: LocalizedText('ली गई',
+                    style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600)),
               )
             : FilledButton.tonal(
                 onPressed: onMarkTaken,
@@ -498,7 +533,8 @@ class _MedicineReminderTile extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
-                child: const Text('लें', style: TextStyle(fontSize: 13)),
+                child:
+                    const LocalizedText('लें', style: TextStyle(fontSize: 13)),
               ),
       ),
     );

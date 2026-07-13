@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
+import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -37,13 +39,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'सर्च करें... / Search...',
+                decoration: InputDecoration(
+                  hintText: AppLanguage.text('सर्च करें... / Search...'),
                   border: InputBorder.none,
                 ),
                 onChanged: (val) => setState(() {}),
               )
-            : const Text('रिपोर्ट / Reports'),
+            : const LocalizedText('रिपोर्ट / Reports'),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -90,7 +92,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       : _buildListView(filteredBySearch);
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) => Center(child: Text('Error: $err')),
+                error: (err, stack) =>
+                    Center(child: LocalizedText('Error: $err')),
               ),
             ),
           ),
@@ -119,7 +122,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
                   selected: isSelected,
-                  label: Text(member.name.split(' ').first),
+                  label: LocalizedText(member.name.split(' ').first),
                   onSelected: (val) {
                     if (val) {
                       ref.read(selectedFamilyMemberProvider.notifier).state =
@@ -142,7 +145,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
                   selected: isSelected,
-                  label: Text(type),
+                  label: LocalizedText(type),
                   onSelected: (val) {
                     if (val) {
                       ref.read(activeReportTypeFilterProvider.notifier).state =
@@ -215,12 +218,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(report.type,
+                          LocalizedText(report.type,
                               style: Theme.of(context)
                                   .textTheme
                                   .labelSmall
                                   ?.copyWith(fontWeight: FontWeight.bold)),
-                          Text(DateFormat('dd MMM yyyy').format(report.date),
+                          LocalizedText(
+                              DateFormat('dd MMM yyyy').format(report.date),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -237,7 +241,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   top: 4,
                   left: 4,
                   child: Chip(
-                    label: Text(report.type.split(' ').first,
+                    label: LocalizedText(report.type.split(' ').first,
                         style: const TextStyle(fontSize: 10)),
                     padding: EdgeInsets.zero,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -270,9 +274,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               ),
             ),
           ),
-          title:
-              Text(report.type, style: Theme.of(context).textTheme.titleSmall),
-          subtitle: Text(
+          title: LocalizedText(report.type,
+              style: Theme.of(context).textTheme.titleSmall),
+          subtitle: LocalizedText(
               '${report.doctorName} • ${DateFormat('dd MMM yyyy').format(report.date)}',
               style: Theme.of(context).textTheme.bodySmall),
           trailing: const Icon(Icons.chevron_right),
@@ -292,11 +296,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               size: 64,
               color: Theme.of(context).colorScheme.surfaceContainerHighest),
           const SizedBox(height: 16),
-          const Text('कोई रिपोर्ट नहीं / No Reports'),
+          const LocalizedText('कोई रिपोर्ट नहीं / No Reports'),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: () => context.push('/reports/add'),
-            child: const Text('जोड़ें / Add'),
+            child: const LocalizedText('जोड़ें / Add'),
           ),
         ],
       ),

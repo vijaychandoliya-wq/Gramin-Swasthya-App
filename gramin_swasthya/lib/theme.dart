@@ -83,7 +83,8 @@ class GraminSwasthyaTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
 
       // M3 Navigation Bar
@@ -157,7 +158,8 @@ class GraminSwasthyaTheme {
       // M3 Switch
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colorScheme.onPrimary;
+          if (states.contains(WidgetState.selected))
+            return colorScheme.onPrimary;
           return colorScheme.outline;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
