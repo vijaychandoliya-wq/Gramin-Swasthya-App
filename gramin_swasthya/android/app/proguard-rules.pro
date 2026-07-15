@@ -2,6 +2,13 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 -keep class net.sqlcipher.** { *; }
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep class dev.fluttercommunity.plus.androidalarmmanager.** { *; }
+-keep class io.flutter.plugins.GeneratedPluginRegistrant { *; }
+-keepclassmembers class * {
+    @androidx.annotation.Keep <methods>;
+    @androidx.annotation.Keep <fields>;
+}
 
 # Keep Firebase/Google service model metadata used by reflection.
 -keepattributes *Annotation*

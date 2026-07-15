@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,35 +18,14 @@ String englishMedicineReminder(String personName, String medicineName) =>
 String hindiMedicineReminder(String personName, String medicineName) =>
     '$personName जी, आपकी $medicineName लेने का समय हो गया है। कृपया $medicineName लें।';
 
-// Top-level entry point for background alarm callback on Android
-@pragma('vm:entry-point')
-void alarmCallback(int id) async {
-  DartPluginRegistrant.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final medicineName =
-      prefs.getString('alarm_id_to_med_name_$id') ?? 'medicine';
-  final personName = prefs.getString('alarm_id_to_person_name_$id') ?? 'Hello';
-
-  try {
-    final flutterTts = FlutterTts();
-    await NotificationService.speakReminder(
-      flutterTts,
-      personName: personName,
-      medicineName: medicineName,
-    );
-  } catch (error) {
-    debugPrint('Unable to speak medicine reminder $id: $error');
-  } finally {
-    await NotificationService.scheduleNextVoiceAlarm(id);
-  }
-}
-
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   static final FlutterTts _flutterTts = FlutterTts();
+  static bool _initialized = false;
 
   static Future<void> init() async {
+    if (_initialized) return;
     tz.initializeTimeZones();
     try {
       final timezoneName = await FlutterTimezone.getLocalTimezone();
@@ -86,6 +64,8 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
+
+    _initialized = true;
   }
 
   static Future<void> playTtsPayload(String payload) async {
@@ -203,21 +183,10 @@ class NotificationService {
         payload: payload,
       );
 
-      // Android repeating alarms are intentionally batched by the OS. Use an
-      // exact one-shot and let the background callback schedule tomorrow.
-      try {
-        final scheduledTime = _nextInstanceOfTime(time, med.startDate);
-        await AndroidAlarmManager.oneShotAt(
-          scheduledTime,
-          id,
-          alarmCallback,
-          exact: canScheduleExactly,
-          wakeup: true,
-          rescheduleOnReboot: true,
-        );
-      } catch (e) {
-        debugPrint("AndroidAlarmManager schedule error: $e");
-      }
+      // Do not start Dart/Flutter plugins from an Android Alarm Manager
+      // isolate. flutter_local_notifications owns the native alarm and can
+      // deliver this notification without waking a Flutter UI isolate.
+      // Legacy alarm IDs are cancelled below when a medicine is rescheduled.
     }
 
     // Save scheduled IDs in SharedPreferences to allow easy canceling later
@@ -280,27 +249,6 @@ class NotificationService {
     for (final key in medicineKeys) {
       await cancelReminders(key.substring('med_notification_ids_'.length));
     }
-  }
-
-  @pragma('vm:entry-point')
-  static Future<void> scheduleNextVoiceAlarm(int id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final hour = prefs.getInt('alarm_id_to_hour_$id');
-    final minute = prefs.getInt('alarm_id_to_minute_$id');
-    if (hour == null || minute == null) return;
-
-    final now = DateTime.now();
-    var next = DateTime(now.year, now.month, now.day, hour, minute);
-    if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
-    final exact = await _requestExactAlarmPermission(requestPermission: false);
-    await AndroidAlarmManager.oneShotAt(
-      next,
-      id,
-      alarmCallback,
-      exact: exact,
-      wakeup: true,
-      rescheduleOnReboot: true,
-    );
   }
 
   static Future<bool> _requestExactAlarmPermission({

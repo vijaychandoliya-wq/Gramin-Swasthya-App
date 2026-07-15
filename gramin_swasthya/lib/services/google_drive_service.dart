@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../db/database_helper.dart';
+import 'auth_service.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;
@@ -27,15 +28,19 @@ class GoogleDriveService {
   static final GoogleDriveService instance =
       GoogleDriveService._privateConstructor();
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [drive.DriveApi.driveFileScope],
-  );
+  GoogleSignIn get _googleSignIn => AuthService.instance.googleSignIn;
 
   Future<GoogleSignInAccount?> signIn() async {
     try {
       GoogleSignInAccount? account = _googleSignIn.currentUser;
       account ??= await _googleSignIn.signInSilently();
       account ??= await _googleSignIn.signIn();
+      if (account == null) return null;
+
+      final granted = await _googleSignIn.requestScopes(
+        [drive.DriveApi.driveFileScope],
+      );
+      if (!granted) return null;
       return account;
     } catch (e) {
       debugPrint("Google Sign-In error: $e");
@@ -48,7 +53,8 @@ class GoogleDriveService {
   }
 
   Future<bool> isSignedIn() async {
-    return await _googleSignIn.isSignedIn();
+    if (_googleSignIn.currentUser != null) return true;
+    return await _googleSignIn.signInSilently() != null;
   }
 
   GoogleSignInAccount? get currentUser => _googleSignIn.currentUser;
@@ -59,6 +65,13 @@ class GoogleDriveService {
     if (account == null) {
       throw Exception(
           "Google account is not linked. Please link your account first.");
+    }
+
+    final driveScopeGranted = await _googleSignIn.requestScopes(
+      [drive.DriveApi.driveFileScope],
+    );
+    if (!driveScopeGranted) {
+      throw Exception('Google Drive permission was not granted.');
     }
 
     final authHeaders = await account.authHeaders;

@@ -12,6 +12,12 @@ class AuthService {
     scopes: const ['email', 'profile'],
   );
 
+  // Keep one GoogleSignIn instance for Firebase auth and Drive. Multiple
+  // instances can disagree about the restored account/scopes after a cold
+  // start, which used to make the UI show a linked account while Drive saw
+  // null.
+  GoogleSignIn get googleSignIn => _googleSignIn;
+
   User? get currentUser => _firebaseAuth.currentUser;
 
   Future<User?> restoredUser() async {

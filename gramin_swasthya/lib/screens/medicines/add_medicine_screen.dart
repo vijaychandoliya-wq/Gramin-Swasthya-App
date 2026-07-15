@@ -182,16 +182,27 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      SizedBox(
-                        width: 140,
-                        child: DropdownMenu<String>(
-                          initialSelection: _selectedUnit,
-                          label: const LocalizedText('इकाई / Unit'),
-                          onSelected: (val) =>
-                              setState(() => _selectedUnit = val!),
-                          dropdownMenuEntries: _units
-                              .map((u) => DropdownMenuEntry(value: u, label: u))
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _units.contains(_selectedUnit)
+                              ? _selectedUnit
+                              : _units.first,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'इकाई / Unit',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: _units
+                              .map((unit) => DropdownMenuItem<String>(
+                                    value: unit,
+                                    child: Text(unit,
+                                        overflow: TextOverflow.ellipsis),
+                                  ))
                               .toList(),
+                          onChanged: (value) {
+                            if (value != null)
+                              setState(() => _selectedUnit = value);
+                          },
                         ),
                       ),
                     ],

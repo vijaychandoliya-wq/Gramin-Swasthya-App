@@ -45,6 +45,9 @@ void main() async {
   // Initialize Notification Service
   try {
     await NotificationService.init();
+    // Remove alarms created by the old Dart/TTS callback implementation
+    // before rebuilding native local-notification schedules.
+    await NotificationService.cancelAll();
     await NotificationService.restoreActiveReminders();
   } catch (e) {
     debugPrint("NotificationService initialization skipped: $e");

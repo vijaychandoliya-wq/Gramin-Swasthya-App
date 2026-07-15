@@ -56,6 +56,7 @@ dependencies:
   crypto: ^3.0.3
   flutter_svg: ^2.1.0
   flutter_timezone: ^4.1.1
+  pdf: ^3.11.3
 
 dependency_overrides:
   sqflite_sqlcipher:
@@ -72,11 +73,17 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - fonts/
   fonts:
     - family: Noto Sans
       fonts:
         - asset: fonts/NotoSans-Regular.ttf
         - asset: fonts/NotoSans-Bold.ttf
+          weight: 700
+    - family: Noto Sans Devanagari
+      fonts:
+        - asset: fonts/NotoSansDevanagari-Regular.ttf
+        - asset: fonts/NotoSansDevanagari-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:

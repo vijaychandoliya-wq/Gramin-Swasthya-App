@@ -48,9 +48,13 @@ final selectedFamilyMemberProvider = StateProvider<FamilyMember?>((ref) {
 });
 
 class FamilyNotifier extends StateNotifier<List<FamilyMember>> {
+  late final Future<void> _loadFuture;
+
   FamilyNotifier() : super([]) {
-    _loadFromDb();
+    _loadFuture = _loadFromDb();
   }
+
+  Future<void> get loaded => _loadFuture;
 
   Future<void> _loadFromDb() async {
     final db = await DatabaseHelper.instance.database;
@@ -177,6 +181,7 @@ class FamilyNotifier extends StateNotifier<List<FamilyMember>> {
     String? email,
     String? photoUrl,
   }) async {
+    await _loadFuture;
     final db = await DatabaseHelper.instance.database;
     final rows = await db.query('family_members', orderBy: 'id ASC');
 

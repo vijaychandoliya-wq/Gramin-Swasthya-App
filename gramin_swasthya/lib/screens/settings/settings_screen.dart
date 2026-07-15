@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import '../../providers/family_provider.dart';
 import '../../services/google_drive_service.dart';
@@ -42,6 +43,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!mounted) return;
     setState(() {
       _notifEnabled = prefs.getBool('notif_enabled') ?? true;
+      _lastSynced =
+          prefs.getString('last_drive_backup_at') ?? 'Not backed up yet';
       _isGoogleLinked = linked;
       _googleUserEmail = GoogleDriveService.instance.currentUser?.email;
     });
@@ -128,7 +131,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await GoogleDriveService.instance.backupProfiles(context);
       _fetchGoogleBackups();
       if (mounted) {
-        setState(() => _lastSynced = "अभी-अभी / Just now");
+        final prefs = await SharedPreferences.getInstance();
+        final timestamp = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
+        await prefs.setString('last_drive_backup_at', timestamp);
+        if (mounted) setState(() => _lastSynced = timestamp);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: LocalizedText('बैकअप पूरा हुआ! / Backup completed ')),

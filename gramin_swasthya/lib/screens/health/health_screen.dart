@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/family_provider.dart';
 import '../../providers/health_data_provider.dart';
+import '../../services/health_report_service.dart';
 import '../../widgets/profile_avatar.dart';
 import '../../widgets/family_member_selector.dart';
 
@@ -27,16 +28,69 @@ class _ChartPoint {
   });
 }
 
-class HealthScreen extends StatefulWidget {
+class _HealthLoadingState extends StatelessWidget {
+  const _HealthLoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary),
+          const SizedBox(height: 12),
+          const Text('स्वास्थ्य डेटा लोड हो रहा है / Loading health data'),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyHealthState extends StatelessWidget {
+  final VoidCallback onAddMember;
+
+  const _EmptyHealthState({required this.onAddMember});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.favorite_outline, size: 64, color: colors.primary),
+            const SizedBox(height: 16),
+            const Text('प्रोफ़ाइल जोड़ें / Add a profile',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text(
+                'स्वास्थ्य रिकॉर्ड शुरू करने के लिए परिवार का सदस्य जोड़ें / Add a family member to start tracking.'),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+                onPressed: onAddMember,
+                icon: const Icon(Icons.person_add),
+                label: const Text('सदस्य जोड़ें / Add member')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HealthScreen extends ConsumerStatefulWidget {
   const HealthScreen({super.key});
 
   @override
-  State<HealthScreen> createState() => _HealthScreenState();
+  ConsumerState<HealthScreen> createState() => _HealthScreenState();
 }
 
-class _HealthScreenState extends State<HealthScreen>
+class _HealthScreenState extends ConsumerState<HealthScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  bool _isGeneratingReport = false;
 
   @override
   void initState() {
@@ -65,6 +119,34 @@ class _HealthScreenState extends State<HealthScreen>
     }
   }
 
+  Future<void> _generateReport() async {
+    final member = ref.read(selectedFamilyMemberProvider);
+    if (member == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add a family member first')),
+      );
+      return;
+    }
+
+    setState(() => _isGeneratingReport = true);
+    try {
+      await HealthReportService.generateAndShare(
+        context: context,
+        member: member,
+        bpReadings: ref.read(bpStreamProvider).valueOrNull ?? const [],
+        sugarReadings: ref.read(sugarStreamProvider).valueOrNull ?? const [],
+      );
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to generate report: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGeneratingReport = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -74,7 +156,19 @@ class _HealthScreenState extends State<HealthScreen>
       appBar: AppBar(
         centerTitle: true,
         title: const LocalizedText('स्वास्थ्य डेटा / Health Data'),
-        actions: const [ProfileAvatarAction(), SizedBox(width: 8)],
+        actions: [
+          IconButton(
+            tooltip: 'Share PDF report',
+            onPressed: _isGeneratingReport ? null : _generateReport,
+            icon: _isGeneratingReport
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.picture_as_pdf_outlined),
+          ),
+          const ProfileAvatarAction(),
+          const SizedBox(width: 8),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: colorScheme.onPrimaryContainer,
@@ -123,11 +217,11 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
   @override
   Widget build(BuildContext context) {
     final familyMembers = ref.watch(familyProvider);
-    final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
-        (familyMembers.isNotEmpty ? familyMembers.first : null);
+    ref.watch(selectedFamilyMemberProvider);
 
-    if (selectedMember == null) {
-      return const Center(child: CircularProgressIndicator());
+    if (familyMembers.isEmpty) {
+      return _EmptyHealthState(
+          onAddMember: () => context.push('/add-family-member'));
     }
 
     // Determine stream
@@ -180,7 +274,7 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                 const EdgeInsets.only(right: 24, left: 16, top: 24, bottom: 0),
             child: streamValue.when(
               data: (data) => _buildChart(data),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const _HealthLoadingState(),
               error: (err, stack) =>
                   Center(child: LocalizedText('Error: $err')),
             ),
@@ -203,7 +297,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
 
           streamValue.when(
             data: (data) => _buildHistoryList(data),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () =>
+                const SizedBox(height: 120, child: _HealthLoadingState()),
             error: (err, stack) => const SizedBox(),
           ),
 
