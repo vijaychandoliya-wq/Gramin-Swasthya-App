@@ -6,9 +6,18 @@ import 'package:gramin_swasthya/l10n/app_language.dart';
 import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:gramin_swasthya/l10n/generated_translations.dart';
 import 'package:gramin_swasthya/services/notification_service.dart';
+import 'package:gramin_swasthya/utils/bp_calculator.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  test('BP rules use profile age and adult fallback', () {
+    expect(BPCalculator.calculate(135, 82, age: 16)?.category,
+        'Stage 1 Hypertension');
+    expect(BPCalculator.calculate(135, 82, age: 0)?.category, 'High-Normal');
+    expect(BPCalculator.calculate(150, 76, age: 68)?.isolatedSystolic, isTrue);
+    expect(BPCalculator.calculate(150, 115, age: 40)?.severityRank, 5);
+  });
+
   test('web database keeps health records isolated by family member', () async {
     final db = MockDatabase();
     await db.insert('bp_readings', {

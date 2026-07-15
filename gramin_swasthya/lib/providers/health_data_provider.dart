@@ -9,12 +9,14 @@ class BpRecord {
   final String id;
   final int systolic;
   final int diastolic;
+  final int? pulse;
   final DateTime date;
 
   BpRecord(
       {required this.id,
       required this.systolic,
       required this.diastolic,
+      this.pulse,
       required this.date});
 }
 
@@ -34,9 +36,14 @@ class SugarRecord {
 class WeightRecord {
   final String id;
   final double weight;
+  final double? heightCm;
   final DateTime date;
 
-  WeightRecord({required this.id, required this.weight, required this.date});
+  WeightRecord(
+      {required this.id,
+      required this.weight,
+      this.heightCm,
+      required this.date});
 }
 
 // --- SQLite-backed Repository ---
@@ -82,6 +89,7 @@ class HealthRepo {
               id: r['id'].toString(),
               systolic: r['systolic'] as int,
               diastolic: r['diastolic'] as int,
+              pulse: (r['pulse'] as num?)?.toInt(),
               date: DateTime.parse(r['recorded_at'] as String),
             ))
         .toList();
@@ -113,6 +121,7 @@ class HealthRepo {
         .map<WeightRecord>((r) => WeightRecord(
               id: r['id'].toString(),
               weight: (r['weight_kg'] as num).toDouble(),
+              heightCm: (r['height_cm'] as num?)?.toDouble(),
               date: DateTime.parse(r['recorded_at'] as String),
             ))
         .toList();
@@ -140,7 +149,7 @@ class HealthRepo {
       'member_id': _memberId,
       'systolic': record.systolic,
       'diastolic': record.diastolic,
-      'pulse': null,
+      'pulse': record.pulse,
       'notes': null,
       'recorded_at': record.date.toIso8601String(),
       'synced': 0,
@@ -149,6 +158,7 @@ class HealthRepo {
       id: insertedId.toString(),
       systolic: record.systolic,
       diastolic: record.diastolic,
+      pulse: record.pulse,
       date: record.date,
     );
     _bpDb.insert(0, saved);
@@ -212,7 +222,7 @@ class HealthRepo {
     final insertedId = await db.insert('weight_entries', {
       'member_id': _memberId,
       'weight_kg': record.weight,
-      'height_cm': null,
+      'height_cm': record.heightCm,
       'notes': null,
       'recorded_at': record.date.toIso8601String(),
       'synced': 0,
@@ -220,6 +230,7 @@ class HealthRepo {
     final saved = WeightRecord(
       id: insertedId.toString(),
       weight: record.weight,
+      heightCm: record.heightCm,
       date: record.date,
     );
     _weightDb.insert(0, saved);

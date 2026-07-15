@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gramin_swasthya/l10n/localized_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gramin_swasthya/l10n/app_language.dart';
 
 import '../../providers/family_provider.dart';
 
@@ -49,8 +50,14 @@ class FamilyScreen extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     final members = ref.watch(familyProvider);
 
-    // In a real app, this would come from a preference or the primary member's name
-    const familyName = "चंदोलिया परिवार / Chandoliya Family";
+    final primary = members.isEmpty
+        ? null
+        : members.firstWhere((m) => m.isPrimary, orElse: () => members.first);
+    final nameParts = primary?.name.trim().split(RegExp(r'\s+')) ?? const [];
+    final lastName = nameParts.length > 1 ? nameParts.last : null;
+    final familyName = lastName == null
+        ? AppLanguage.text('Family')
+        : '$lastName परिवार / $lastName Family';
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(

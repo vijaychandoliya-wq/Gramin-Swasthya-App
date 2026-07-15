@@ -138,7 +138,7 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: LocalizedText(widget.medicine == null
-            ? 'दवाई जोड़ें / Add Med'
+            ? 'Add Medicine'
             : 'संपादित करें / Edit Med'),
       ),
       body: SingleChildScrollView(
@@ -298,7 +298,7 @@ class _AddMedicineScreenState extends ConsumerState<AddMedicineScreen> {
                     borderRadius: BorderRadius.circular(12)),
               ),
               child: LocalizedText(widget.medicine == null
-                  ? 'दवाई सहेजें / Save Medicine'
+                  ? 'Save Medicine'
                   : 'अपडेट करें / Update'),
             ),
             const SizedBox(height: 32),

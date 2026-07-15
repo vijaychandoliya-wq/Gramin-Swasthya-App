@@ -8,9 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import '../../providers/family_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../widgets/profile_avatar.dart';
+import '../../widgets/family_member_selector.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -107,36 +107,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   }
 
   Widget _buildFilterSection() {
-    final familyMembers = ref.watch(familyProvider);
-    final selectedMember = ref.watch(selectedFamilyMemberProvider) ??
-        (familyMembers.isNotEmpty ? familyMembers.first : null);
     final activeType = ref.watch(activeReportTypeFilterProvider);
     final reportTypes = ["All", "Prescription", "Lab Report", "X-Ray", "Other"];
 
     return Column(
       children: [
-        // Family Filter
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: familyMembers.map((member) {
-              final isSelected = member.id == selectedMember?.id;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  selected: isSelected,
-                  label: LocalizedText(member.name.split(' ').first),
-                  onSelected: (val) {
-                    if (val) {
-                      ref.read(selectedFamilyMemberProvider.notifier).state =
-                          member;
-                    }
-                  },
-                ),
-              );
-            }).toList(),
-          ),
+        // Family filter uses the same selector as Home, Health, and Medicines.
+        const FamilyMemberSelector(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
         // Type Filter
         SingleChildScrollView(

@@ -27,15 +27,13 @@ class ReportsRepo {
   final int? _memberId;
   final List<MedicalReport> _reportsDb = [];
   final _controller = StreamController<List<MedicalReport>>.broadcast();
+  Future<List<MedicalReport>>? _loadFuture;
 
-  ReportsRepo(this._memberId) {
-    _loadFromDb();
-  }
+  ReportsRepo(this._memberId);
 
-  Future<void> _loadFromDb() async {
+  Future<List<MedicalReport>> _loadFromDb() async {
     if (_memberId == null) {
-      _emit();
-      return;
+      return const [];
     }
 
     final db = await DatabaseHelper.instance.database;
@@ -60,15 +58,23 @@ class ReportsRepo {
         notes: r['notes'] as String?,
       ));
     }
-    _emit();
+    return List<MedicalReport>.from(_reportsDb);
   }
 
-  void _emit() => _controller.add(List.from(_reportsDb));
+  Future<List<MedicalReport>> _ensureLoaded() {
+    return _loadFuture ??= _loadFromDb();
+  }
 
-  Stream<List<MedicalReport>> watchReports() => _controller.stream;
+  Stream<List<MedicalReport>> watchReports() async* {
+    // Load after StreamProvider subscribes; constructor-started loading could
+    // emit before the listener existed and leave Reports on its spinner.
+    yield await _ensureLoaded();
+    yield* _controller.stream;
+  }
 
   Future<MedicalReport> addReport(MedicalReport report) async {
     if (_memberId == null) return report;
+    await _ensureLoaded();
     final db = await DatabaseHelper.instance.database;
 
     final isUrl = report.imagePath?.startsWith('http') ?? false;
@@ -94,18 +100,19 @@ class ReportsRepo {
       notes: report.notes,
     );
     _reportsDb.insert(0, saved);
-    _emit();
+    _controller.add(List.from(_reportsDb));
     return saved;
   }
 
   Future<void> deleteReport(String id) async {
+    await _ensureLoaded();
     final db = await DatabaseHelper.instance.database;
     final dbId = int.tryParse(id);
     if (dbId != null) {
       await db.delete('medical_reports', where: 'id = ?', whereArgs: [dbId]);
     }
     _reportsDb.removeWhere((r) => r.id == id);
-    _emit();
+    _controller.add(List.from(_reportsDb));
   }
 }
 

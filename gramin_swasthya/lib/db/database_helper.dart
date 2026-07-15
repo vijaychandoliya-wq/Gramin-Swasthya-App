@@ -1,10 +1,19 @@
-import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sqflite/sqflite.dart' as plaintext;
+import 'package:sqflite_sqlcipher/sqflite.dart' as cipher;
 import 'package:path/path.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DatabaseHelper {
   static const _databaseName = "GraminSwasthya.db";
-  static const _databaseVersion = 2;
+  static const _databaseVersion = 3;
+  static const _encryptionKeyName = 'gramin_swasthya_sqlcipher_key';
+  static const _plaintextBackupSuffix = '.plaintext-backup';
+  static const _secureStorage = FlutterSecureStorage();
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -17,21 +26,92 @@ class DatabaseHelper {
       return _mockDatabase;
     }
     if (_database != null) return _database!;
-    _database = await _initDatabase();
+    _database = await _initEncryptedDatabase();
     return _database!;
   }
 
-  _initDatabase() async {
-    String path = join(await getDatabasesPath(), _databaseName);
-    return await openDatabase(
+  Future<cipher.Database> _initEncryptedDatabase() async {
+    final path = join(await cipher.getDatabasesPath(), _databaseName);
+    var key = await _secureStorage.read(key: _encryptionKeyName);
+    final databaseFile = File(path);
+
+    if (key == null) {
+      key = _generateKey();
+      if (await databaseFile.exists()) {
+        await _migratePlaintextDatabase(path, key);
+      }
+      await _secureStorage.write(key: _encryptionKeyName, value: key);
+    }
+
+    return cipher.openDatabase(
       path,
+      password: key,
       version: _databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
     );
   }
 
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  String _generateKey() {
+    final bytes = List<int>.generate(32, (_) => Random.secure().nextInt(256));
+    return base64UrlEncode(bytes);
+  }
+
+  Future<void> _migratePlaintextDatabase(String path, String key) async {
+    final oldDatabase = await plaintext.openDatabase(path, version: 2);
+    final tables = [
+      'family_members',
+      'bp_readings',
+      'sugar_readings',
+      'weight_entries',
+      'medical_reports',
+      'medicines',
+      'medicine_log',
+    ];
+    final snapshot = <String, List<Map<String, Object?>>>{};
+    for (final table in tables) {
+      snapshot[table] = await oldDatabase.query(table);
+    }
+    await oldDatabase.close();
+
+    final backupPath = '$path$_plaintextBackupSuffix';
+    final backupFile = File(backupPath);
+    if (await backupFile.exists()) await backupFile.delete();
+    await databaseFile(path).rename(backupPath);
+
+    try {
+      final encrypted = await cipher.openDatabase(
+        path,
+        password: key,
+        version: _databaseVersion,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        onConfigure: (db) async {
+          await db.execute('PRAGMA foreign_keys = ON');
+        },
+      );
+      for (final table in tables) {
+        for (final row in snapshot[table]!) {
+          await encrypted.insert(table, row);
+        }
+      }
+      await encrypted.close();
+      await backupFile.delete();
+    } catch (_) {
+      final encryptedFile = databaseFile(path);
+      if (await encryptedFile.exists()) await encryptedFile.delete();
+      await backupFile.rename(path);
+      rethrow;
+    }
+  }
+
+  File databaseFile(String path) => File(path);
+
+  Future<void> _onUpgrade(
+      cipher.Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE family_members ADD COLUMN relation TEXT');
       await db.execute('ALTER TABLE family_members ADD COLUMN phone TEXT');
@@ -41,7 +121,7 @@ class DatabaseHelper {
     }
   }
 
-  Future _onCreate(Database db, int version) async {
+  Future _onCreate(cipher.Database db, int version) async {
     await db.execute('''
       CREATE TABLE family_members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -159,7 +239,7 @@ class DatabaseHelper {
         whereArgs: ['%$query%'],
       );
     }
-    return await (db as Database).query(
+    return await (db as cipher.Database).query(
       'family_members',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
@@ -175,7 +255,7 @@ class DatabaseHelper {
         whereArgs: ['%$query%'],
       );
     }
-    return await (db as Database).query(
+    return await (db as cipher.Database).query(
       'medicines',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
@@ -191,7 +271,7 @@ class DatabaseHelper {
         whereArgs: ['%$query%', '%$query%', '%$query%'],
       );
     }
-    return await (db as Database).query(
+    return await (db as cipher.Database).query(
       'medical_reports',
       where: 'doctor_name LIKE ? OR notes LIKE ? OR type LIKE ?',
       whereArgs: ['%$query%', '%$query%', '%$query%'],
@@ -216,7 +296,7 @@ class DatabaseHelper {
       'family_members',
     ];
     for (final table in list) {
-      await (db as Database).delete(table);
+      await (db as cipher.Database).delete(table);
     }
   }
 }

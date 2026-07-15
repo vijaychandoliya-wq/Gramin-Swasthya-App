@@ -9,8 +9,23 @@ import 'package:intl/intl.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/health_data_provider.dart';
 import '../../widgets/profile_avatar.dart';
+import '../../widgets/family_member_selector.dart';
 
 enum HealthType { bp, sugar, weight }
+
+class _ChartPoint {
+  final DateTime date;
+  final double primary;
+  final double? secondary;
+  final int? pulse;
+
+  const _ChartPoint({
+    required this.date,
+    required this.primary,
+    this.secondary,
+    this.pulse,
+  });
+}
 
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
@@ -134,7 +149,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Filter Chips Row
-          _buildFamilySelectorRow(familyMembers, selectedMember),
+          const FamilyMemberSelector(
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16)),
           const SizedBox(height: 16),
 
           // Segmented Button
@@ -197,49 +213,6 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
     );
   }
 
-  Widget _buildFamilySelectorRow(
-      List<FamilyMember> familyMembers, FamilyMember currentMember) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: familyMembers.map((member) {
-            final isSelected = member.id == currentMember.id;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: FilterChip(
-                selected: isSelected,
-                label: LocalizedText(member.name.split(' ').first),
-                avatar: isSelected
-                    ? CircleAvatar(
-                        backgroundColor: colorScheme.primary,
-                        child: LocalizedText(
-                          member.name[0].toUpperCase(),
-                          style: TextStyle(
-                              color: colorScheme.onPrimary, fontSize: 12),
-                        ),
-                      )
-                    : null,
-                showCheckmark: false,
-                backgroundColor: colorScheme.surface,
-                selectedColor: colorScheme.primaryContainer,
-                onSelected: (bool selected) {
-                  if (selected) {
-                    ref.read(selectedFamilyMemberProvider.notifier).state =
-                        member;
-                  }
-                },
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
   // ------- CHART LOGIC ------- //
 
   Widget _buildChart(List<dynamic> data) {
@@ -267,8 +240,10 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
           child: LocalizedText('इस सीमा में कोई डेटा नहीं / No data in range'));
     }
 
-    final double minX = filtered.first.date.millisecondsSinceEpoch.toDouble();
-    final double maxX = filtered.last.date.millisecondsSinceEpoch.toDouble();
+    final chartPoints = _prepareChartPoints(filtered);
+    final double minX =
+        chartPoints.first.date.millisecondsSinceEpoch.toDouble();
+    final double maxX = chartPoints.last.date.millisecondsSinceEpoch.toDouble();
     final double interval =
         ((maxX - minX) / 4) <= 0 ? 86400000.0 : ((maxX - minX) / 3);
 
@@ -321,10 +296,74 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
           ),
         ),
         borderData: FlBorderData(show: false),
-        lineBarsData: _getChartLines(filtered),
+        lineBarsData: _getChartLines(chartPoints),
         extraLinesData: _getExtraLines(),
+        rangeAnnotations: _getRangeAnnotations(),
+        lineTouchData: _getLineTouchData(chartPoints),
+        betweenBarsData: widget.type == HealthType.bp
+            ? [
+                BetweenBarsData(
+                  fromIndex: 0,
+                  toIndex: 1,
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                ),
+              ]
+            : const [],
       ),
     );
+  }
+
+  List<_ChartPoint> _prepareChartPoints(List<dynamic> records) {
+    final points = records.map<_ChartPoint>((record) {
+      if (widget.type == HealthType.bp) {
+        return _ChartPoint(
+          date: record.date,
+          primary: record.systolic.toDouble(),
+          secondary: record.diastolic.toDouble(),
+          pulse: record.pulse,
+        );
+      }
+      if (widget.type == HealthType.sugar) {
+        return _ChartPoint(
+            date: record.date, primary: record.glucose.toDouble());
+      }
+      return _ChartPoint(date: record.date, primary: record.weight.toDouble());
+    }).toList();
+
+    // Long views are grouped by week so chart work stays bounded as history grows.
+    if (_selectedRange < 90 || points.length <= 45) return points;
+
+    final buckets = <DateTime, List<_ChartPoint>>{};
+    for (final point in points) {
+      final day = DateTime(point.date.year, point.date.month, point.date.day);
+      final weekStart = day.subtract(Duration(days: day.weekday - 1));
+      buckets.putIfAbsent(weekStart, () => []).add(point);
+    }
+
+    return buckets.entries.map((entry) {
+      final values = entry.value;
+      final primary =
+          values.map((p) => p.primary).reduce((a, b) => a + b) / values.length;
+      final secondaryValues = values
+          .where((p) => p.secondary != null)
+          .map((p) => p.secondary!)
+          .toList();
+      final secondary = secondaryValues.isEmpty
+          ? null
+          : secondaryValues.reduce((a, b) => a + b) / secondaryValues.length;
+      final pulseValues =
+          values.where((p) => p.pulse != null).map((p) => p.pulse!).toList();
+      final pulse = pulseValues.isEmpty
+          ? null
+          : (pulseValues.reduce((a, b) => a + b) / pulseValues.length).round();
+      return _ChartPoint(
+          date: entry.key,
+          primary: primary,
+          secondary: secondary,
+          pulse: pulse);
+    }).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   double _getChartGridInterval() {
@@ -333,7 +372,7 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
     return 2;
   }
 
-  List<LineChartBarData> _getChartLines(List<dynamic> filtered) {
+  List<LineChartBarData> _getChartLines(List<_ChartPoint> filtered) {
     final primary = Theme.of(context).colorScheme.primary;
     final tertiary = Theme.of(context).colorScheme.tertiary;
 
@@ -342,8 +381,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         // Systolic
         LineChartBarData(
           spots: filtered
-              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
-                  r.systolic.toDouble()))
+              .map((r) =>
+                  FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.primary))
               .toList(),
           isCurved: true,
           color: primary,
@@ -354,8 +393,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         // Diastolic
         LineChartBarData(
           spots: filtered
-              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
-                  r.diastolic.toDouble()))
+              .map((r) => FlSpot(
+                  r.date.millisecondsSinceEpoch.toDouble(), r.secondary!))
               .toList(),
           isCurved: true,
           color: tertiary,
@@ -368,8 +407,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
       return [
         LineChartBarData(
           spots: filtered
-              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
-                  r.glucose.toDouble()))
+              .map((r) =>
+                  FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.primary))
               .toList(),
           isCurved: true,
           color: Colors.blueAccent,
@@ -379,20 +418,37 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         ),
       ];
     } else {
-      return [
-        LineChartBarData(
-          spots: filtered
-              .map((r) => FlSpot(r.date.millisecondsSinceEpoch.toDouble(),
-                  r.weight.toDouble()))
-              .toList(),
-          isCurved: true,
-          color: Colors.green,
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: const FlDotData(show: true),
-        ),
-      ];
+      final actual = LineChartBarData(
+        spots: filtered
+            .map((r) =>
+                FlSpot(r.date.millisecondsSinceEpoch.toDouble(), r.primary))
+            .toList(),
+        isCurved: true,
+        color: Colors.green,
+        barWidth: 3,
+        isStrokeCapRound: true,
+        dotData: const FlDotData(show: true),
+      );
+      final average = LineChartBarData(
+        spots: _movingAverageSpots(filtered),
+        isCurved: true,
+        color: tertiary,
+        barWidth: 2,
+        isStrokeCapRound: true,
+        dotData: const FlDotData(show: false),
+      );
+      return [actual, average];
     }
+  }
+
+  List<FlSpot> _movingAverageSpots(List<_ChartPoint> points, {int window = 3}) {
+    return points.asMap().entries.map((entry) {
+      final start = (entry.key - window + 1).clamp(0, points.length - 1);
+      final values = points.sublist(start, entry.key + 1).map((p) => p.primary);
+      final average = values.reduce((a, b) => a + b) / values.length;
+      return FlSpot(
+          entry.value.date.millisecondsSinceEpoch.toDouble(), average);
+    }).toList();
   }
 
   ExtraLinesData _getExtraLines() {
@@ -400,8 +456,8 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
       return ExtraLinesData(
         horizontalLines: [
           HorizontalLine(
-            y: 130, // threshold
-            color: Colors.redAccent.withOpacity(0.5),
+            y: 140,
+            color: Colors.orangeAccent.withOpacity(0.7),
             strokeWidth: 2,
             dashArray: [5, 5],
             label: HorizontalLineLabel(
@@ -412,13 +468,72 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
                   color: Colors.redAccent,
                   fontSize: 10,
                   fontWeight: FontWeight.bold),
-              labelResolver: (line) => 'Threshold',
+              labelResolver: (line) => '140 high',
             ),
-          )
+          ),
+          HorizontalLine(
+            y: 70,
+            color: Colors.blueAccent.withOpacity(0.55),
+            strokeWidth: 2,
+            dashArray: [5, 5],
+            label: HorizontalLineLabel(
+              show: true,
+              alignment: Alignment.bottomRight,
+              padding: const EdgeInsets.only(right: 5, top: 5),
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 10),
+              labelResolver: (line) => '70 low',
+            ),
+          ),
         ],
       );
     }
     return const ExtraLinesData();
+  }
+
+  RangeAnnotations _getRangeAnnotations() {
+    if (widget.type != HealthType.sugar) return const RangeAnnotations();
+    return RangeAnnotations(
+      horizontalRangeAnnotations: [
+        HorizontalRangeAnnotation(
+          y1: 70,
+          y2: 140,
+          color: Colors.green.withOpacity(0.08),
+        ),
+      ],
+    );
+  }
+
+  LineTouchData _getLineTouchData(List<_ChartPoint> points) {
+    return LineTouchData(
+      enabled: true,
+      handleBuiltInTouches: true,
+      touchTooltipData: LineTouchTooltipData(
+        fitInsideHorizontally: true,
+        fitInsideVertically: true,
+        getTooltipItems: (spots) {
+          return spots.map((spot) {
+            final point = points[spot.spotIndex];
+            final label = widget.type == HealthType.bp
+                ? (spot.barIndex == 0 ? 'Systolic' : 'Diastolic')
+                : widget.type == HealthType.sugar
+                    ? 'Glucose'
+                    : (spot.barIndex == 0 ? 'Weight' : '3-day average');
+            final unit = widget.type == HealthType.bp
+                ? 'mmHg'
+                : widget.type == HealthType.sugar
+                    ? 'mg/dL'
+                    : 'kg';
+            final pulse = widget.type == HealthType.bp && point.pulse != null
+                ? '\nPulse: ${point.pulse} bpm'
+                : '';
+            return LineTooltipItem(
+              '${DateFormat('dd MMM').format(point.date)}\n$label: ${spot.y.toStringAsFixed(1)} $unit$pulse',
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            );
+          }).toList();
+        },
+      ),
+    );
   }
 
   // ------- HISTORY LOGIC ------- //
@@ -445,13 +560,22 @@ class _HealthTabContentState extends ConsumerState<_HealthTabContent> {
         Widget icon;
 
         if (widget.type == HealthType.bp) {
+          final pulse = item.pulse == null ? '—' : '${item.pulse} bpm';
           title = '${item.systolic} / ${item.diastolic} mmHg';
+          subtitle =
+              '${item.systolic} systolic  •  ${item.diastolic} diastolic  •  $pulse\n${DateFormat('dd MMM yyyy, hh:mm a').format(item.date)}';
           icon = _buildIconBox(Icons.monitor_heart, Colors.redAccent);
         } else if (widget.type == HealthType.sugar) {
           title = '${item.glucose} mg/dL (${item.type})';
           icon = _buildIconBox(Icons.bloodtype, Colors.blueAccent);
         } else {
+          final bmi = item.heightCm != null && item.heightCm! > 0
+              ? item.weight / ((item.heightCm! / 100) * (item.heightCm! / 100))
+              : null;
           title = '${item.weight} kg';
+          subtitle = bmi == null
+              ? DateFormat('dd MMM yyyy, hh:mm a').format(item.date)
+              : 'BMI ${bmi.toStringAsFixed(1)}\n${DateFormat('dd MMM yyyy, hh:mm a').format(item.date)}';
           icon = _buildIconBox(Icons.scale, Colors.green);
         }
 

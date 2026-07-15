@@ -27,10 +27,12 @@ class ProfileAvatarButton extends StatelessWidget {
     }
 
     return IconButton(
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      padding: EdgeInsets.zero,
       tooltip: 'Profile',
       onPressed: () => context.push('/family'),
       icon: CircleAvatar(
-        radius: 16,
+        radius: 18,
         backgroundColor: colorScheme.primaryContainer,
         foregroundImage: image,
         child: image == null

@@ -72,6 +72,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
     final record = WeightRecord(
       id: const Uuid().v4(),
       weight: val,
+      heightCm: double.tryParse(_heightController.text),
       date: combinedDateTime,
     );
 
@@ -250,7 +251,7 @@ class _AddWeightScreenState extends ConsumerState<AddWeightScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28)),
                 ),
-                child: const LocalizedText('वजन सहेजें / Save Weight',
+                child: const LocalizedText('Save Weight',
                     style: TextStyle(fontSize: 16)),
               ),
               const SizedBox(height: 32),

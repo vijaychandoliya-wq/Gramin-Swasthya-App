@@ -10,6 +10,7 @@ import '../../providers/medicines_provider.dart';
 import '../../widgets/quick_add_sheet.dart';
 import '../../widgets/global_search_delegate.dart';
 import '../../widgets/profile_avatar.dart';
+import '../../widgets/family_member_selector.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -168,50 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           // ── Family Member Chips ──
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: familyMembers.map((member) {
-                    final isSelected = member.id == currentMember.id;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        selected: isSelected,
-                        label: LocalizedText(member.name.split(' ').first),
-                        avatar: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.surfaceContainerHighest,
-                          child: LocalizedText(
-                            member.name[0].toUpperCase(),
-                            style: TextStyle(
-                              color: isSelected
-                                  ? colorScheme.onPrimary
-                                  : colorScheme.onSurfaceVariant,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        showCheckmark: false,
-                        onSelected: (bool selected) {
-                          if (selected) {
-                            ref
-                                .read(selectedFamilyMemberProvider.notifier)
-                                .state = member;
-                          }
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          ),
+          const SliverToBoxAdapter(child: FamilyMemberSelector()),
 
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
 

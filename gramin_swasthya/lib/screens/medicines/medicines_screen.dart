@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/medicines_provider.dart';
 import '../../widgets/profile_avatar.dart';
+import '../../widgets/family_member_selector.dart';
 
 class MedicinesScreen extends ConsumerStatefulWidget {
   const MedicinesScreen({super.key});
@@ -74,40 +75,9 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
           ),
 
           // --- Member Picker ---
-          SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: familyMembers.map((member) {
-                  final isSelected = member.id == selectedMember?.id;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      selected: isSelected,
-                      avatar: CircleAvatar(
-                        radius: 12,
-                        backgroundColor: isSelected
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.outline,
-                        child: LocalizedText(member.name[0],
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: isSelected
-                                    ? colorScheme.primaryContainer
-                                    : colorScheme.surface)),
-                      ),
-                      label: LocalizedText(member.name.split(' ').first),
-                      onSelected: (val) {
-                        if (val)
-                          ref
-                              .read(selectedFamilyMemberProvider.notifier)
-                              .state = member;
-                      },
-                    ),
-                  );
-                }).toList(),
-              ),
+          const SliverToBoxAdapter(
+            child: FamilyMemberSelector(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
           ),
 
@@ -378,7 +348,9 @@ class _MedicinesScreenState extends ConsumerState<MedicinesScreen> {
                     value: med.isActive,
                     onChanged: (_) =>
                         ref.read(medicinesRepoProvider).toggleActive(med.id),
-                    activeColor: colorScheme.primary,
+                    activeTrackColor: colorScheme.primary,
+                    inactiveTrackColor: colorScheme.surfaceContainerHighest,
+                    inactiveThumbColor: colorScheme.outline,
                   ),
                   IconButton(
                     onPressed: med.isActive

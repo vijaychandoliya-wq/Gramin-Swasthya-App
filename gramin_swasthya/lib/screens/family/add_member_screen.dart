@@ -386,9 +386,7 @@ class _AddMemberScreenState extends ConsumerState<AddMemberScreen> {
                       borderRadius: BorderRadius.circular(16)),
                 ),
                 child: LocalizedText(
-                  isEditing
-                      ? "बदलाव सहेजें / Save Changes"
-                      : "सदस्य जोड़ें / Add Member",
+                  isEditing ? "Save Changes" : "Add Member",
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),

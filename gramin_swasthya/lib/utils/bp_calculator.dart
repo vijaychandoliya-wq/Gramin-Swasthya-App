@@ -8,6 +8,9 @@ class BPResult {
   final Color textColor;
   final String advice;
   final String categoryHindi;
+  final int severityRank;
+  final bool isolatedSystolic;
+  final bool highDemographicRisk;
 
   const BPResult({
     required this.systolic,
@@ -17,69 +20,165 @@ class BPResult {
     required this.textColor,
     required this.advice,
     required this.categoryHindi,
+    this.severityRank = 0,
+    this.isolatedSystolic = false,
+    this.highDemographicRisk = false,
   });
 }
 
 class BPCalculator {
-  static BPResult? calculate(int systolic, int diastolic) {
+  static BPResult? calculate(
+    int systolic,
+    int diastolic, {
+    int age = 18,
+    String biologicalSex = 'male',
+  }) {
     if (systolic <= 0 || diastolic <= 0) return null;
 
-    String category;
-    String categoryHindi;
-    Color color;
-    Color textColor;
-    String advice;
+    // A missing profile age is represented by 0 in the existing schema and
+    // must use the adult rule branch, not pediatric thresholds.
+    final effectiveAge = age > 0 ? age : 18;
+    final ageGroup = effectiveAge >= 60
+        ? 'geriatric'
+        : effectiveAge >= 18
+            ? 'adult'
+            : effectiveAge >= 13
+                ? 'adolescent'
+                : 'pediatric';
 
-    if (systolic < 120 && diastolic < 80) {
-      category = 'Normal';
-      categoryHindi = 'सामान्य';
-      color = Colors.green.shade100;
-      textColor = Colors.green.shade800;
-      advice = 'Maintain healthy lifestyle / स्वस्थ जीवनशैली बनाए रखें';
-    } else if (systolic >= 120 && systolic <= 129 && diastolic < 80) {
-      category = 'Elevated';
-      categoryHindi = 'सीमारेखा';
-      color = Colors.amber.shade200;
-      textColor = Colors.brown.shade800;
-      advice =
-          'Monitor regularly & reduce salt / नियमित जांच करें और नमक कम करें';
-    } else if ((systolic >= 130 && systolic <= 139) ||
-        (diastolic >= 80 && diastolic <= 89)) {
-      category = 'Hypertension Stage 1';
-      categoryHindi = 'उच्च रक्तचाप - चरण 1';
-      color = Colors.orange.shade200;
-      textColor = Colors.orange.shade900;
-      advice =
-          'Consult doctor & lifestyle changes / डॉक्टर से मिलें और जीवनशैली बदलें';
-    } else if ((systolic >= 140 && systolic <= 179) ||
-        (diastolic >= 90 && diastolic <= 119)) {
-      category = 'Hypertension Stage 2';
-      categoryHindi = 'उच्च रक्तचाप - चरण 2';
-      color = Colors.red.shade200;
-      textColor = Colors.red.shade900;
-      advice = 'Medical attention required / चिकित्सा ध्यान आवश्यक';
-    } else if (systolic >= 180 || diastolic >= 120) {
-      category = 'Hypertensive Crisis';
-      categoryHindi = 'गंभीर स्थिति';
-      color = Colors.red.shade800;
-      textColor = Colors.white;
-      advice = 'Seek emergency care immediately / तुरंत आपातकालीन चिकित्सा लें';
-    } else {
-      category = 'Unknown';
-      categoryHindi = 'अज्ञात';
-      color = Colors.grey.shade200;
-      textColor = Colors.grey.shade800;
-      advice = 'Please check values / कृपया मान जांचें';
+    if (systolic < 90 || diastolic < 60) {
+      return BPResult(
+        systolic: systolic,
+        diastolic: diastolic,
+        category: 'Low (Hypotension)',
+        categoryHindi: 'निम्न रक्तचाप',
+        color: Colors.blue.shade100,
+        textColor: Colors.blue.shade900,
+        advice:
+            'Low BP detected. Monitor dizziness or fainting and consult a doctor if persistent.',
+        severityRank: -1,
+      );
     }
 
+    if (ageGroup == 'pediatric') {
+      return BPResult(
+        systolic: systolic,
+        diastolic: diastolic,
+        category: 'Percentile evaluation required',
+        categoryHindi: 'प्रतिशतक जांच आवश्यक',
+        color: Colors.blue.shade100,
+        textColor: Colors.blue.shade900,
+        advice:
+            'For children under 13, compare age, sex, and height percentile with the IAP reference chart.',
+      );
+    }
+
+    if (ageGroup == 'adolescent') {
+      final sysRank = systolic >= 140
+          ? 3
+          : systolic >= 130
+              ? 2
+              : systolic >= 120
+                  ? 1
+                  : 0;
+      final diaRank = diastolic >= 90
+          ? 3
+          : diastolic >= 80
+              ? 2
+              : 0;
+      final rank = sysRank > diaRank ? sysRank : diaRank;
+      const categories = [
+        'Normal',
+        'Elevated',
+        'Stage 1 Hypertension',
+        'Stage 2 Hypertension'
+      ];
+      return BPResult(
+        systolic: systolic,
+        diastolic: diastolic,
+        category: categories[rank],
+        categoryHindi: categories[rank],
+        color: _colorForRank(rank),
+        textColor: _textColorForRank(rank),
+        advice: rank >= 2
+            ? 'Persistent high readings should be reviewed by a clinician.'
+            : 'Continue routine health tracking.',
+        severityRank: rank,
+      );
+    }
+
+    final sysRank = systolic >= 180
+        ? 5
+        : systolic >= 160
+            ? 4
+            : systolic >= 140
+                ? 3
+                : systolic >= 130
+                    ? 2
+                    : systolic >= 120
+                        ? 1
+                        : 0;
+    final diaRank = diastolic >= 110
+        ? 5
+        : diastolic >= 100
+            ? 4
+            : diastolic >= 90
+                ? 3
+                : diastolic >= 85
+                    ? 2
+                    : diastolic >= 80
+                        ? 1
+                        : 0;
+    final rank = sysRank > diaRank ? sysRank : diaRank;
+    final isolated = systolic >= 140 && diastolic < 90;
+    final hypertensive = rank >= 3 || isolated;
+    final sex = biologicalSex.toLowerCase();
+    final highRisk = hypertensive &&
+        ((sex.contains('female') && effectiveAge > 65) ||
+            (sex.contains('male') && effectiveAge > 55) ||
+            effectiveAge >= 60);
+    final category = isolated
+        ? 'Isolated Systolic Hypertension (ISH)'
+        : const [
+            'Optimal',
+            'Normal',
+            'High-Normal',
+            'Stage 1 Hypertension',
+            'Stage 2 Hypertension',
+            'Stage 3 Hypertension (Severe)'
+          ][rank];
+    final advice = rank >= 5
+        ? 'Severe hypertension detected. Seek medical attention immediately.'
+        : rank >= 4
+            ? 'Arrange a medical evaluation within 48 hours and repeat the reading.'
+            : rank >= 3 || isolated
+                ? highRisk
+                    ? 'High-risk profile. Consult a physician within 7 days.'
+                    : 'Adopt lifestyle changes, repeat readings, and consult a doctor.'
+                : 'Continue healthy habits and routine monitoring.';
     return BPResult(
       systolic: systolic,
       diastolic: diastolic,
       category: category,
-      categoryHindi: categoryHindi,
-      color: color,
-      textColor: textColor,
+      categoryHindi: category,
+      color: _colorForRank(rank),
+      textColor: _textColorForRank(rank),
       advice: advice,
+      severityRank: rank,
+      isolatedSystolic: isolated,
+      highDemographicRisk: highRisk,
     );
+  }
+
+  static Color _colorForRank(int rank) {
+    if (rank >= 5) return Colors.red.shade800;
+    if (rank >= 3) return Colors.red.shade200;
+    if (rank == 2) return Colors.orange.shade200;
+    if (rank == 1) return Colors.amber.shade200;
+    return Colors.green.shade100;
+  }
+
+  static Color _textColorForRank(int rank) {
+    return rank >= 5 ? Colors.white : Colors.grey.shade900;
   }
 }

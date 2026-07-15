@@ -275,7 +275,7 @@ class _AddReportScreenState extends ConsumerState<AddReportScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const LocalizedText('रिपोर्ट सहेजें / Save Report'),
+                  child: const LocalizedText('Save Report'),
                 ),
 
               const SizedBox(height: 32),

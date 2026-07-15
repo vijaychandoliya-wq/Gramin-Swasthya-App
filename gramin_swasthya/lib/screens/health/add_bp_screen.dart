@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../providers/health_data_provider.dart';
+import '../../providers/family_provider.dart';
 import '../../utils/bp_calculator.dart';
 
 class AddBpScreen extends ConsumerStatefulWidget {
@@ -51,7 +52,13 @@ class _AddBpScreenState extends ConsumerState<AddBpScreen> {
   BPResult? get _bpResult {
     int sys = int.tryParse(_sysController.text) ?? 0;
     int dia = int.tryParse(_diaController.text) ?? 0;
-    return BPCalculator.calculate(sys, dia);
+    final member = ref.read(selectedFamilyMemberProvider);
+    final age = member?.age ?? 18;
+    final sex = member?.gender.toLowerCase().contains('female') == true ||
+            member?.gender.contains('महिला') == true
+        ? 'female'
+        : 'male';
+    return BPCalculator.calculate(sys, dia, age: age, biologicalSex: sex);
   }
 
   bool get _isFormValid {
@@ -79,6 +86,7 @@ class _AddBpScreenState extends ConsumerState<AddBpScreen> {
       id: const Uuid().v4(),
       systolic: sys,
       diastolic: dia,
+      pulse: int.tryParse(_pulseController.text),
       date: combinedDateTime,
     );
 
@@ -270,7 +278,7 @@ class _AddBpScreenState extends ConsumerState<AddBpScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28)),
                 ),
-                child: const LocalizedText('BP सहेजें / Save BP',
+                child: const LocalizedText('Save BP',
                     style: TextStyle(fontSize: 16)),
               ),
               const SizedBox(height: 32),
